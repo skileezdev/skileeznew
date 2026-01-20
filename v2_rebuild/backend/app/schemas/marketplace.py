@@ -42,16 +42,14 @@ class ProposalOut(ProposalBase):
         from_attributes = True
 
 class ContractBase(BaseModel):
-    title: str
-    price_per_session: float
-    total_sessions: int
+    proposal_id: int
     status: str = "active"
+    total_amount: float
 
 class ContractOut(ContractBase):
     id: int
     student_id: int
     coach_id: int
-    learning_request_id: Optional[int] = None
     created_at: datetime
 
     class Config:

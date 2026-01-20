@@ -10,7 +10,9 @@ from ..schemas.marketplace import (
     LearningRequestCreate, 
     LearningRequestOut, 
     ProposalCreate, 
-    ProposalOut
+    ProposalOut,
+    ContractOut,
+    SessionOut
 )
 from ..models.user import User
 from .deps import get_current_user
