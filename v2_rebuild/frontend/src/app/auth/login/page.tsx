@@ -23,7 +23,10 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            const response = await api.post("/auth/login", { email, password });
+            const formData = new URLSearchParams();
+            formData.append('username', email);
+            formData.append('password', password);
+            const response = await api.post("/auth/login", formData);
             await login(response.data.access_token);
         } catch (err: any) {
             setError(err.response?.data?.detail || "Invalid email or password");
