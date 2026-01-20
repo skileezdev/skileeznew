@@ -30,7 +30,7 @@ class User(Base):
     role_switch_logs = relationship("RoleSwitchLog", back_populates="user")
 
 class StudentProfile(Base):
-    __tablename__ = "student_profiles"
+    __tablename__ = "student_profile"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -42,7 +42,7 @@ class StudentProfile(Base):
     user = relationship("User", back_populates="student_profile")
 
 class CoachProfile(Base):
-    __tablename__ = "coach_profiles"
+    __tablename__ = "coach_profile"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -67,7 +67,7 @@ class CoachProfile(Base):
 class Experience(Base):
     __tablename__ = "experience"
     id = Column(Integer, primary_key=True)
-    coach_profile_id = Column(Integer, ForeignKey("coach_profiles.id"), nullable=False)
+    coach_profile_id = Column(Integer, ForeignKey("coach_profile.id"), nullable=False)
     title = Column(String(100), nullable=False)
     company = Column(String(100), nullable=False)
     location = Column(String(100))
@@ -81,7 +81,7 @@ class Experience(Base):
 class Education(Base):
     __tablename__ = "education"
     id = Column(Integer, primary_key=True)
-    coach_profile_id = Column(Integer, ForeignKey("coach_profiles.id"), nullable=False)
+    coach_profile_id = Column(Integer, ForeignKey("coach_profile.id"), nullable=False)
     degree = Column(String(100), nullable=False)
     institution = Column(String(100), nullable=False)
     field_of_study = Column(String(100))
@@ -91,9 +91,9 @@ class Education(Base):
     coach = relationship("CoachProfile", back_populates="education")
 
 class PortfolioItem(Base):
-    __tablename__ = "portfolio_items"
+    __tablename__ = "portfolio_item"
     id = Column(Integer, primary_key=True)
-    coach_profile_id = Column(Integer, ForeignKey("coach_profiles.id"), nullable=False)
+    coach_profile_id = Column(Integer, ForeignKey("coach_profile.id"), nullable=False)
     title = Column(String(200), nullable=False)
     description = Column(Text)
     url = Column(String(500))

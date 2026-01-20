@@ -219,7 +219,7 @@ async def accept_proposal(
     # 3. Create Session placeholders (V1 mirrored logic)
     for i in range(proposal.session_count):
         session = Session(
-            contract_id=new_contract.id,
+            proposal_id=proposal.id,
             session_number=i + 1,
             status="scheduled",
             duration_minutes=60 # Default

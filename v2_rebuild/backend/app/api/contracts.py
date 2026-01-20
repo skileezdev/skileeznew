@@ -82,7 +82,7 @@ async def get_contract_sessions(
 
     result = await db.execute(
         select(Session)
-        .where(Session.contract_id == contract_id)
+        .where(Session.proposal_id == contract.proposal_id)
         .order_by(Session.session_number.asc())
     )
     return result.scalars().all()
@@ -99,7 +99,7 @@ async def request_reschedule(
     result = await db.execute(
         select(Session)
         .where(Session.id == session_id)
-        .options(selectinload(Session.contract))
+        .options(selectinload(Session.proposal).selectinload(Proposal.contract))
     )
     session = result.scalars().first()
     if not session:
@@ -128,7 +128,7 @@ async def respond_reschedule(
     result = await db.execute(
         select(Session)
         .where(Session.id == session_id)
-        .options(selectinload(Session.contract))
+        .options(selectinload(Session.proposal).selectinload(Proposal.contract))
     )
     session = result.scalars().first()
     if not session or not session.reschedule_requested:
@@ -159,7 +159,7 @@ async def start_session(
     result = await db.execute(
         select(Session)
         .where(Session.id == session_id)
-        .options(selectinload(Session.contract))
+        .options(selectinload(Session.proposal).selectinload(Proposal.contract))
     )
     session = result.scalars().first()
     if not session or session.status != "scheduled":
@@ -180,7 +180,7 @@ async def complete_session(
     result = await db.execute(
         select(Session)
         .where(Session.id == session_id)
-        .options(selectinload(Session.contract))
+        .options(selectinload(Session.proposal).selectinload(Proposal.contract))
     )
     session = result.scalars().first()
     if not session or session.status != "in_progress":

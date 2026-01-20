@@ -1,10 +1,11 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Float, Text, JSON, Numeric
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime, timezone
 from .database import Base
 
 class LearningRequest(Base):
-    __tablename__ = "learning_requests"
+    __tablename__ = "learning_request"
 
     id = Column(Integer, primary_key=True, index=True)
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -28,19 +29,19 @@ class LearningRequest(Base):
     screening_questions = relationship("ScreeningQuestion", back_populates="learning_request")
 
 class ScreeningQuestion(Base):
-    __tablename__ = "screening_questions"
+    __tablename__ = "screening_question"
     id = Column(Integer, primary_key=True)
-    learning_request_id = Column(Integer, ForeignKey("learning_requests.id"), nullable=False)
+    learning_request_id = Column(Integer, ForeignKey("learning_request.id"), nullable=False)
     question_text = Column(String(250), nullable=False)
     order_index = Column(Integer, default=0)
     
     learning_request = relationship("LearningRequest", back_populates="screening_questions")
 
 class Proposal(Base):
-    __tablename__ = "proposals"
+    __tablename__ = "proposal"
 
     id = Column(Integer, primary_key=True, index=True)
-    learning_request_id = Column(Integer, ForeignKey("learning_requests.id"), nullable=False)
+    learning_request_id = Column(Integer, ForeignKey("learning_request.id"), nullable=False)
     coach_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     cover_letter = Column(Text, nullable=False)
     price_per_session = Column(Float, nullable=False)
@@ -56,20 +57,21 @@ class Proposal(Base):
 
     learning_request = relationship("LearningRequest", back_populates="proposals")
     coach = relationship("User", backref="proposals")
-    contracts = relationship("Contract", back_populates="proposal")
+    contract = relationship("Contract", back_populates="proposal", uselist=False)
+    sessions = relationship("Session", back_populates="proposal")
 
 class ScreeningAnswer(Base):
-    __tablename__ = "screening_answers"
+    __tablename__ = "screening_answer"
     id = Column(Integer, primary_key=True)
-    proposal_id = Column(Integer, ForeignKey("proposals.id"), nullable=False)
-    question_id = Column(Integer, ForeignKey("screening_questions.id"), nullable=False)
+    proposal_id = Column(Integer, ForeignKey("proposal.id"), nullable=False)
+    question_id = Column(Integer, ForeignKey("screening_question.id"), nullable=False)
     answer_text = Column(Text, nullable=False)
 
 class Contract(Base):
-    __tablename__ = "contracts"
+    __tablename__ = "contract"
 
     id = Column(Integer, primary_key=True, index=True)
-    proposal_id = Column(Integer, ForeignKey("proposals.id"), nullable=False)
+    proposal_id = Column(Integer, ForeignKey("proposal.id"), nullable=False)
     student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     coach_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     contract_number = Column(String(50), unique=True)
@@ -94,14 +96,13 @@ class Contract(Base):
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
-    proposal = relationship("Proposal", back_populates="contracts")
-    sessions = relationship("Session", back_populates="contract")
+    proposal = relationship("Proposal", back_populates="contract")
 
 class Session(Base):
-    __tablename__ = "sessions"
+    __tablename__ = "session"
 
     id = Column(Integer, primary_key=True, index=True)
-    contract_id = Column(Integer, ForeignKey("contracts.id"), nullable=False)
+    proposal_id = Column(Integer, ForeignKey("proposal.id"), nullable=False)
     session_number = Column(Integer)
     scheduled_at = Column(DateTime(timezone=True))
     duration_minutes = Column(Integer, default=60)
@@ -120,4 +121,8 @@ class Session(Base):
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     
-    contract = relationship("Contract", back_populates="sessions")
+    proposal = relationship("Proposal", back_populates="sessions")
+
+    @property
+    def contract(self):
+        return self.proposal.contract

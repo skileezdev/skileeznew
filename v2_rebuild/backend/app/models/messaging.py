@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from .database import Base
 
 class Message(Base):
-    __tablename__ = "messages"
+    __tablename__ = "message"
 
     id = Column(Integer, primary_key=True, index=True)
     sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -18,9 +18,7 @@ class Message(Base):
     message_type = Column(String(20), default='TEXT') # TEXT, CONTRACT_OFFER, SYSTEM, CALL_SCHEDULED
     
     # Relationships to calls/sessions
-    # In V2, we might link to Session OR a Consultation model
-    session_id = Column(Integer, ForeignKey("sessions.id"), nullable=True)
-    # We will add consultation_id later when scheduling.py is ready
+    session_id = Column(Integer, ForeignKey("session.id"), nullable=True)
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
@@ -29,7 +27,7 @@ class Message(Base):
     session = relationship("Session", backref="messages")
 
 class Notification(Base):
-    __tablename__ = "notifications"
+    __tablename__ = "notification"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
