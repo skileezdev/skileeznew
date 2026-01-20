@@ -1,23 +1,37 @@
+import axios from "axios";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
-    const token = typeof window !== "undefined" ? localStorage.getItem("skileez_token") : null;
-
-    const headers = {
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...options.headers,
-    };
+    },
+});
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-        ...options,
-        headers,
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Something went wrong");
+// Request interceptor for token
+api.interceptors.request.use(
+    (config) => {
+        const token = typeof window !== "undefined" ? localStorage.getItem("skileez_token") : null;
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
     }
+);
 
-    return response.json();
+// Backward compatibility wrapper for fetch
+export const apiFetch = async (endpoint: string, options: any = {}) => {
+    const res = await api({
+        url: endpoint,
+        method: options.method || "GET",
+        data: options.body ? JSON.parse(options.body) : undefined,
+        ...options
+    });
+    return res.data;
 };
+
+export default api;

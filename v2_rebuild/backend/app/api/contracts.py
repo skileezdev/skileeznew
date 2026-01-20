@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List
+from datetime import datetime, timezone
 
 from ..models.database import get_db
 from ..models.marketplace import Contract, Session
@@ -17,13 +18,38 @@ async def get_my_contracts(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """List all active contracts for the current user (Student or Coach)"""
     result = await db.execute(
         select(Contract)
         .where((Contract.student_id == current_user.id) | (Contract.coach_id == current_user.id))
         .order_by(Contract.created_at.desc())
     )
     return result.scalars().all()
+
+@router.get("/{contract_id}", response_model=ContractOut)
+async def get_contract_detail(
+    contract_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get detailed contract information with sessions (1:1 Mirror)"""
+    result = await db.execute(
+        select(Contract)
+        .where(Contract.id == contract_id)
+        .options(
+            selectinload(Contract.sessions),
+            selectinload(Contract.learning_request),
+            selectinload(Contract.student),
+            selectinload(Contract.coach)
+        )
+    )
+    contract = result.scalars().first()
+    if not contract:
+        raise HTTPException(status_code=404, detail="Contract not found")
+    
+    if contract.student_id != current_user.id and contract.coach_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+    return contract
 
 @router.get("/{contract_id}/sessions", response_model=List[SessionOut])
 async def get_contract_sessions(
@@ -32,16 +58,13 @@ async def get_contract_sessions(
     db: AsyncSession = Depends(get_db)
 ):
     """List all sessions for a specific contract"""
-    # Verify access
-    contract_result = await db.execute(
-        select(Contract).where(Contract.id == contract_id)
-    )
-    contract = contract_result.scalars().first()
+    result = await db.execute(select(Contract).where(Contract.id == contract_id))
+    contract = result.scalars().first()
     if not contract:
         raise HTTPException(status_code=404, detail="Contract not found")
     
     if contract.student_id != current_user.id and contract.coach_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=403, detail="Forbidden")
 
     result = await db.execute(
         select(Session)
@@ -49,3 +72,113 @@ async def get_contract_sessions(
         .order_by(Session.session_number.asc())
     )
     return result.scalars().all()
+
+@router.post("/sessions/{session_id}/reschedule-request")
+async def request_reschedule(
+    session_id: int,
+    new_date: datetime,
+    reason: str,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """1:1 Mirror: Request a session reschedule"""
+    result = await db.execute(
+        select(Session)
+        .where(Session.id == session_id)
+        .options(selectinload(Session.contract))
+    )
+    session = result.scalars().first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    # Auth
+    if session.contract.student_id != current_user.id and session.contract.coach_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+    session.reschedule_requested = True
+    session.reschedule_requested_by = current_user.current_role
+    session.reschedule_new_date = new_date
+    session.reschedule_reason = reason
+    
+    await db.commit()
+    return {"message": "Reschedule requested"}
+
+@router.post("/sessions/{session_id}/reschedule-respond")
+async def respond_reschedule(
+    session_id: int,
+    accept: bool,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """1:1 Mirror: Respond to a reschedule request"""
+    result = await db.execute(
+        select(Session)
+        .where(Session.id == session_id)
+        .options(selectinload(Session.contract))
+    )
+    session = result.scalars().first()
+    if not session or not session.reschedule_requested:
+        raise HTTPException(status_code=404, detail="No active reschedule request")
+    
+    # Must be the OTHER person
+    if session.reschedule_requested_by == current_user.current_role:
+        raise HTTPException(status_code=400, detail="You cannot respond to your own request")
+
+    if accept:
+        session.scheduled_at = session.reschedule_new_date
+        
+    session.reschedule_requested = False
+    session.reschedule_requested_by = None
+    session.reschedule_new_date = None
+    session.reschedule_reason = None
+    
+    await db.commit()
+    return {"status": "accepted" if accept else "declined"}
+
+@router.post("/sessions/{session_id}/start")
+async def start_session(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """1:1 Mirror: Mark session as started"""
+    result = await db.execute(
+        select(Session)
+        .where(Session.id == session_id)
+        .options(selectinload(Session.contract))
+    )
+    session = result.scalars().first()
+    if not session or session.status != "scheduled":
+        raise HTTPException(status_code=400, detail="Invalid session state")
+
+    session.meeting_started_at = datetime.now(timezone.utc)
+    session.status = "in_progress"
+    await db.commit()
+    return {"status": "in_progress"}
+
+@router.post("/sessions/{session_id}/complete")
+async def complete_session(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """1:1 Mirror: Mark session as completed"""
+    result = await db.execute(
+        select(Session)
+        .where(Session.id == session_id)
+        .options(selectinload(Session.contract))
+    )
+    session = result.scalars().first()
+    if not session or session.status != "in_progress":
+        raise HTTPException(status_code=400, detail="Invalid session state")
+
+    session.meeting_ended_at = datetime.now(timezone.utc)
+    session.status = "completed"
+    
+    # Update contract progress
+    session.contract.completed_sessions += 1
+    if session.contract.completed_sessions >= session.contract.total_sessions:
+        session.contract.status = "completed"
+        
+    await db.commit()
+    return {"status": "completed"}

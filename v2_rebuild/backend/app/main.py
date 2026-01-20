@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .api.auth import router as auth_router
 from .api.marketplace import router as marketplace_router
 from .api.contracts import router as contracts_router
+from .api.profiles import router as profiles_router
 from .models.user import User, StudentProfile, CoachProfile
 from .models.marketplace import LearningRequest, Proposal, Contract, Session
 
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(marketplace_router)
 app.include_router(contracts_router)
+app.include_router(profiles_router)
 
 @app.get("/")
 async def root():

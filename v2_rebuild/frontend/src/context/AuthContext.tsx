@@ -2,6 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+
+interface Profile {
+    id: number;
+    bio?: string;
+    profile_picture?: string;
+}
 
 interface User {
     id: number;
@@ -10,13 +17,20 @@ interface User {
     last_name: string;
     is_student: boolean;
     is_coach: boolean;
+    current_role: "student" | "coach";
+    onboarding_completed: boolean;
+    profile_completion_percentage: number;
+    student_profile?: Profile;
+    coach_profile?: Profile;
 }
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (token: string) => void;
+    login: (token: string) => Promise<void>;
     logout: () => void;
+    refreshUser: () => Promise<void>;
+    switchRole: (role: "student" | "coach") => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,22 +40,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    const fetchUser = async () => {
+        try {
+            const res = await api.get("/auth/me");
+            setUser(res.data);
+            localStorage.setItem("skileez_user", JSON.stringify(res.data));
+        } catch (error) {
+            console.error("Failed to fetch user", error);
+            logout();
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         const token = localStorage.getItem("skileez_token");
         if (token) {
-            // In a real app, you'd verify the token or fetch the user profile here
-            // For now, we'll just parse the token if it's there or wait for a real login
-            const storedUser = localStorage.getItem("skileez_user");
-            if (storedUser) {
-                setUser(JSON.parse(storedUser));
-            }
+            fetchUser();
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
     }, []);
 
-    const login = (token: string) => {
+    const login = async (token: string) => {
         localStorage.setItem("skileez_token", token);
-        // Ideally fetch user after login, but for this demo phase we'll redirect
+        await fetchUser();
         router.push("/dashboard");
     };
 
@@ -52,8 +75,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         router.push("/auth/login");
     };
 
+    const switchRole = async (role: "student" | "coach") => {
+        try {
+            const res = await api.post(`/auth/switch-role?target_role=${role}`);
+            setUser(res.data);
+            localStorage.setItem("skileez_user", JSON.stringify(res.data));
+            router.refresh();
+        } catch (error) {
+            console.error("Failed to switch role", error);
+        }
+    };
+
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, refreshUser: fetchUser, switchRole }}>
             {children}
         </AuthContext.Provider>
     );
