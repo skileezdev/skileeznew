@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Messages - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Modern Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-primary-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-feather="message-square" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Messages</h1>
+                    <p class="text-gray-600 mt-1">Stay connected with your learning community</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conversations List -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-white">Conversations</h2>
+                    <span class="text-sm text-white/80">{{ conversations|length }} active</span>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <input type="text" placeholder="Search conversations..." 
+                           class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i data-feather="search" class="w-4 h-4 text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conversations -->
+            <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                {% if conversations %}
+                    {% for partner_id, conversation in conversations.items() %}
+                    <a href="{{ url_for('conversation', user_id=partner_id) }}" 
+                       class="conversation-item flex items-center p-4 hover:bg-gray-50 transition-colors relative cursor-pointer block" data-user-id="{{ partner_id }}">
+                        <div class="flex-shrink-0 relative">
+                            {% if (conversation.partner.is_coach and conversation.partner.coach_profile and conversation.partner.coach_profile.profile_picture) or (conversation.partner.is_student and conversation.partner.student_profile and conversation.partner.student_profile.profile_picture) %}
+                                {% set profile_pic = conversation.partner.coach_profile.profile_picture if conversation.partner.is_coach else conversation.partner.student_profile.profile_picture %}
+                                <img src="{{ profile_pic }}" alt="{{ conversation.partner.first_name }}" class="w-12 h-12 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                                    <i data-feather="user" class="w-6 h-6 text-primary-600"></i>
+                                </div>
+                            {% endif %}
+                            
+                            {% if conversation.unread_count > 0 %}
+                            <div class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                                <span class="text-xs text-white font-bold">{{ conversation.unread_count if conversation.unread_count < 10 else '9+' }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="ml-3 flex-grow min-w-0">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-medium text-gray-900 truncate">
+                                    {{ conversation.partner.first_name }} {{ conversation.partner.last_name }}
+                                </h3>
+                                <span class="text-xs text-gray-500">
+                                    {% if conversation.last_message.created_at.date() == today %}
+                                        {{ conversation.last_message.created_at|format_datetime('time_only') }}
+                                    {% else %}
+                                        {{ conversation.last_message.created_at|format_datetime('short') }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm text-gray-600 truncate pr-2">
+                                    {% if conversation.last_message.sender_id == get_current_user().id %}
+                                        You: {{ conversation.last_message.content[:40] }}...
+                                    {% else %}
+                                        {{ conversation.last_message.content[:40] }}...
+                                    {% endif %}
+                                </p>
+                                
+                                {% if conversation.partner.is_coach %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Coach
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Student
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                <div class="p-8 text-center">
+                    <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="message-square" class="w-8 h-8 text-primary-600"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h3>
+                    <p class="text-gray-600 mb-4">Start connecting with coaches and students to begin messaging</p>
+                    {% if get_current_user().current_role == 'student' %}
+                    <a href="{{ url_for('browse_coaches') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i data-feather="search" class="w-4 h-4 mr-2"></i>
+                        Find Coaches
+                    </a>
+                    {% elif get_current_user().current_role == 'coach' %}
+                    <a href="{{ url_for('find_work') }}" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-primary-600 to-purple-600 text-white rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        <i data-feather="briefcase" class="w-4 h-4 mr-2"></i>
+                        Find Work
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Feather icons
+    feather.replace();
+    
+    // Add hover effects to conversation items
+    const conversationItems = document.querySelectorAll('.conversation-item');
+    conversationItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.classList.add('bg-gray-50');
+        });
+        item.addEventListener('mouseleave', function() {
+            this.classList.remove('bg-gray-50');
+        });
+    });
+});
+</script>
+{% endblock %}

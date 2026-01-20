@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}Session Cards Demo - Skileez{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>Interactive Session Cards Demo
+                    </h3>
+                    <p class="mb-0 mt-2">These cards appear in messages when sessions are booked</p>
+                </div>
+                <div class="card-body">
+                    
+                    <!-- Demo Explanation -->
+                    <div class="alert alert-info mb-4">
+                        <h6 class="alert-heading">How it works:</h6>
+                        <p class="mb-2">When a free consultation or paid session is booked, an interactive card is automatically sent in the messages between the coach and student.</p>
+                        <ul class="mb-0">
+                            <li><strong>Free Consultation Cards:</strong> Green-themed cards for 15-minute free calls</li>
+                            <li><strong>Paid Session Cards:</strong> Blue-themed cards for learning sessions after contract and payment</li>
+                            <li><strong>Interactive Elements:</strong> Join call button, view details, and reschedule options</li>
+                            <li><strong>Real-time Status:</strong> Shows current session status (scheduled, confirmed, completed, etc.)</li>
+                        </ul>
+                    </div>
+
+                    <!-- Demo Messages Container -->
+                    <div class="demo-messages-container" style="max-height: 600px; overflow-y: auto; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; background: #f8f9fa;">
+                        
+                        <!-- Free Consultation Card (Received) -->
+                        <div class="message-container received mb-4">
+                            <div class="message-bubble message-received">
+                                <div class="session-preview-card consultation">
+                                    <div class="session-header">
+                                        <div class="session-icon">
+                                            <i class="fas fa-phone"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Free Consultation Scheduled</h4>
+                                            <span class="session-type free">15-Min Free Call</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">December 15, 2024 at 2:00 PM</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">15 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Coach</span>
+                                                <span class="value">Sarah Johnson</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-scheduled">Scheduled</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        <a href="#" class="btn btn-success btn-sm join-session-btn">
+                                            <i class="fas fa-phone me-1"></i>
+                                            Join Call
+                                        </a>
+                                        <a href="#" class="btn btn-primary btn-sm view-session-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Details
+                                        </a>
+                                        <button class="btn btn-warning btn-sm reschedule-btn">
+                                            <i class="fas fa-clock me-1"></i>
+                                            Reschedule
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-timestamp">2:30 PM</div>
+                        </div>
+
+                        <!-- Paid Session Card (Received) -->
+                        <div class="message-container received mb-4">
+                            <div class="message-bubble message-received">
+                                <div class="session-preview-card">
+                                    <div class="session-header">
+                                        <div class="session-icon">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Session Scheduled</h4>
+                                            <span class="session-type paid">Learning Session</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">December 18, 2024 at 10:00 AM</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">60 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">1 of 5</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">Python Programming</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-confirmed">Confirmed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        <a href="#" class="btn btn-success btn-sm join-session-btn">
+                                            <i class="fas fa-play me-1"></i>
+                                            Join Call
+                                        </a>
+                                        <a href="#" class="btn btn-primary btn-sm view-session-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-timestamp">3:15 PM</div>
+                        </div>
+
+                        <!-- Sent Session Card -->
+                        <div class="message-container sent mb-4">
+                            <div class="message-bubble message-sent">
+                                <div class="session-preview-card sent">
+                                    <div class="session-header">
+                                        <div class="session-icon">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Session Scheduled</h4>
+                                            <span class="session-type paid">Learning Session</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">December 20, 2024 at 3:00 PM</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">90 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">2 of 5</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">Advanced JavaScript</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-scheduled">Scheduled</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        <a href="#" class="btn btn-light btn-sm join-session-btn">
+                                            <i class="fas fa-play me-1"></i>
+                                            Join Call
+                                        </a>
+                                        <a href="#" class="btn btn-light btn-sm view-session-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-timestamp">4:45 PM</div>
+                        </div>
+
+                        <!-- Completed Session Card -->
+                        <div class="message-container received mb-4">
+                            <div class="message-bubble message-received">
+                                <div class="session-preview-card">
+                                    <div class="session-header">
+                                        <div class="session-icon">
+                                            <i class="fas fa-video"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Session Completed</h4>
+                                            <span class="session-type paid">Learning Session</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">December 12, 2024 at 1:00 PM</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">60 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">1 of 5</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">Web Development Basics</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-completed">Completed</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        <a href="#" class="btn btn-primary btn-sm view-session-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Details
+                                        </a>
+                                        <a href="#" class="btn btn-info btn-sm">
+                                            <i class="fas fa-file-alt me-1"></i>
+                                            Session Notes
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-timestamp">Yesterday</div>
+                        </div>
+
+                    </div>
+
+                    <!-- Implementation Notes -->
+                    <div class="mt-4">
+                        <h5>Implementation Details:</h5>
+                        <ul>
+                            <li><strong>Message Types:</strong> <code>SESSION_SCHEDULED</code> and <code>FREE_CONSULTATION</code></li>
+                            <li><strong>Template Filters:</strong> <code>extract_session_info</code> and <code>extract_consultation_info</code></li>
+                            <li><strong>Responsive Design:</strong> Works on mobile and desktop</li>
+                            <li><strong>Interactive Buttons:</strong> Join call, view details, reschedule</li>
+                            <li><strong>Status Indicators:</strong> Color-coded status badges</li>
+                            <li><strong>Auto-generated:</strong> Cards are automatically created when sessions are booked</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Demo-specific styles */
+.demo-messages-container {
+    background: #f8f9fa !important;
+}
+
+.message-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    width: 100%;
+    clear: both;
+}
+
+.message-container.sent {
+    align-items: flex-end;
+}
+
+.message-container.received {
+    align-items: flex-start;
+}
+
+.message-bubble {
+    display: inline-block;
+    padding: 8px 12px;
+    max-width: 70%;
+    width: fit-content;
+    min-width: 0;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.4;
+    border-radius: 18px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    border: none;
+    outline: none;
+}
+
+.message-bubble.message-sent {
+    background-color: #007AFF;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-bubble.message-received {
+    background-color: #E5E5EA;
+    color: #000000;
+    border-bottom-left-radius: 4px;
+}
+
+.message-timestamp {
+    display: block;
+    font-size: 11px;
+    color: #8E8E93;
+    margin-top: 2px;
+    line-height: 1;
+    opacity: 0.8;
+    font-weight: normal;
+    position: static;
+    white-space: nowrap;
+}
+
+.message-container.sent .message-timestamp {
+    text-align: right;
+    align-self: flex-end;
+}
+
+.message-container.received .message-timestamp {
+    text-align: left;
+    align-self: flex-start;
+}
+</style>
+{% endblock %}

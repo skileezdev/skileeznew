@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test</title>
+    <style>
+        .hidden { display: none; }
+        .active { background-color: #e5e7eb; }
+        .nav-link { cursor: pointer; padding: 10px; margin: 5px; border: 1px solid #ccc; }
+        .section { padding: 20px; border: 2px solid #333; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Navigation Test</h1>
+    
+    <div style="display: flex;">
+        <div style="width: 200px;">
+            <h3>Navigation</h3>
+            <div class="nav-link active" data-section="email">Email</div>
+            <div class="nav-link" data-section="password">Password</div>
+            <div class="nav-link" data-section="account">Account</div>
+        </div>
+        
+        <div style="flex: 1;">
+            <div id="email" class="section">
+                <h2>Email Section</h2>
+                <p>This is the email section content.</p>
+            </div>
+            
+            <div id="password" class="section hidden">
+                <h2>Password Section</h2>
+                <p>This is the password section content.</p>
+                <form>
+                    <input type="password" placeholder="Current Password"><br><br>
+                    <input type="password" placeholder="New Password"><br><br>
+                    <input type="password" placeholder="Confirm Password"><br><br>
+                    <button type="submit">Update Password</button>
+                </form>
+            </div>
+            
+            <div id="account" class="section hidden">
+                <h2>Account Section</h2>
+                <p>This is the account section content.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Navigation test page loaded');
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.section');
+            
+            console.log('Found nav links:', navLinks.length);
+            console.log('Found sections:', sections.length);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Navigation link clicked:', this.getAttribute('data-section'));
+
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+
+                    // Add active class to clicked link
+                    this.classList.add('active');
+
+                    // Hide all sections
+                    sections.forEach(section => {
+                        section.classList.add('hidden');
+                        console.log('Hiding section:', section.id);
+                    });
+
+                    // Show target section
+                    const targetSection = this.getAttribute('data-section');
+                    const targetElement = document.getElementById(targetSection);
+                    
+                    if (targetElement) {
+                        targetElement.classList.remove('hidden');
+                        console.log('Showing section:', targetSection);
+                    } else {
+                        console.error('Target section not found:', targetSection);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

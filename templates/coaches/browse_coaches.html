@@ -1,0 +1,334 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Coaches - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Clean Header Section -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">
+                {% if header_text %}
+                    {{ header_text }}
+                {% else %}
+                    Expert coaches & mentors for personalized learning
+                {% endif %}
+            </h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                {% if search_term or skill_tags_filter or language_filter %}
+                    Find the perfect coach to help you master {{ search_term or skill_tags_filter or language_filter }}
+                {% else %}
+                    Find the perfect coach to help you master new skills and achieve your learning goals
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Professional Filter Bar -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8">
+            <form method="GET" class="space-y-6">
+                <!-- Top Row - Primary Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">Search coaches</label>
+                        <div class="relative">
+                            <input type="text" 
+                                   id="search" 
+                                   name="search" 
+                                   value="{{ request.args.get('search', '') }}"
+                                   placeholder="Name, skills, or keywords"
+                                   class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i data-feather="search" class="w-5 h-5 text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="price_range" class="block text-sm font-semibold text-gray-700 mb-2">Price range</label>
+                        <select id="price_range" name="price_range" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="">Any price</option>
+                            <option value="10-25" {% if request.args.get('price_range') == '10-25' %}selected{% endif %}>$10 - $25</option>
+                            <option value="25-50" {% if request.args.get('price_range') == '25-50' %}selected{% endif %}>$25 - $50</option>
+                            <option value="50-100" {% if request.args.get('price_range') == '50-100' %}selected{% endif %}>$50 - $100</option>
+                            <option value="100+" {% if request.args.get('price_range') == '100+' %}selected{% endif %}>$100+</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="location" class="block text-sm font-semibold text-gray-700 mb-2">Location</label>
+                        <select id="location" name="location" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="">Any country</option>
+                            <option value="US" {% if request.args.get('location') == 'US' %}selected{% endif %}>United States</option>
+                            <option value="UK" {% if request.args.get('location') == 'UK' %}selected{% endif %}>United Kingdom</option>
+                            <option value="CA" {% if request.args.get('location') == 'CA' %}selected{% endif %}>Canada</option>
+                            <option value="AU" {% if request.args.get('location') == 'AU' %}selected{% endif %}>Australia</option>
+                            <option value="EU" {% if request.args.get('location') == 'EU' %}selected{% endif %}>Europe</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="language" class="block text-sm font-semibold text-gray-700 mb-2">Language</label>
+                        <select id="language" name="language" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="">Any language</option>
+                            <option value="English" {% if request.args.get('language') == 'English' %}selected{% endif %}>English</option>
+                            <option value="Spanish" {% if request.args.get('language') == 'Spanish' %}selected{% endif %}>Spanish</option>
+                            <option value="French" {% if request.args.get('language') == 'French' %}selected{% endif %}>French</option>
+                            <option value="German" {% if request.args.get('language') == 'German' %}selected{% endif %}>German</option>
+                            <option value="Chinese" {% if request.args.get('language') == 'Chinese' %}selected{% endif %}>Chinese</option>
+                            <option value="Japanese" {% if request.args.get('language') == 'Japanese' %}selected{% endif %}>Japanese</option>
+                            <option value="Arabic" {% if request.args.get('language') == 'Arabic' %}selected{% endif %}>Arabic</option>
+                            <option value="Russian" {% if request.args.get('language') == 'Russian' %}selected{% endif %}>Russian</option>
+                            <option value="Portuguese" {% if request.args.get('language') == 'Portuguese' %}selected{% endif %}>Portuguese</option>
+                            <option value="Italian" {% if request.args.get('language') == 'Italian' %}selected{% endif %}>Italian</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Bottom Row - Secondary Filters -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label for="skill_tags" class="block text-sm font-semibold text-gray-700 mb-2">Skill tags</label>
+                        <input type="text" 
+                               id="skill_tags" 
+                               name="skill_tags" 
+                               value="{{ request.args.get('skill_tags', '') }}"
+                               placeholder="e.g., Python, Design, Marketing"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                    </div>
+                    
+                    <div>
+                        <label for="specialties" class="block text-sm font-semibold text-gray-700 mb-2">Specialties</label>
+                        <select id="specialties" name="specialties" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="">Any specialty</option>
+                            <option value="beginner" {% if request.args.get('specialties') == 'beginner' %}selected{% endif %}>Beginner friendly</option>
+                            <option value="advanced" {% if request.args.get('specialties') == 'advanced' %}selected{% endif %}>Advanced level</option>
+                            <option value="certified" {% if request.args.get('specialties') == 'certified' %}selected{% endif %}>Certified</option>
+                            <option value="industry" {% if request.args.get('specialties') == 'industry' %}selected{% endif %}>Industry expert</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="experience" class="block text-sm font-semibold text-gray-700 mb-2">Experience level</label>
+                        <select id="experience" name="experience" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="">Any experience</option>
+                            <option value="1-3" {% if request.args.get('experience') == '1-3' %}selected{% endif %}>1-3 years</option>
+                            <option value="3-5" {% if request.args.get('experience') == '3-5' %}selected{% endif %}>3-5 years</option>
+                            <option value="5-10" {% if request.args.get('experience') == '5-10' %}selected{% endif %}>5-10 years</option>
+                            <option value="10+" {% if request.args.get('experience') == '10+' %}selected{% endif %}>10+ years</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="sort" class="block text-sm font-semibold text-gray-700 mb-2">Sort by</label>
+                        <select id="sort" name="sort" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200">
+                            <option value="top" {% if request.args.get('sort') == 'top' %}selected{% endif %}>Our top picks</option>
+                            <option value="rating" {% if request.args.get('sort') == 'rating' %}selected{% endif %}>Highest rating</option>
+                            <option value="price_low" {% if request.args.get('sort') == 'price_low' %}selected{% endif %}>Price: Low to high</option>
+                            <option value="price_high" {% if request.args.get('sort') == 'price_high' %}selected{% endif %}>Price: High to low</option>
+                            <option value="recent" {% if request.args.get('sort') == 'recent' %}selected{% endif %}>Recently active</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Filter Actions -->
+                <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i data-feather="search" class="w-5 h-5 mr-2 inline"></i>
+                        Find Coaches
+                    </button>
+                    <a href="{{ url_for('browse_coaches') }}" class="text-gray-600 hover:text-gray-800 font-medium transition-colors duration-200">
+                        Clear all filters
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="space-y-6">
+            {% if coaches %}
+                <!-- Results Count -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600">
+                            {% if search_term or skill_tags_filter or language_filter %}
+                                {{ coaches|length }} {{ search_term or skill_tags_filter or language_filter }} coach{{ 'es' if coaches|length != 1 else '' }} found
+                            {% else %}
+                                {{ coaches|length }} coaches found
+                            {% endif %}
+                        </p>
+                        {% if search_term or skill_tags_filter or language_filter %}
+                            <p class="text-sm text-gray-500 mt-1">
+                                {% if search_term %}
+                                    Showing results for "{{ search_term }}" in coach titles, bios, and skills
+                                {% elif skill_tags_filter %}
+                                    Showing coaches with skills: {{ skill_tags_filter }}
+                                {% elif language_filter %}
+                                    Showing {{ language_filter }} speaking coaches
+                                {% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-500">View:</span>
+                        <button class="p-2 text-green-600 bg-green-50 rounded-lg">
+                            <i data-feather="grid" class="w-4 h-4"></i>
+                        </button>
+                        <button class="p-2 text-gray-400 hover:text-gray-600 rounded-lg">
+                            <i data-feather="list" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Coach Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {% for coach in coaches %}
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                        <!-- Coach Header -->
+                        <div class="flex items-start space-x-4 mb-4">
+                            <!-- Professional Photo with Online Status -->
+                            <div class="relative flex-shrink-0">
+                                {% if coach.profile_picture %}
+                                    <img src="{{ url_for('uploaded_file', filename=coach.profile_picture) }}" 
+                                         alt="{{ coach.user.first_name }}" 
+                                         class="w-16 h-16 rounded-full object-cover border-2 border-gray-100">
+                                {% else %}
+                                    <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white text-xl font-bold">
+                                        {{ coach.user.first_name[0] }}{{ coach.user.last_name[0] }}
+                                    </div>
+                                {% endif %}
+                                <!-- Online Status Dot -->
+                                <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></div>
+                            </div>
+                            
+                            <!-- Coach Info -->
+                            <div class="flex-1 min-w-0">
+                                <h3 class="text-lg font-bold text-gray-900 truncate">
+                                    {{ coach.user.first_name }} {{ coach.user.last_name }}
+                                </h3>
+                                {% if coach.coach_title %}
+                                <p class="text-sm text-gray-600 truncate">{{ coach.coach_title }}</p>
+                                {% endif %}
+                                
+                                <!-- Rating -->
+                                <div class="flex items-center mt-2">
+                                    <div class="flex items-center">
+                                        {% for i in range(5) %}
+                                            {% if coach.rating and i < coach.rating %}
+                                                <i data-feather="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                            {% else %}
+                                                <i data-feather="star" class="w-4 h-4 text-gray-300"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <span class="ml-2 text-sm font-semibold text-gray-900">
+                                        {{ "%.1f"|format(coach.rating or 0) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio Preview -->
+                        {% if coach.bio %}
+                        <p class="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+                            {{ coach.bio[:100] }}{% if coach.bio|length > 100 %}...{% endif %}
+                        </p>
+                        {% endif %}
+
+                        <!-- Skills Tags -->
+                        {% if coach.skills %}
+                        <div class="mb-4">
+                            <div class="flex flex-wrap gap-1">
+                                {% for skill in coach.skills.split(',')[:2] %}
+                                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-full">
+                                        {{ skill.strip() }}
+                                    </span>
+                                {% endfor %}
+                                {% if coach.skills.split(',')|length > 2 %}
+                                    <span class="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-600 rounded-full">
+                                        +{{ coach.skills.split(',')|length - 2 }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Price and Actions -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div>
+                                {% if coach.hourly_rate %}
+                                <div class="text-right">
+                                    <span class="text-2xl font-bold text-gray-900">${{ coach.hourly_rate }}</span>
+                                    <span class="text-sm text-gray-500">/hour</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="flex items-center space-x-2">
+                                <!-- Heart Icon -->
+                                <button class="p-2 text-gray-400 hover:text-red-500 transition-colors duration-200">
+                                    <i data-feather="heart" class="w-5 h-5"></i>
+                                </button>
+                                
+                                <!-- Book Trial Button -->
+                                <a href="{{ url_for('coach_profile', coach_id=coach.user.id) }}" 
+                                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl font-semibold text-sm transition-all duration-200 transform hover:scale-105">
+                                    Book trial
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- No Results -->
+                <div class="text-center py-16">
+                    <div class="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                        <i data-feather="search" class="w-10 h-10 text-gray-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-3">
+                        {% if search_term %}
+                            No coaches found for "{{ search_term }}"
+                        {% elif skill_tags_filter %}
+                            No coaches found with skills: {{ skill_tags_filter }}
+                        {% elif language_filter %}
+                            No {{ language_filter }} speaking coaches found
+                        {% else %}
+                            No coaches found
+                        {% endif %}
+                    </h3>
+                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
+                        {% if search_term %}
+                            No coaches found with "{{ search_term }}" in their title, bio, or skills. Try different keywords or browse all coaches.
+                        {% elif skill_tags_filter %}
+                            No coaches found with skills: {{ skill_tags_filter }}. Try different skills or browse all coaches.
+                        {% elif language_filter %}
+                            No {{ language_filter }} speaking coaches found. Try a different language or browse all coaches.
+                        {% else %}
+                            Try adjusting your search filters or browse all available coaches.
+                        {% endif %}
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="{{ url_for('browse_coaches') }}" class="inline-flex items-center bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105">
+                            <i data-feather="refresh-cw" class="w-5 h-5 mr-2"></i>
+                            Clear filters
+                        </a>
+                        {% if search_term or skill_tags_filter or language_filter %}
+                        <a href="{{ url_for('browse_coaches') }}" class="inline-flex items-center bg-gray-100 hover:bg-gray-200 text-gray-700 px-8 py-3 rounded-xl font-semibold transition-all duration-200">
+                            <i data-feather="users" class="w-5 h-5 mr-2"></i>
+                            Browse all coaches
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Feather icons
+    document.addEventListener('DOMContentLoaded', function() {
+        feather.replace();
+    });
+</script>
+{% endblock %}

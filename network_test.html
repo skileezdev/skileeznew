@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f0f0f0; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Network Connectivity Test</h1>
+    <div id="logs"></div>
+    
+    <script>
+        function log(message, type = 'info') {
+            const logsDiv = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            logsDiv.appendChild(logDiv);
+            console.log(message);
+        }
+        
+        function testFetch(url, name) {
+            return fetch(url, { method: 'HEAD' })
+                .then(response => {
+                    log(`✅ ${name} - Status: ${response.status}`, 'success');
+                    return true;
+                })
+                .catch(error => {
+                    log(`❌ ${name} - Error: ${error.message}`, 'error');
+                    return false;
+                });
+        }
+        
+        function testScript(url, name) {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = url;
+                script.onload = () => {
+                    log(`✅ ${name} loaded successfully`, 'success');
+                    resolve(true);
+                };
+                script.onerror = () => {
+                    log(`❌ ${name} failed to load`, 'error');
+                    resolve(false);
+                };
+                document.head.appendChild(script);
+            });
+        }
+        
+        async function runTests() {
+            log('Starting network tests...');
+            
+            // Test basic connectivity
+            await testFetch('https://www.google.com', 'Google');
+            await testFetch('https://unpkg.com', 'unpkg.com');
+            await testFetch('https://cdn.jsdelivr.net', 'jsdelivr.net');
+            
+            // Video functionality has been removed from this application
+            
+            log('Network tests completed');
+        }
+        
+        // Start tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

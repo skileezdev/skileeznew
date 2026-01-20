@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Learning Session - {{ contract.proposal.learning_request.title }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="book" class="w-8 h-8 text-primary-600"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Schedule Learning Session</h1>
+            <p class="text-gray-600">Book your next session for {{ contract.proposal.learning_request.title }}</p>
+        </div>
+
+        <!-- Contract Info Card -->
+        <div class="premium-card p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i data-feather="file-text" class="w-5 h-5 mr-2 text-primary-600"></i>
+                Contract Details
+            </h3>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Project:</span>
+                    <span class="font-medium">{{ contract.proposal.learning_request.title }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Coach:</span>
+                    <span class="font-medium">{{ contract.coach.first_name }} {{ contract.coach.last_name }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Rate per Session:</span>
+                    <span class="font-medium">${{ "%.2f"|format(contract.rate) }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Sessions Completed:</span>
+                    <span class="font-medium">{{ contract.completed_sessions }}/{{ contract.total_sessions }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Contract Status:</span>
+                    <span class="font-medium text-green-600">{{ contract.status|title }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Session Info -->
+        <div class="premium-card p-6 mb-8">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <i data-feather="info" class="w-5 h-5 mr-2 text-primary-600"></i>
+                About This Session
+            </h3>
+            <div class="space-y-3 text-gray-600">
+                <div class="flex items-center">
+                    <i data-feather="clock" class="w-4 h-4 mr-2 text-primary-600"></i>
+                    <span>{{ contract.proposal.session_duration }} minutes duration</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="dollar-sign" class="w-4 h-4 mr-2 text-primary-600"></i>
+                    <span>${{ "%.2f"|format(contract.rate) }} per session (already paid)</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="video" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                            <span>Video functionality removed</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="target" class="w-4 h-4 mr-2 text-primary-600"></i>
+                    <span>Focused learning session</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduling Form -->
+        <div class="premium-card p-8">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Date and Time -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form.scheduled_date.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.scheduled_date(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", type="date") }}
+                        {% if form.scheduled_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.scheduled_date.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        {{ form.scheduled_time.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.scheduled_time(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", type="time") }}
+                        {% if form.scheduled_time.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.scheduled_time.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Duration -->
+                <div>
+                    {{ form.duration_minutes.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.duration_minutes(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    {% if form.duration_minutes.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.duration_minutes.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Default: {{ contract.proposal.session_duration }} minutes (from contract)</p>
+                </div>
+
+                <!-- Timezone -->
+                <div>
+                    {{ form.timezone.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    
+                    <!-- Auto-detection message -->
+                    <div id="timezone-detection-message" class="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                        <div class="flex items-center">
+                            <i data-feather="map-pin" class="w-4 h-4 text-blue-600 mr-2"></i>
+                            <span class="text-sm text-blue-800">
+                                <span id="detected-timezone-text">We detected your timezone as</span>
+                                <strong id="detected-timezone-name" class="ml-1"></strong>
+                            </span>
+                        </div>
+                        <p class="text-xs text-blue-600 mt-1">You can change it below if needed.</p>
+                    </div>
+                    
+                    {{ form.timezone(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors timezone-select-enhanced", id="timezone-select") }}
+                    {% if form.timezone.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.timezone.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Manual override button -->
+                    <div class="mt-2">
+                        <button type="button" id="manual-timezone-btn" class="text-sm text-primary-600 hover:text-primary-800 hidden">
+                            <i data-feather="edit-2" class="w-3 h-3 inline mr-1"></i>
+                            Choose different timezone
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Session Notes -->
+                <div>
+                    {{ form.notes.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.notes(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="4", placeholder="What would you like to focus on in this session? Any specific topics or questions?") }}
+                    {% if form.notes.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.notes.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Help your coach prepare for the session</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('view_contract', contract_id=contract.id) }}" 
+                       class="btn-secondary px-6 py-3 rounded-lg">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back to Contract
+                    </a>
+                    <button type="submit" class="btn-primary px-8 py-3 rounded-lg">
+                        <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                        Schedule Session
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tips -->
+        <div class="tip-card">
+            <div class="tip-icon">
+                <i data-feather="lightbulb"></i>
+            </div>
+            <h3>Prepare for Your Learning Session</h3>
+            <ul class="space-y-2 text-sm text-gray-600">
+                <li>• Review your progress from previous sessions</li>
+                <li>• Prepare specific questions or challenges</li>
+                <li>• Have your learning materials ready</li>
+                <li>• Set clear goals for this session</li>
+                <li>• Be ready to practice and receive feedback</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Timezone Selector Styles -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/timezone-selector.css') }}">
+
+<!-- Timezone Detection Script -->
+<script src="{{ url_for('static', filename='js/timezone-detection.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set minimum date to today
+    const dateInput = document.querySelector('input[type="date"]');
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.min = today;
+    
+    // Set default time to next available slot
+    const timeInput = document.querySelector('input[type="time"]');
+    const now = new Date();
+    const nextHour = new Date(now.getTime() + 60 * 60 * 1000); // 1 hour from now
+    const timeString = nextHour.toTimeString().slice(0, 5);
+    timeInput.value = timeString;
+    
+    // Set default duration to contract duration
+    const durationSelect = document.querySelector('select[name="duration_minutes"]');
+    if (durationSelect) {
+        durationSelect.value = '{{ contract.proposal.session_duration }}';
+    }
+
+    // Initialize timezone detection
+    const timezoneDetector = new TimezoneDetector({
+        selectId: 'timezone-select',
+        messageId: 'timezone-detection-message',
+        detectedNameId: 'detected-timezone-name',
+        manualBtnId: 'manual-timezone-btn',
+        showCurrentTime: true,
+        autoHide: true
+    });
+
+    // Listen for timezone detection events
+    document.addEventListener('timezoneDetector:timezoneDetected', function(e) {
+        console.log('Timezone detected for paid session scheduling:', e.detail);
+    });
+
+    document.addEventListener('timezoneDetector:manualOverride', function(e) {
+        console.log('User chose manual timezone selection for paid session scheduling');
+    });
+});
+</script>
+{% endblock %}

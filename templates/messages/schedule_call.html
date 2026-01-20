@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Schedule Call - {{ other_user.first_name }} {{ other_user.last_name }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Schedule 15-Minute Call</h1>
+                    <p class="text-gray-600">with {{ other_user.first_name }} {{ other_user.last_name }}</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('conversation', user_id=other_user.id) }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back to Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- User Info Card -->
+        <div class="bg-white shadow-sm rounded-lg p-6 mb-6">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                    <span class="text-primary-600 font-semibold text-lg">
+                        {{ other_user.first_name[0] }}{{ other_user.last_name[0] }}
+                    </span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ other_user.first_name }} {{ other_user.last_name }}</h3>
+                    <p class="text-gray-600">{{ other_user.current_role|title }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Call Scheduling Form -->
+        <div class="bg-white shadow-sm rounded-lg p-6">
+            <form method="POST" class="space-y-6">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="call_date" class="block text-sm font-medium text-gray-700 mb-2">Call Date</label>
+                        <input type="date" id="call_date" name="call_date" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+
+                    <div>
+                        <label for="call_time" class="block text-sm font-medium text-gray-700 mb-2">Call Time</label>
+                        <input type="time" id="call_time" name="call_time" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label for="call_timezone" class="block text-sm font-medium text-gray-700 mb-2">Timezone</label>
+                    <select id="call_timezone" name="call_timezone" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                        <option value="UTC">UTC</option>
+                        <option value="America/New_York">Eastern Time</option>
+                        <option value="America/Chicago">Central Time</option>
+                        <option value="America/Denver">Mountain Time</option>
+                        <option value="America/Los_Angeles">Pacific Time</option>
+                        <option value="Europe/London">London</option>
+                        <option value="Europe/Paris">Paris</option>
+                        <option value="Asia/Tokyo">Tokyo</option>
+                        <option value="Asia/Shanghai">Shanghai</option>
+                        <option value="Australia/Sydney">Sydney</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="call_notes" class="block text-sm font-medium text-gray-700 mb-2">Call Notes (Optional)</label>
+                    <textarea id="call_notes" name="call_notes" rows="3" 
+                              placeholder="e.g., Discuss contract details, learning goals, scheduling preferences..."
+                              class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+                </div>
+
+                <!-- Call Info -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-blue-800 mb-2">📞 15-Minute Call Details</h3>
+                    <ul class="text-sm text-blue-700 space-y-1">
+                        <li>• Perfect for discussing contract terms and expectations</li>
+                        <li>• Get to know each other before starting the learning journey</li>
+                        <li>• Clarify any questions about the proposal</li>
+                        <li>• Discuss scheduling preferences and availability</li>
+                    </ul>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex items-center justify-end space-x-3 pt-6 border-t border-gray-200">
+                    <a href="{{ url_for('conversation', user_id=other_user.id) }}" 
+                       class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                        Schedule Call
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('call_date').min = today;
+    
+    // Set default timezone based on user's location
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const timezoneSelect = document.getElementById('call_timezone');
+    
+    // Try to find and select the user's timezone
+    for (let option of timezoneSelect.options) {
+        if (option.value === userTimezone) {
+            option.selected = true;
+            break;
+        }
+    }
+</script>
+{% endblock %}

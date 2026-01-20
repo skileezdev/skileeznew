@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}Reschedule Request - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Reschedule Request</h1>
+                    <p class="mt-2 text-gray-600">Review and respond to the reschedule request</p>
+                </div>
+                {% set contract = session.get_contract() %}
+                {% if contract and contract.id %}
+                <a href="{{ url_for('manage_sessions', contract_id=contract.id) }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Back to Sessions
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Session Details Card -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Session Details</h3>
+            </div>
+            <div class="px-6 py-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Session Number</p>
+                        <p class="text-lg font-semibold text-gray-900">#{{ session.session_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Status</p>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Reschedule Requested
+                        </span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Current Scheduled Time</p>
+                        <p class="text-lg font-semibold text-gray-900">
+                            {{ session.scheduled_at.strftime('%B %d, %Y at %I:%M %p') if session.scheduled_at else 'Not scheduled' }}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Duration</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ session.duration_minutes }} minutes</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Timezone</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ session.timezone or 'UTC' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Contract</p>
+                        {% set contract = session.get_contract() %}
+                        <p class="text-lg font-semibold text-gray-900">#{{ contract.contract_number if contract else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reschedule Request Details -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i data-feather="clock" class="w-6 h-6 text-yellow-500"></i>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-lg font-medium text-yellow-800">Reschedule Request</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p class="mb-3">
+                            <strong>Requested by:</strong> {{ session.reschedule_requested_by.title() }}<br>
+                            <strong>Requested on:</strong> {{ session.reschedule_deadline.strftime('%B %d, %Y at %I:%M %p') if session.reschedule_deadline else 'Unknown' }}<br>
+                            <strong>Response deadline:</strong> {{ session.reschedule_deadline.strftime('%B %d, %Y at %I:%M %p') if session.reschedule_deadline else 'Unknown' }}
+                        </p>
+                        <div class="bg-white rounded-lg p-4 border border-yellow-200">
+                            <p class="text-sm font-medium text-gray-900 mb-2">Reason for Reschedule:</p>
+                            <p class="text-sm text-gray-700">{{ session.reschedule_reason or 'No reason provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Options -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">Your Response</h3>
+                <p class="mt-1 text-sm text-gray-600">You have 24 hours to respond to this request</p>
+            </div>
+            <div class="px-6 py-4">
+                <!-- Approve Reschedule -->
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Option 1: Approve Reschedule</h4>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i data-feather="check-circle" class="w-5 h-5 text-green-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-green-800 mb-3">
+                                    Approve the reschedule request and suggest a new time that works for you.
+                                </p>
+                                <form method="POST" action="{{ url_for('approve_reschedule', session_id=session.id) }}" class="space-y-4">
+                                    <div>
+                                        <label for="new_scheduled_at" class="block text-sm font-medium text-gray-700 mb-2">
+                                            Suggest New Date & Time
+                                        </label>
+                                        <input type="datetime-local" 
+                                               id="new_scheduled_at" 
+                                               name="new_scheduled_at" 
+                                               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                                               required>
+                                        <p class="mt-1 text-sm text-gray-500">
+                                            Please suggest a time that works for both parties.
+                                        </p>
+                                    </div>
+                                    <button type="submit" 
+                                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                        <i data-feather="check" class="w-4 h-4 mr-2"></i>
+                                        Approve Reschedule
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decline Reschedule -->
+                <div class="mb-6">
+                    <h4 class="text-md font-medium text-gray-900 mb-3">Option 2: Decline Reschedule</h4>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i data-feather="x-circle" class="w-5 h-5 text-red-500"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-red-800 mb-3">
+                                    Decline the reschedule request and keep the original session time.
+                                </p>
+                                <form method="POST" action="{{ url_for('decline_reschedule', session_id=session.id) }}">
+                                    <button type="submit" 
+                                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                        <i data-feather="x" class="w-4 h-4 mr-2"></i>
+                                        Decline Reschedule
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current User Info -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">
+                                    {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm font-medium text-gray-900">
+                                {{ current_user.first_name }} {{ current_user.last_name }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                Responding as {{ current_user.current_role.title() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+                                            {% set contract = session.get_contract() %}
+                        {% if contract and contract.id %}
+                        <a href="{{ url_for('manage_sessions', contract_id=contract.id) }}" 
+                           class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            Cancel
+                        </a>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize Feather icons
+    feather.replace();
+    
+    // Set minimum datetime to current time + 1 hour
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const minDateTime = now.toISOString().slice(0, 16);
+    document.getElementById('new_scheduled_at').min = minDateTime;
+</script>
+{% endblock %}

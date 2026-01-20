@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+
+{% block title %}Tip Cards Demo - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Skileez Tip Card System</h1>
+            <p class="text-xl text-gray-600">Professional, cohesive tip cards that enhance user experience</p>
+        </div>
+
+        <!-- Basic Variants -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Basic Variants</h2>
+            
+            <!-- Basic Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Basic Tip Card</h3>
+                <div class="tip-card">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Pro Tip</h3>
+                            <p class="tip-card-subtitle">Helpful advice for better results</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a basic tip card with helpful information. Use it to guide users through important features or provide context.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Info Tip Card</h3>
+                <div class="tip-card info">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="info"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Important Information</h3>
+                            <p class="tip-card-subtitle">Please read this carefully</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is an informational tip card. Use it to provide important details, updates, or clarifications to users.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Success Tip Card</h3>
+                <div class="tip-card success">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Great Job!</h3>
+                            <p class="tip-card-subtitle">You're on the right track</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a success tip card. Use it to congratulate users, confirm actions, or highlight achievements.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warning Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Warning Tip Card</h3>
+                <div class="tip-card warning">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="alert-triangle"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Heads Up</h3>
+                            <p class="tip-card-subtitle">Something to consider</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a warning tip card. Use it to alert users about potential issues, limitations, or important considerations.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Error Tip Card</h3>
+                <div class="tip-card error">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="x-circle"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Oops!</h3>
+                            <p class="tip-card-subtitle">Something went wrong</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is an error tip card. Use it to inform users about errors, failures, or issues that need attention.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Special Features -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Special Features</h2>
+            
+            <!-- Dismissible Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Dismissible Tip Card</h3>
+                <div class="tip-card dismissible" id="dismissible-demo">
+                    <button class="tip-card-dismiss" onclick="dismissTip('dismissible-demo')">
+                        <i data-feather="x"></i>
+                    </button>
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="bell"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">New Feature Available</h3>
+                            <p class="tip-card-subtitle">Check out what's new</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a dismissible tip card. Users can close it if they don't want to see it again. Perfect for announcements or one-time notifications.</p>
+                    </div>
+                    <div class="tip-card-actions">
+                        <button class="tip-card-btn secondary">Learn More</button>
+                        <button class="tip-card-btn">Try Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tip Card with List -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Tip Card with List</h3>
+                <div class="tip-card">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="list"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Best Practices</h3>
+                            <p class="tip-card-subtitle">Follow these guidelines</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>Here are some best practices to help you succeed:</p>
+                        <ul class="tip-card-list">
+                            <li>Be specific and detailed in your descriptions</li>
+                            <li>Use clear, professional language</li>
+                            <li>Include relevant examples and context</li>
+                            <li>Keep your profile up to date</li>
+                            <li>Respond promptly to messages</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tip Card with Progress -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Tip Card with Progress</h3>
+                <div class="tip-card">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="trending-up"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Profile Completion</h3>
+                            <p class="tip-card-subtitle">You're almost there!</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>Complete your profile to increase your chances of getting hired. You're making great progress!</p>
+                    </div>
+                    <div class="tip-card-progress">
+                        <div class="tip-card-progress-bar">
+                            <div class="tip-card-progress-fill" style="width: 75%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">75% complete</p>
+                    </div>
+                    <div class="tip-card-actions">
+                        <button class="tip-card-btn">Complete Profile</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sizes -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Card Sizes</h2>
+            
+            <!-- Small Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Small Tip Card</h3>
+                <div class="tip-card small">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="zap"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Quick Tip</h3>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a small tip card for brief, concise information.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Large Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Large Tip Card</h3>
+                <div class="tip-card large">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="book-open"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Comprehensive Guide</h3>
+                            <p class="tip-card-subtitle">Everything you need to know</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <p>This is a large tip card for comprehensive information, detailed explanations, or step-by-step guides.</p>
+                        <p>Perfect for onboarding, tutorials, or complex instructions that need more space to explain properly.</p>
+                    </div>
+                    <div class="tip-card-actions">
+                        <button class="tip-card-btn secondary">Read More</button>
+                        <button class="tip-card-btn">Get Started</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Layouts -->
+        <section class="mb-16">
+            <h2 class="text-2xl font-bold text-gray-900 mb-8">Layouts</h2>
+            
+            <!-- Inline Tip Card -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Inline Tip Card</h3>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">Need help with something?</span>
+                    <div class="tip-card inline">
+                        <div class="tip-card-icon">
+                            <i data-feather="help-circle"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Need help?</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Layout -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Grid Layout</h3>
+                <div class="tip-card-grid">
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <div class="tip-card-icon">
+                                <i data-feather="target"></i>
+                            </div>
+                            <div>
+                                <h3 class="tip-card-title">Set Clear Goals</h3>
+                            </div>
+                        </div>
+                        <div class="tip-card-content">
+                            <p>Define specific, measurable objectives for your learning journey.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <div class="tip-card-icon">
+                                <i data-feather="clock"></i>
+                            </div>
+                            <div>
+                                <h3 class="tip-card-title">Manage Time</h3>
+                            </div>
+                        </div>
+                        <div class="tip-card-content">
+                            <p>Schedule regular sessions and stick to your learning plan.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <div class="tip-card-icon">
+                                <i data-feather="users"></i>
+                            </div>
+                            <div>
+                                <h3 class="tip-card-title">Connect</h3>
+                            </div>
+                        </div>
+                        <div class="tip-card-content">
+                            <p>Build relationships with coaches and fellow learners.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Floating Tip Card -->
+        <div class="tip-card floating" id="floating-demo">
+            <button class="tip-card-dismiss" onclick="dismissTip('floating-demo')">
+                <i data-feather="x"></i>
+            </button>
+            <div class="tip-card-header">
+                <div class="tip-card-icon">
+                    <i data-feather="star"></i>
+                </div>
+                <div>
+                    <h3 class="tip-card-title">Pro Feature</h3>
+                    <p class="tip-card-subtitle">Unlock premium benefits</p>
+                </div>
+            </div>
+            <div class="tip-card-content">
+                <p>Upgrade to Pro for advanced features, priority support, and exclusive tools.</p>
+            </div>
+            <div class="tip-card-actions">
+                <button class="tip-card-btn">Upgrade Now</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Dismiss tip card function
+function dismissTip(cardId) {
+    const card = document.getElementById(cardId);
+    if (card) {
+        card.classList.add('dismissing');
+        setTimeout(() => {
+            card.remove();
+        }, 300);
+    }
+}
+
+// Auto-dismiss floating tip cards after 10 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const floatingTips = document.querySelectorAll('.tip-card.floating');
+    floatingTips.forEach(tip => {
+        setTimeout(() => {
+            if (tip.parentNode) {
+                dismissTip(tip.id);
+            }
+        }, 10000);
+    });
+});
+
+// Initialize Feather icons
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+});
+</script>
+{% endblock %} 

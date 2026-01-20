@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Choose Your Role - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl w-full space-y-8">
+        <div class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900">How do you want to use Skileez?</h2>
+            <p class="mt-4 text-lg text-gray-600">Choose your role to get started. You can always add another role later.</p>
+        </div>
+        
+        <form method="POST" class="mt-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Student Option -->
+                <div class="role-card group cursor-pointer" onclick="selectRole('student')">
+                    <input type="radio" name="role" value="student" id="student" class="hidden">
+                    <div class="premium-card p-8 h-full flex flex-col items-center text-center transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
+                        <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors">
+                            <i data-feather="book-open" class="w-10 h-10 text-primary-600"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">I want to learn</h3>
+                        <p class="text-gray-600 mb-6 flex-grow">
+                            Find expert coaches, post learning requests, and develop new skills through personalized one-on-one sessions.
+                        </p>
+                        
+                        <div class="space-y-3 w-full">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Browse thousands of expert coaches
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Post custom learning requests
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Track your learning progress
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 px-6 py-2 bg-primary-50 text-primary-600 rounded-full text-sm font-medium">
+                            Quick setup - 5 minutes
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Coach Option -->
+                <div class="role-card group cursor-pointer" onclick="selectRole('coach')">
+                    <input type="radio" name="role" value="coach" id="coach" class="hidden">
+                    <div class="premium-card p-8 h-full flex flex-col items-center text-center transition-all duration-300 group-hover:shadow-xl group-hover:scale-105">
+                        <div class="w-20 h-20 bg-primary-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-primary-200 transition-colors">
+                            <i data-feather="users" class="w-10 h-10 text-primary-600"></i>
+                        </div>
+                        
+                        <h3 class="text-2xl font-bold text-gray-900 mb-4">I want to teach</h3>
+                        <p class="text-gray-600 mb-6 flex-grow">
+                            Share your expertise, build your coaching business, and earn money by helping others achieve their learning goals.
+                        </p>
+                        
+                        <div class="space-y-3 w-full">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Create a professional profile
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Find students that match your skills
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i data-feather="check" class="w-4 h-4 text-green-500 mr-2"></i>
+                                Set your own rates and schedule
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6 px-6 py-2 bg-primary-50 text-primary-600 rounded-full text-sm font-medium">
+                            Detailed setup - 15 minutes
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <button type="submit" id="continue-btn" class="bg-primary-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Continue
+                </button>
+                
+                <p class="mt-4 text-sm text-gray-500">
+                    You can always add the other role to your account later
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function selectRole(role) {
+    // Remove previous selections
+    document.querySelectorAll('.role-card').forEach(card => {
+        card.classList.remove('selected');
+    });
+    
+    // Select the clicked role
+    document.getElementById(role).checked = true;
+    document.querySelector(`input[value="${role}"]`).closest('.role-card').classList.add('selected');
+    
+    // Enable continue button
+    document.getElementById('continue-btn').disabled = false;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Test</title>
+    <style>
+        .hero-icon {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: red;
+            border: 2px solid blue;
+            z-index: 1000;
+        }
+        .icon1 { top: 100px; left: 100px; }
+        .icon2 { top: 200px; left: 200px; }
+        .icon3 { top: 300px; left: 300px; }
+    </style>
+</head>
+<body>
+    <h1>Animation Test Page</h1>
+    <div class="hero-icon icon1">Icon 1</div>
+    <div class="hero-icon icon2">Icon 2</div>
+    <div class="hero-icon icon3">Icon 3</div>
+    
+    <div id="debug" style="position: fixed; top: 10px; left: 10px; background: yellow; padding: 10px;">
+        Debug Info
+    </div>
+    
+    <script>
+        console.log('Test page loaded');
+        console.log('Hero icons found:', document.querySelectorAll('.hero-icon').length);
+        
+        const icons = document.querySelectorAll('.hero-icon');
+        let scrollCount = 0;
+        
+        window.addEventListener('scroll', function() {
+            scrollCount++;
+            console.log('Scroll #', scrollCount, 'Y:', window.pageYOffset);
+            
+            icons.forEach((icon, index) => {
+                const moveY = window.pageYOffset * 0.5;
+                const rotate = window.pageYOffset * 0.1;
+                icon.style.transform = `translateY(${moveY}px) rotate(${rotate}deg)`;
+            });
+            
+            document.getElementById('debug').innerHTML = `Scroll: ${scrollCount}, Y: ${window.pageYOffset}`;
+        });
+        
+        document.getElementById('debug').innerHTML = `Icons: ${icons.length}`;
+    </script>
+</body>
+</html>

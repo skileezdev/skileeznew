@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Request Reschedule - Session {{ session.session_number }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Request Reschedule</h1>
+                    <p class="text-gray-600">Session {{ session.session_number }} - {{ session.proposal.learning_request.title }}</p>
+                </div>
+                <a href="{{ url_for('view_contract', proposal_id=session.proposal_id) }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Back to Contract
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-lg shadow-sm border">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Reschedule Session</h2>
+            </div>
+            <div class="px-6 py-4">
+                <!-- Current Session Info -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3">Current Session</h3>
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <span class="text-gray-600">Date & Time:</span>
+                            <span class="font-medium text-gray-900">
+                                {% if session.scheduled_date %}
+                                {{ session.scheduled_date.strftime('%B %d, %Y at %I:%M %p') }}
+                                {% else %}
+                                Not scheduled
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Duration:</span>
+                            <span class="font-medium text-gray-900">{{ session.duration_minutes }} minutes</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Status:</span>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {{ session.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reschedule Rules Info -->
+                {% set hours_until_session = ((session.scheduled_date - now) / 3600) if session.scheduled_date and now else 0 %}
+                {% if hours_until_session <= 10 %}
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="alert-triangle" class="h-5 w-5 text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">Approval Required</h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                <p>This session is within 10 hours of the scheduled time. Your reschedule request will need approval from the coach.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="check-circle" class="h-5 w-5 text-green-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-green-800">Automatic Reschedule</h3>
+                            <div class="mt-2 text-sm text-green-700">
+                                <p>This session is more than 10 hours away. Your reschedule request will be automatically approved.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" class="space-y-6">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.new_date.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                New Date
+                            </label>
+                            {{ form.new_date(class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500", type="date") }}
+                            {% if form.new_date.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.new_date.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.new_time.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                New Time
+                            </label>
+                            {{ form.new_time(class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500", type="time") }}
+                            {% if form.new_time.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.new_time.errors %}
+                                <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.reason.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Reason for Reschedule
+                        </label>
+                        {{ form.reason(class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500", rows="3", placeholder="Please explain why you need to reschedule this session...") }}
+                        {% if form.reason.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.reason.errors %}
+                            <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <p class="mt-1 text-sm text-gray-500">This reason will be shared with the other party.</p>
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-3 pt-4">
+                        <a href="{{ url_for('view_contract', proposal_id=session.proposal_id) }}" 
+                           class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            {% if hours_until_session <= 10 %}
+                            Request Reschedule
+                            {% else %}
+                            Reschedule Session
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('{{ form.new_date.id }}').min = today;
+    
+    // Set default time to current time + 1 hour
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const timeString = now.toTimeString().slice(0, 5);
+    document.getElementById('{{ form.new_time.id }}').value = timeString;
+    
+    feather.replace();
+</script>
+{% endblock %}

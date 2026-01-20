@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Waiting Room - {{ session.proposal.learning_request.title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4><i class="fas fa-clock"></i> Waiting Room</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-hourglass-half fa-3x text-warning mb-3"></i>
+                        <h5>{{ session.proposal.learning_request.title }}</h5>
+                        <p class="text-muted">Session #{{ session.session_number }}</p>
+                    </div>
+                    
+                    <!-- Waiting Status -->
+                    <div class="alert alert-warning">
+                        <h6><i class="fas fa-info-circle"></i> You're in the waiting room</h6>
+                        <p class="mb-0">
+                            The meeting hasn't started yet. You'll be admitted when the host joins or when the meeting begins.
+                        </p>
+                    </div>
+                    
+                    <!-- Meeting Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Meeting Details</h6>
+                                    <p><strong>Duration:</strong> {{ session.duration_minutes or 60 }} minutes</p>
+                                    <p><strong>Status:</strong> 
+                                        <span class="badge bg-warning">Waiting</span>
+                                    </p>
+                                    {% if session.scheduled_at %}
+                                        <p><strong>Scheduled:</strong> {{ session.scheduled_at|format_datetime('full') }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Participants</h6>
+                                    {% set contract = session.get_contract() %}
+                                    {% if contract %}
+                                        <p><strong>Host:</strong> {{ contract.coach.first_name }} {{ contract.coach.last_name }}</p>
+                                        <p><strong>You:</strong> {{ contract.student.first_name }} {{ contract.student.last_name }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Waiting Tips -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-lightbulb"></i> While you wait:</h6>
+                        <ul class="mb-0">
+                            <li>Test your camera and microphone</li>
+                            <li>Ensure you have a stable internet connection</li>
+                            <li>Find a quiet environment</li>
+                            <li>Have any materials ready for the session</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Countdown Timer -->
+                    {% if session.scheduled_at %}
+                        <div class="text-center mb-4">
+                            <h6>Meeting starts in:</h6>
+                            <div id="countdown" class="h4 text-primary"></div>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Action Buttons -->
+                    <div class="text-center">
+                        {% if session.google_meet_url %}
+                            <a href="{{ url_for('join_meeting', session_id=session.id) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i> Join Google Meet
+                            </a>
+                        {% else %}
+                            <button id="join-btn" class="btn btn-primary btn-lg" disabled>
+                                <i class="fas fa-play"></i> Join Meeting
+                            </button>
+                        {% endif %}
+                        <a href="{{ url_for('join_session', session_id=session.id) }}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-arrow-left"></i> Back to Session
+                        </a>
+                    </div>
+                    
+                    <!-- Status Updates -->
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-sync-alt"></i> Checking meeting status...
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const joinBtn = document.getElementById('join-btn');
+    const countdownEl = document.getElementById('countdown');
+    let checkInterval;
+    
+    // Countdown timer
+    {% if session.scheduled_at %}
+        const meetingTime = new Date('{{ session.scheduled_at.isoformat() }}');
+        
+        function updateCountdown() {
+            const now = new Date();
+            const diff = meetingTime - now;
+            
+            if (diff <= 0) {
+                countdownEl.innerHTML = '<span class="text-success">Meeting should start now!</span>';
+                return;
+            }
+            
+            const minutes = Math.floor(diff / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
+            countdownEl.innerHTML = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    {% endif %}
+    
+    // Check meeting status
+    function checkMeetingStatus() {
+        fetch('{{ url_for("check_meeting_status", session_id=session.id) }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'active') {
+                    // Meeting is active, enable join button
+                    joinBtn.disabled = false;
+                    joinBtn.innerHTML = '<i class="fas fa-play"></i> Join Meeting Now!';
+                    joinBtn.onclick = function() {
+                        if ('{{ session.google_meet_url }}') {
+                            window.location.href = '{{ url_for("join_meeting", session_id=session.id) }}';
+                        } else {
+                            alert('Google Meet meeting not set up yet. Please wait for the coach to create the meeting.');
+                        }
+                    };
+                    
+                    // Show success message
+                    const statusEl = document.querySelector('.alert-warning');
+                    statusEl.className = 'alert alert-success';
+                    statusEl.innerHTML = '<h6><i class="fas fa-check-circle"></i> Meeting is ready!</h6><p class="mb-0">The meeting has started. You can join now!</p>';
+                    
+                    // Clear interval
+                    if (checkInterval) {
+                        clearInterval(checkInterval);
+                    }
+                }
+            })
+            .catch(error => console.log('Status check failed:', error));
+    }
+    
+    // Check status every 10 seconds
+    checkMeetingStatus();
+    checkInterval = setInterval(checkMeetingStatus, 10000);
+});
+</script>
+{% endblock %}

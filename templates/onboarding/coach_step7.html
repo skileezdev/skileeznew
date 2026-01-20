@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Onboarding - Step 7 - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {{ step }} of 9</span>
+                <span>{{ ((step-1)/8*100)|round|int }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((step-1)/8*100)|round|int }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Step Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            {% for i in range(1, 10) %}
+            <div class="flex items-center">
+                <a href="{{ url_for('coach_onboarding', step=i) }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 {% if i == step %}bg-primary-600 text-white cursor-default{% elif i < step %}bg-green-500 text-white hover:bg-green-600 cursor-pointer{% else %}bg-gray-200 text-gray-500 cursor-not-allowed{% endif %}" {% if i > step %}onclick="return false;"{% endif %}>
+                    {% if i < step %}
+                        <i data-feather="check" class="w-4 h-4"></i>
+                    {% else %}
+                        {{ i }}
+                    {% endif %}
+                </a>
+                {% if i < 9 %}
+                <div class="w-8 h-1 bg-gray-200 mx-2">
+                    <div class="h-1 {% if i < step %}bg-green-500{% else %}bg-gray-200{% endif %} transition-all duration-300"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="premium-card p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="edit-3" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Complete your coach profile</h2>
+                <p class="text-gray-600">Add your professional title and bio to help students understand your expertise.</p>
+            </div>
+            
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <div>
+                    {{ form.coach_title.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.coach_title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    
+                    <div class="mt-1 text-sm text-gray-500">
+                        This appears directly under your name on your profile
+                    </div>
+                    
+                    {% if form.coach_title.errors %}
+                        <div class="mt-2 text-sm text-red-600">
+                            {% for error in form.coach_title.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    {{ form.bio.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.bio(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="8", placeholder="Write a compelling bio that showcases your expertise, experience, and passion for teaching...") }}
+                    
+                    <div class="flex items-center justify-between mt-2 text-sm">
+                        <div class="text-gray-500">
+                            <span id="char-count">0</span> / 5000 characters
+                            <span class="text-gray-400">(minimum 100)</span>
+                        </div>
+                        <div id="char-status" class="text-red-500 hidden">
+                            <i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                            <span>Minimum 100 characters required</span>
+                        </div>
+                    </div>
+                    
+                    {% if form.bio.errors %}
+                        <div class="mt-2 text-sm text-red-600">
+                            {% for error in form.bio.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Bio Writing Tips -->
+                <div class="tip-card">
+                    <div class="tip-card-header">
+                        <div class="tip-card-icon">
+                            <i data-feather="lightbulb"></i>
+                        </div>
+                        <div>
+                            <h3 class="tip-card-title">Tips for an Outstanding Bio</h3>
+                            <p class="tip-card-subtitle">Make your bio stand out and attract students</p>
+                        </div>
+                    </div>
+                    <div class="tip-card-content">
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Highlight your expertise</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Mention experience</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Share teaching philosophy</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Explain learning outcomes</span>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Write in first person</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Be professional yet approachable</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Use specific examples</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                    <span class="text-gray-700 text-sm">Show passion for teaching</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between pt-8 border-t border-gray-200">
+                    <a href="{{ url_for('coach_onboarding', step=5) }}" class="btn-secondary px-6 py-3 rounded-lg transition-all duration-200">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back
+                    </a>
+                    
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-lg transition-all duration-200 opacity-50" id="next-btn" disabled>
+                        Next Step
+                        <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('bio');
+    const charCount = document.getElementById('char-count');
+    const charStatus = document.getElementById('char-status');
+    const nextBtn = document.getElementById('next-btn');
+    
+    function updateCharCount() {
+        const length = textarea.value.length;
+        charCount.textContent = length;
+        
+        if (length < 100) {
+            charStatus.classList.remove('hidden');
+            charStatus.className = 'text-red-500';
+            charStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Minimum 100 characters required</span>';
+            nextBtn.disabled = true;
+            nextBtn.classList.add('opacity-50');
+        } else if (length >= 100 && length <= 5000) {
+            charStatus.classList.remove('hidden');
+            charStatus.className = 'text-green-500';
+            charStatus.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i><span>Looking great!</span>';
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50');
+        } else if (length > 5000) {
+            charStatus.classList.remove('hidden');
+            charStatus.className = 'text-red-500';
+            charStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Bio too long, please shorten</span>';
+            nextBtn.disabled = true;
+            nextBtn.classList.add('opacity-50');
+        }
+        
+        // Re-initialize feather icons
+        feather.replace();
+    }
+    
+    textarea.addEventListener('input', updateCharCount);
+    
+    // Initial check
+    if (textarea.value) {
+        updateCharCount();
+    }
+});
+</script>
+{% endblock %}

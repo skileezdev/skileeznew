@@ -1,0 +1,36 @@
+# Video functionality has been removed from this application
+# LiveKit configuration is no longer needed
+
+# Video functionality has been removed from this application
+# ENABLE_VIDEO_CALLS=true
+
+# Production Scalability Settings (for 200+ concurrent calls)
+MAX_CONCURRENT_ROOMS=500
+MAX_PARTICIPANTS_PER_ROOM=10
+ROOM_CLEANUP_INTERVAL=300
+
+# Database Connection Pooling (for high concurrent load)
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=30
+DATABASE_POOL_TIMEOUT=30
+DATABASE_POOL_RECYCLE=3600
+
+# Redis Configuration (for session management and caching)
+REDIS_URL=redis://localhost:6379/0
+REDIS_MAX_CONNECTIONS=50
+
+# WebSocket Configuration
+WEBSOCKET_MAX_CONNECTIONS=1000
+WEBSOCKET_TIMEOUT=300
+
+# Application Performance Settings
+WORKER_PROCESSES=4
+WORKER_THREADS=8
+REQUEST_TIMEOUT=60
+
+# Other application settings
+FLASK_ENV=production
+SECRET_KEY=your_secret_key_here
+DATABASE_URL=your_database_url_here
+STRIPE_SECRET_KEY=your_stripe_secret_key_here
+STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key_here

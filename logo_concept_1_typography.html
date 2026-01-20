@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skileez Logo Concept 1 - Typography with Manga Touches</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background: linear-gradient(135deg, #F0F4FF 0%, #FAFAFA 50%, #E0EBFF 100%);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .logo-main {
+            font-size: 120px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(79, 70, 229, 0.3);
+            position: relative;
+            display: inline-block;
+            letter-spacing: -2px;
+        }
+
+        .manga-accent {
+            position: absolute;
+            top: -10px;
+            right: -15px;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .manga-accent::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .manga-accent::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #FF6B6B;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ripple 2s infinite;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #6B7280;
+            margin-top: 20px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .manga-lines {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            pointer-events: none;
+        }
+
+        .manga-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #4A90E2, transparent);
+            height: 2px;
+            animation: mangaFlow 3s infinite;
+        }
+
+        .manga-line:nth-child(1) {
+            top: 20%;
+            left: 0;
+            width: 100%;
+            animation-delay: 0s;
+        }
+
+        .manga-line:nth-child(2) {
+            top: 40%;
+            left: 0;
+            width: 80%;
+            animation-delay: 0.5s;
+        }
+
+        .manga-line:nth-child(3) {
+            top: 60%;
+            left: 0;
+            width: 60%;
+            animation-delay: 1s;
+        }
+
+        .manga-line:nth-child(4) {
+            top: 80%;
+            left: 0;
+            width: 40%;
+            animation-delay: 1.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 0.3; }
+            100% { transform: scale(1.2); opacity: 0; }
+        }
+
+        @keyframes mangaFlow {
+            0% { transform: translateX(-100%); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateX(100%); opacity: 0; }
+        }
+
+        .variations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .variation {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .variation h3 {
+            color: #1A1A1A;
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .logo-small {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .logo-minimal {
+            font-size: 36px;
+            font-weight: 800;
+            color: #4A90E2;
+            margin-bottom: 15px;
+        }
+
+        .logo-dark {
+            font-size: 48px;
+            font-weight: 900;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+        }
+
+        .description {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo-container">
+        <div class="logo-main">
+            Skileez
+            <div class="manga-accent"></div>
+        </div>
+        <div class="manga-lines">
+            <div class="manga-line"></div>
+            <div class="manga-line"></div>
+            <div class="manga-line"></div>
+            <div class="manga-line"></div>
+        </div>
+        <div class="tagline">Never Start From Scratch</div>
+    </div>
+
+    <div class="variations">
+        <div class="variation">
+            <h3>Full Color Version</h3>
+            <div class="logo-small">Skileez</div>
+            <div class="description">Primary logo with full gradient and manga accent for main branding</div>
+        </div>
+
+        <div class="variation">
+            <h3>Minimal Version</h3>
+            <div class="logo-minimal">Skileez</div>
+            <div class="description">Clean version for small applications and monochrome contexts</div>
+        </div>
+
+        <div class="variation">
+            <h3>Dark Version</h3>
+            <div class="logo-dark">Skileez</div>
+            <div class="description">Dark version for light backgrounds and high contrast needs</div>
+        </div>
+    </div>
+</body>
+</html>

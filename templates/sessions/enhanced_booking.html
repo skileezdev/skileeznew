@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block title %}Book Session - {{ coach.user.first_name }} {{ coach.user.last_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+.booking-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.coach-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.coach-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid white;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.calendar-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.calendar-picker {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.time-slots {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 1rem;
+}
+
+.calendar-header {
+    text-align: center;
+    font-weight: bold;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.calendar-day {
+    text-align: center;
+    padding: 15px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.calendar-day:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.calendar-day.selected {
+    background: #007bff;
+    color: white;
+    border-color: #0056b3;
+}
+
+.calendar-day.available {
+    background: #d4edda;
+    border-color: #28a745;
+}
+
+.calendar-day.unavailable {
+    background: #f8d7da;
+    color: #721c24;
+    cursor: not-allowed;
+}
+
+.calendar-day.today {
+    border-color: #ffc107;
+    font-weight: bold;
+}
+
+.time-slot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.time-slot:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+    transform: translateX(5px);
+}
+
+.time-slot.selected {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.time-slot.unavailable {
+    background: #f8d7da;
+    border-color: #dc3545;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.time-slot.unavailable:hover {
+    transform: none;
+    border-color: #dc3545;
+}
+
+.booking-form {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.btn-book {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 15px 30px;
+    font-weight: 600;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-book:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(40,167,69,0.3);
+}
+
+.btn-book:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+}
+
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.availability-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.availability-indicator.available {
+    background: #28a745;
+}
+
+.availability-indicator.unavailable {
+    background: #dc3545;
+}
+
+.availability-indicator.partial {
+    background: #ffc107;
+}
+
+@media (max-width: 768px) {
+    .calendar-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .booking-container {
+        padding: 1rem;
+    }
+    
+    .coach-info {
+        padding: 1.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-container">
+    <!-- Coach Information -->
+    <div class="coach-info">
+        <div class="row align-items-center">
+            <div class="col-md-2 text-center">
+                {% if coach.profile_picture %}
+                    <img src="{{ coach.profile_picture }}" alt="{{ coach.user.first_name }}" class="coach-avatar">
+                {% else %}
+                    <div class="coach-avatar bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-user fa-2x text-muted"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-md-10">
+                <h2>{{ coach.user.first_name }} {{ coach.user.last_name }}</h2>
+                <p class="mb-2">{{ coach.title or 'Professional Coach' }}</p>
+                <p class="mb-0">
+                    <i class="fas fa-clock"></i> {{ session_duration }} minute session
+                    {% if coach.hourly_rate %}
+                        • <i class="fas fa-dollar-sign"></i> ${{ "%.2f"|format(coach.hourly_rate) }}/hour
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Interface -->
+    <div class="calendar-container">
+        <!-- Calendar Picker -->
+        <div class="calendar-picker">
+            <h4 class="mb-3">
+                <i class="fas fa-calendar-alt"></i> Select Date
+            </h4>
+            
+            <!-- Month Navigation -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-outline-primary" onclick="previousMonth()">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <h5 class="mb-0" id="currentMonth">{{ current_month }}</h5>
+                <button class="btn btn-outline-primary" onclick="nextMonth()">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="calendar-grid">
+                <div class="calendar-header">Sun</div>
+                <div class="calendar-header">Mon</div>
+                <div class="calendar-header">Tue</div>
+                <div class="calendar-header">Wed</div>
+                <div class="calendar-header">Thu</div>
+                <div class="calendar-header">Fri</div>
+                <div class="calendar-header">Sat</div>
+                
+                {% for day in calendar_days %}
+                    <div class="calendar-day 
+                        {% if day.is_today %}today{% endif %}
+                        {% if day.is_selected %}selected{% endif %}
+                        {% if day.is_available %}available{% endif %}
+                        {% if not day.is_available %}unavailable{% endif %}"
+                        data-date="{{ day.date }}"
+                        onclick="selectDate('{{ day.date }}')">
+                        {{ day.day_number }}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Availability Legend -->
+            <div class="mt-3">
+                <small class="text-muted">
+                    <span class="availability-indicator available"></span> Available
+                    <span class="availability-indicator unavailable"></span> Unavailable
+                    <span class="availability-indicator partial"></span> Limited
+                </small>
+            </div>
+        </div>
+
+        <!-- Time Slots -->
+        <div class="time-slots">
+            <h4 class="mb-3">
+                <i class="fas fa-clock"></i> Available Times
+                <span id="selectedDateDisplay" class="text-muted"></span>
+            </h4>
+            
+            <div id="timeSlotsContainer">
+                <div class="text-center text-muted">
+                    <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                    <p>Select a date to see available times</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Form -->
+    <div class="booking-form" id="bookingForm" style="display: none;">
+        <h4 class="mb-3">
+            <i class="fas fa-edit"></i> Session Details
+        </h4>
+        
+        <form id="sessionBookingForm" method="POST">
+            <input type="hidden" id="selectedDate" name="selected_date">
+            <input type="hidden" id="selectedTime" name="selected_time">
+            <input type="hidden" id="sessionDuration" name="duration_minutes" value="{{ session_duration }}">
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Session Date & Time</label>
+                        <div class="form-control-plaintext" id="sessionDateTime"></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label class="form-label">Duration</label>
+                        <div class="form-control-plaintext">{{ session_duration }} minutes</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="sessionNotes" class="form-label">Session Notes (Optional)</label>
+                <textarea class="form-control" id="sessionNotes" name="notes" rows="3" 
+                          placeholder="Any specific topics or questions you'd like to discuss..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="timezone" class="form-label">Your Timezone</label>
+                <select class="form-control" id="timezone" name="timezone">
+                    {% for tz in timezones %}
+                        <option value="{{ tz }}" {% if tz == user_timezone %}selected{% endif %}>{{ tz }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-book" id="bookButton">
+                    <i class="fas fa-calendar-check"></i> Book Session
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading" id="loadingState">
+        <div class="spinner"></div>
+        <p>Loading available times...</p>
+    </div>
+</div>
+
+<script>
+let currentDate = new Date();
+let selectedDate = null;
+let selectedTime = null;
+
+// Initialize calendar
+document.addEventListener('DOMContentLoaded', function() {
+    updateCalendar();
+    updateSelectedDateDisplay();
+});
+
+function updateCalendar() {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                       "July", "August", "September", "October", "November", "December"];
+    
+    document.getElementById('currentMonth').textContent = 
+        monthNames[currentDate.getMonth()] + ' ' + currentDate.getFullYear();
+    
+    // Fetch calendar data for current month
+    fetchCalendarData();
+}
+
+function fetchCalendarData() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+    
+    fetch(`/api/coaches/{{ coach.id }}/calendar?year=${year}&month=${month}`)
+        .then(response => response.json())
+        .then(data => {
+            updateCalendarDays(data.days);
+        })
+        .catch(error => {
+            console.error('Error fetching calendar data:', error);
+        });
+}
+
+function updateCalendarDays(days) {
+    const calendarGrid = document.querySelector('.calendar-grid');
+    const dayElements = calendarGrid.querySelectorAll('.calendar-day:not(.calendar-header)');
+    
+    dayElements.forEach((element, index) => {
+        if (index < days.length) {
+            const day = days[index];
+            element.className = `calendar-day ${day.classes.join(' ')}`;
+            element.dataset.date = day.date;
+            element.onclick = () => selectDate(day.date);
+        }
+    });
+}
+
+function selectDate(date) {
+    selectedDate = date;
+    selectedTime = null;
+    
+    // Update calendar selection
+    document.querySelectorAll('.calendar-day').forEach(day => {
+        day.classList.remove('selected');
+    });
+    event.target.classList.add('selected');
+    
+    // Update display
+    updateSelectedDateDisplay();
+    
+    // Fetch time slots for selected date
+    fetchTimeSlots(date);
+    
+    // Show booking form
+    document.getElementById('bookingForm').style.display = 'block';
+}
+
+function fetchTimeSlots(date) {
+    showLoading(true);
+    
+    fetch(`/api/coaches/{{ coach.id }}/availability-slots?date=${date}&duration_minutes={{ session_duration }}`)
+        .then(response => response.json())
+        .then(data => {
+            showLoading(false);
+            displayTimeSlots(data.slots);
+        })
+        .catch(error => {
+            showLoading(false);
+            console.error('Error fetching time slots:', error);
+            displayTimeSlots([]);
+        });
+}
+
+function displayTimeSlots(slots) {
+    const container = document.getElementById('timeSlotsContainer');
+    
+    if (slots.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="fas fa-calendar-times fa-2x mb-2"></i>
+                <p>No available times for this date</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = slots.map(slot => `
+        <div class="time-slot" onclick="selectTime('${slot.start_time}', '${slot.end_time}')">
+            <div>
+                <strong>${formatTime(slot.start_time)}</strong>
+                <br>
+                <small class="text-muted">${formatTime(slot.end_time)}</small>
+            </div>
+            <div>
+                <i class="fas fa-clock text-primary"></i>
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectTime(startTime, endTime) {
+    selectedTime = startTime;
+    
+    // Update time slot selection
+    document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.classList.remove('selected');
+    });
+    event.currentTarget.classList.add('selected');
+    
+    // Update form
+    document.getElementById('selectedDate').value = selectedDate;
+    document.getElementById('selectedTime').value = selectedTime;
+    document.getElementById('sessionDateTime').textContent = 
+        `${formatDate(selectedDate)} at ${formatTime(selectedTime)}`;
+    
+    // Enable booking button
+    document.getElementById('bookButton').disabled = false;
+}
+
+function updateSelectedDateDisplay() {
+    const display = document.getElementById('selectedDateDisplay');
+    if (selectedDate) {
+        display.textContent = ` - ${formatDate(selectedDate)}`;
+    } else {
+        display.textContent = '';
+    }
+}
+
+function showLoading(show) {
+    document.getElementById('loadingState').style.display = show ? 'block' : 'none';
+}
+
+function previousMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    updateCalendar();
+}
+
+function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    updateCalendar();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+}
+
+function formatTime(timeString) {
+    const date = new Date(timeString);
+    return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+    });
+}
+
+// Handle form submission
+document.getElementById('sessionBookingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!selectedDate || !selectedTime) {
+        alert('Please select a date and time');
+        return;
+    }
+    
+    // Submit the form
+    this.submit();
+});
+</script>
+{% endblock %}

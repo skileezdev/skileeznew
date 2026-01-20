@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Post a Job - Skileez{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-plus-circle me-2"></i>Post a New Job
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Job Title -->
+                        <div class="mb-3">
+                            <label for="{{ form.title.id }}" class="form-label">
+                                <strong>{{ form.title.label }}</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title(class="form-control", placeholder="e.g., Need Python Tutor for Data Science Project") }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Be specific about what you need help with</div>
+                        </div>
+
+                        <!-- Job Description -->
+                        <div class="mb-3">
+                            <label for="{{ form.description.id }}" class="form-label">
+                                <strong>{{ form.description.label }}</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description(class="form-control", rows="6", placeholder="Describe your project, goals, and what you're looking for in a coach...") }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Minimum 50 characters. Be detailed about your requirements.</div>
+                        </div>
+
+                        <!-- Budget and Sessions -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.price_per_hour.id }}" class="form-label">
+                                        <strong>{{ form.price_per_hour.label }}</strong>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.price_per_hour(class="form-control", placeholder="25.00") }}
+                                    </div>
+                                    {% if form.price_per_hour.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.price_per_hour.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.number_of_sessions.id }}" class="form-label">
+                                        <strong>{{ form.number_of_sessions.label }}</strong>
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.number_of_sessions(class="form-control", placeholder="5") }}
+                                    {% if form.number_of_sessions.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.number_of_sessions.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Timeframe -->
+                        <div class="mb-3">
+                            <label for="{{ form.timeframe.id }}" class="form-label">
+                                <strong>{{ form.timeframe.label }}</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.timeframe(class="form-control", placeholder="e.g., 2 weeks, 1 month, 3 months") }}
+                            {% if form.timeframe.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.timeframe.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">How long do you expect this project to take?</div>
+                        </div>
+
+                        <!-- Skill Tags -->
+                        <div class="mb-3">
+                            <label for="{{ form.skill_tags.id }}" class="form-label">
+                                <strong>{{ form.skill_tags.label }}</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.skill_tags(class="form-control", placeholder="Python, Web Development, Data Analysis, Machine Learning") }}
+                            {% if form.skill_tags.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.skill_tags.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Comma-separated skills. This helps coaches find your job.</div>
+                        </div>
+
+                        <!-- Preferred Learning Times -->
+                        <div class="mb-3">
+                            <label for="{{ form.preferred_learning_times.id }}" class="form-label">
+                                <strong>{{ form.preferred_learning_times.label }}</strong>
+                            </label>
+                            {{ form.preferred_learning_times(class="form-control", placeholder="e.g., Weekdays 6-8 PM, Weekends 10 AM-2 PM") }}
+                            {% if form.preferred_learning_times.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.preferred_learning_times.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">When are you available for sessions?</div>
+                        </div>
+
+                        <!-- Screening Questions -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-question-circle me-2"></i>Screening Questions (Optional)
+                                </h5>
+                                <small class="text-muted">Add up to 5 questions to help filter applicants</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.screening_question_1.id }}" class="form-label">Question 1</label>
+                                            {{ form.screening_question_1(class="form-control", placeholder="e.g., What's your experience with Python?") }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="{{ form.screening_question_2.id }}" class="form-label">Question 2</label>
+                                            {{ form.screening_question_2(class="form-control", placeholder="e.g., Can you provide examples of similar projects?") }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="{{ form.screening_question_3.id }}" class="form-label">Question 3</label>
+                                            {{ form.screening_question_3(class="form-control", placeholder="e.g., What's your teaching approach?") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="{{ form.screening_question_4.id }}" class="form-label">Question 4</label>
+                                            {{ form.screening_question_4(class="form-control", placeholder="e.g., How do you handle different learning styles?") }}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="{{ form.screening_question_5.id }}" class="form-label">Question 5</label>
+                                            {{ form.screening_question_5(class="form-control", placeholder="e.g., What tools do you recommend for this project?") }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Post Job
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Card -->
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lightbulb me-2"></i>Tips for a Great Job Post
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Be specific:</strong> Clearly describe what you want to learn or accomplish
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Set realistic budget:</strong> Consider the complexity and duration of your project
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Include relevant skills:</strong> This helps qualified coaches find your job
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Add screening questions:</strong> Filter applicants based on your specific needs
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            <strong>Specify availability:</strong> Help coaches understand your schedule
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+(function() {
+    'use strict';
+    window.addEventListener('load', function() {
+        var forms = document.getElementsByClassName('needs-validation');
+        var validation = Array.prototype.filter.call(forms, function(form) {
+            form.addEventListener('submit', function(event) {
+                if (form.checkValidity() === false) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    }, false);
+})();
+</script>
+{% endblock %}

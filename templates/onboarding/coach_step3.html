@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Onboarding - Step 2 - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {{ step }} of 9</span>
+                <span>{{ ((step-1)/8*100)|round|int }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((step-1)/8*100)|round|int }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Step Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            {% for i in range(1, 10) %}
+            <div class="flex items-center">
+                <a href="{{ url_for('coach_onboarding', step=i) }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 {% if i == step %}bg-primary-600 text-white cursor-default{% elif i < step %}bg-green-500 text-white hover:bg-green-600 cursor-pointer{% else %}bg-gray-200 text-gray-500 cursor-not-allowed{% endif %}" {% if i > step %}onclick="return false;"{% endif %}>
+                    {% if i < step %}
+                        <i data-feather="check" class="w-4 h-4"></i>
+                    {% else %}
+                        {{ i }}
+                    {% endif %}
+                </a>
+                {% if i < 9 %}
+                <div class="w-8 h-1 bg-gray-200 mx-2">
+                    <div class="h-1 {% if i < step %}bg-green-500{% else %}bg-gray-200{% endif %} transition-all duration-300"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="premium-card p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="award" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">What are your skills?</h2>
+                <p class="text-gray-600">List the skills you can teach. These will help students find you when searching.</p>
+            </div>
+            
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <div>
+                    {{ form.skills.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    
+                    <!-- Skills Input -->
+                    <div class="relative">
+                        {{ form.skills(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., Digital Marketing, Social Media, Content Strategy") }}
+                        <div class="absolute right-3 top-3 text-gray-400">
+                            <i data-feather="plus" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-2 text-sm text-gray-500">
+                        Separate skills with commas. Be specific and use keywords students might search for.
+                    </p>
+                    
+                    {% if form.skills.errors %}
+                        <div class="mt-2 text-sm text-red-600">
+                            {% for error in form.skills.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Skills Preview -->
+                <div id="skills-preview" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Skills Preview:</label>
+                    <div id="skills-tags" class="flex flex-wrap gap-2"></div>
+                </div>
+                
+                <!-- Popular Skills -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6">
+                    <h4 class="font-semibold text-gray-800 mb-4 flex items-center">
+                        <i data-feather="trending-up" class="w-4 h-4 mr-2"></i>
+                        Popular skills on Skileez
+                    </h4>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                        {% set popular_skills = [
+                            'Digital Marketing', 'Web Development', 'Graphic Design', 
+                            'Data Science', 'Photography', 'Writing', 
+                            'Business Strategy', 'Social Media', 'SEO',
+                            'Python', 'JavaScript', 'Public Speaking',
+                            'Project Management', 'UX/UI Design', 'Video Editing'
+                        ] %}
+                        {% for skill in popular_skills %}
+                        <button type="button" class="popular-skill text-left px-3 py-2 bg-white border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors cursor-pointer">
+                            {{ skill }}
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">Click on any skill to add it to your list</p>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between pt-8 border-t border-gray-200">
+                    <a href="{{ url_for('coach_onboarding', step=1) }}" class="btn-secondary px-6 py-3 rounded-lg transition-all duration-200">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back
+                    </a>
+                    
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-lg transition-all duration-200 opacity-50" id="next-btn" disabled>
+                        Next Step
+                        <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const skillsInput = document.getElementById('skills');
+    const skillsPreview = document.getElementById('skills-preview');
+    const skillsTags = document.getElementById('skills-tags');
+    const nextBtn = document.getElementById('next-btn');
+    const popularSkills = document.querySelectorAll('.popular-skill');
+    
+    function updateSkillsPreview() {
+        const skills = skillsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        
+        if (skills.length > 0) {
+            skillsPreview.classList.remove('hidden');
+            skillsTags.innerHTML = '';
+            
+            skills.forEach(skill => {
+                const tag = document.createElement('span');
+                tag.className = 'skill-badge px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium';
+                tag.textContent = skill;
+                skillsTags.appendChild(tag);
+            });
+            
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50');
+        } else {
+            skillsPreview.classList.add('hidden');
+            nextBtn.disabled = true;
+            nextBtn.classList.add('opacity-50');
+        }
+    }
+    
+    function addSkill(skill) {
+        const currentSkills = skillsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        
+        if (!currentSkills.includes(skill)) {
+            currentSkills.push(skill);
+            skillsInput.value = currentSkills.join(', ');
+            updateSkillsPreview();
+        }
+    }
+    
+    skillsInput.addEventListener('input', updateSkillsPreview);
+    
+    popularSkills.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            addSkill(this.textContent.trim());
+        });
+    });
+    
+    // Initial check
+    if (skillsInput.value) {
+        updateSkillsPreview();
+    }
+});
+</script>
+{% endblock %}

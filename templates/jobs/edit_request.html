@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Job Post - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Edit Job Post</h1>
+                    <p class="mt-2 text-gray-600">Update your learning request details</p>
+                </div>
+                <a href="{{ url_for('student_dashboard') }}" class="btn-secondary px-4 py-2 rounded-lg">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div class="premium-card p-8">
+            <form method="POST" action="{{ url_for('edit_job', job_id=learning_request.id) }}">
+                {{ form.hidden_tag() }}
+                
+                <!-- Basic Information -->
+                <div class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+                            Job Title <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="What do you want to learn?") }}
+                        {% if form.title.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.title.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", rows="5", placeholder="Describe what you want to learn and your current skill level...") }}
+                        {% if form.description.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.description.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="skills_needed" class="block text-sm font-medium text-gray-700 mb-2">
+                                Skills Needed <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.skills_needed(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="e.g., Python, Data Analysis, Web Design") }}
+                            {% if form.skills_needed.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.skills_needed.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="duration" class="block text-sm font-medium text-gray-700 mb-2">
+                                Duration <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.duration(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="e.g., 4 weeks, 2 months") }}
+                            {% if form.duration.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.duration.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">
+                                Budget ($) <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.budget(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="Total budget for the project", min="0", step="0.01", type="number") }}
+                            {% if form.budget.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.budget.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label for="experience_level" class="block text-sm font-medium text-gray-700 mb-2">
+                                Experience Level <span class="text-red-500">*</span>
+                            </label>
+                            {{ form.experience_level(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                            {% if form.experience_level.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.experience_level.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Type -->
+                    <div class="mt-6">
+                        <label for="skill_type" class="block text-sm font-medium text-gray-700 mb-2">
+                            Skill Type <span class="text-red-500">*</span>
+                        </label>
+                        {{ form.skill_type(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                        <div class="mt-2 text-sm text-gray-500">
+                            <p><strong>Quick Skill</strong> – For fast, targeted learning (e.g. "Teach me how to add subtitles like MrBeast").</p>
+                            <p><strong>Deep Skill</strong> – For long-term growth and mastery (e.g. "Help me learn Spanish fluently").</p>
+                        </div>
+                        {% if form.skill_type.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.skill_type.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Screening Questions -->
+                <div class="mt-8 pt-8 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Screening Questions (Optional)</h3>
+                    <p class="text-sm text-gray-600 mb-6">Add up to 5 questions to help filter proposals and find the right coach for your needs.</p>
+                    
+                    <div class="space-y-4">
+                        {% for i in range(1, 6) %}
+                            <div>
+                                <label for="screening_question_{{ i }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Question {{ i }}
+                                </label>
+                                {% set field = form['screening_question_' + i|string] %}
+                                {{ field(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", placeholder="Ask a specific question about the coach's experience or approach...") }}
+                                {% if field.errors %}
+                                    <div class="mt-1 text-sm text-red-600">
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 pt-6 border-t border-gray-200 flex items-center justify-between">
+                    <a href="{{ url_for('student_dashboard') }}" class="text-gray-600 hover:text-gray-800 font-medium">
+                        Cancel
+                    </a>
+                    <div class="flex items-center space-x-4">
+                        <button type="submit" class="btn-primary px-8 py-3 rounded-lg">
+                            <i data-feather="save" class="w-4 h-4 mr-2"></i>
+                            Update Job Post
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Add Experience - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-4">
+                <a href="{{ url_for('edit_profile') }}#experience" class="text-gray-600 hover:text-gray-900 mr-3">
+                    <i data-feather="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900">Add Work Experience</h1>
+            </div>
+            <p class="text-gray-600">Add your professional work experience to showcase your expertise</p>
+        </div>
+
+        <!-- Form -->
+        <div class="premium-card p-6">
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <!-- Job Title -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Job Title *</label>
+                    {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., Senior Web Developer", required=True) }}
+                    {% if form.title.errors %}
+                        {% for error in form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+                    {{ form.company(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., Google, Microsoft, Freelance") }}
+                    {% if form.company.errors %}
+                        {% for error in form.company.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="4", placeholder="Describe your responsibilities, achievements, and key skills developed...") }}
+                    {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Date Range -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+                        {{ form.start_date(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                        {% if form.start_date.errors %}
+                            {% for error in form.start_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+                        {{ form.end_date(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", id="end_date") }}
+                        {% if form.end_date.errors %}
+                            {% for error in form.end_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Currently Working -->
+                <div class="flex items-center">
+                    {{ form.is_current(class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded", id="is_current") }}
+                    <label for="is_current" class="ml-2 text-sm text-gray-700">I currently work here</label>
+                    {% if form.is_current.errors %}
+                        {% for error in form.is_current.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <div class="flex justify-end space-x-3 pt-6">
+                    <a href="{{ url_for('edit_profile') }}#experience" class="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-lg">
+                        Add Experience
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isCurrentCheckbox = document.getElementById('is_current');
+    const endDateInput = document.getElementById('end_date');
+    
+    function toggleEndDate() {
+        if (isCurrentCheckbox.checked) {
+            endDateInput.disabled = true;
+            endDateInput.value = '';
+            endDateInput.style.backgroundColor = '#f9fafb';
+        } else {
+            endDateInput.disabled = false;
+            endDateInput.style.backgroundColor = '';
+        }
+    }
+    
+    isCurrentCheckbox.addEventListener('change', toggleEndDate);
+    toggleEndDate(); // Initialize state
+});
+</script>
+{% endblock %}

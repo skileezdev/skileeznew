@@ -1,0 +1,1523 @@
+<!-- Message Item Component - Reusable message display -->
+<!-- Usage: {% include 'messages/components/message_item.html' with context %} -->
+
+<div class="message-item mb-3 {% if message.sender_id == current_user.id %}message-sent{% else %}message-received{% endif %}" 
+     data-message-id="{{ message.id }}">
+    
+    {% if message.sender_id != current_user.id %}
+        <!-- Received Message -->
+        <div class="d-flex align-items-start">
+            <div class="flex-shrink-0 me-2">
+                {% set sender_profile_pic = None %}
+                {% if message.sender.current_role == 'coach' and message.sender.coach_profile and message.sender.coach_profile.profile_picture %}
+                    {% set sender_profile_pic = message.sender.coach_profile.profile_picture %}
+                {% elif message.sender.current_role == 'student' and message.sender.student_profile and message.sender.student_profile.profile_picture %}
+                    {% set sender_profile_pic = message.sender.student_profile.profile_picture %}
+                {% endif %}
+
+                {% if sender_profile_pic %}
+                    <img src="{{ sender_profile_pic|profile_pic_url }}" 
+                         class="rounded-circle message-avatar" 
+                         width="30" height="30" 
+                         alt="{{ message.sender.first_name }}'s profile"
+                         title="{{ message.sender.first_name }} {{ message.sender.last_name }}">
+                {% else %}
+                    <div class="message-avatar-placeholder rounded-circle" 
+                         title="{{ message.sender.first_name }} {{ message.sender.last_name }}">
+                        <span class="small text-white">{{ message.sender.first_name[0] }}</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="flex-grow-1 max-width-70">
+                <div class="message-bubble received">
+                    <!-- Message Content -->
+                    <div class="message-content">
+                        {% if message.message_type == 'TEXT' %}
+                            {% set contract_info = message.content|extract_contract_info %}
+                            {% if contract_info %}
+                                <!-- Contract Preview Card (Call-style Design) - Detected from JSON content -->
+                                <div class="session-preview-card contract-card {% if message.sender_id == current_user.id %}sent{% endif %}">
+                                    <div class="session-header">
+                                        <div class="session-icon contract-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Contract Offer</h4>
+                                            {% if contract_info.status %}
+                                                <span class="session-type contract-{{ contract_info.status }}">{{ contract_info.status|title }}</span>
+                                            {% else %}
+                                                <span class="session-type contract-pending">Pending Review</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">{{ contract_info.project|default('Learning Project') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Start Date</span>
+                                                <span class="value">{{ contract_info.start_date|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Sessions</span>
+                                                <span class="value">{{ contract_info.sessions|default('N/A') }} sessions</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ contract_info.duration|default('60') }} min each</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Rate</span>
+                                                <span class="value">{{ contract_info.rate|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Total Amount</span>
+                                                <span class="value amount">{{ contract_info.amount|default('N/A') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        {% if contract_info.contract_id %}
+                                        <a href="{{ url_for('view_contract', contract_id=contract_info.contract_id) }}" class="btn view-detailed-contract-btn">
+                                            <i class="fas fa-file-text"></i>
+                                            View Detailed Contract
+                                        </a>
+                                        {% else %}
+                                        <a href="#" class="btn view-detailed-contract-btn" onclick="viewContractFromMessage({{ message.id }})">
+                                            <i class="fas fa-file-text"></i>
+                                            View Detailed Contract
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                {{ message.content|e|replace('\n', '<br>')|safe }}
+                            {% endif %}
+                        {% elif message.message_type == 'CONTRACT_OFFER' %}
+                            <!-- Contract Offer Card - Rendered outside message bubble like call cards -->
+                            {% from 'messages/components/contract_card.html' import render_contract_card %}
+                            {% set contract_data = message.content|extract_contract_info %}
+                            {% if contract_data %}
+                                {{ render_contract_card(contract_data, current_user, message) }}
+                            {% else %}
+                                <!-- Fallback to regular message if contract data can't be parsed -->
+                                <div class="contract-message">
+                                    <div class="flex items-center mb-2">
+                                        <i data-feather="file-text" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                        <span class="font-semibold text-primary-600">Contract Offer</span>
+                                    </div>
+                                    <div class="text-sm mb-3">{{ message.content|safe }}</div>
+                                </div>
+                            {% endif %}
+                        {% elif message.message_type == 'SYSTEM' %}
+                            <div class="system-message">
+                                <i class="fas fa-info-circle text-info me-2"></i>
+                                {{ message.content }}
+                            </div>
+                        {% elif message.message_type == 'SESSION_SCHEDULED' %}
+                            <!-- Interactive Session Card -->
+                            <div class="session-preview-card {% if message.sender_id == current_user.id %}sent{% endif %}">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Session Scheduled</h4>
+                                        {% set session_info = message.content|extract_session_info %}
+                                        {% if session_info and session_info.session_type %}
+                                            <span class="session-type {{ session_info.session_type }}">{{ session_info.session_type|title }}</span>
+                                        {% else %}
+                                            <span class="session-type paid">Learning Session</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set session_info = message.content|extract_session_info %}
+                                    {% if session_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ session_info.scheduled_at|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ session_info.duration|default('60') }} min</span>
+                                            </div>
+                                            {% if session_info.session_type == 'free_consultation' %}
+                                            <div class="info-item">
+                                                <span class="label">Type</span>
+                                                <span class="value">Free 15-min Consultation</span>
+                                            </div>
+                                            {% else %}
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">{{ session_info.session_number|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">{{ session_info.contract_title|default('N/A') }}</span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-{{ session_info.status|default('scheduled') }}">{{ session_info.status|default('Scheduled')|title }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if session_info and session_info.status in ['scheduled', 'confirmed'] %}
+                                    <a href="{{ url_for('join_call', call_id=session_info.session_id) }}" class="btn join-session-btn">
+                                        <i class="fas fa-play"></i>
+                                        Join Call
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_call', call_id=session_info.session_id) if session_info else '#' }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status == 'scheduled' %}
+                                    <button class="btn reschedule-btn" onclick="requestReschedule({{ session_info.session_id }})">
+                                        <i class="fas fa-clock"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'FREE_CONSULTATION' %}
+                            <!-- Interactive Free Consultation Card -->
+                            <div class="session-preview-card consultation">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>
+                                            {% if consultation_info and consultation_info.status == 'requested' %}
+                                                Consultation Request Sent
+                                            {% else %}
+                                                Free Consultation Scheduled
+                                            {% endif %}
+                                        </h4>
+                                        <span class="session-type free">15-Min Free Call</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set consultation_info = message.content|extract_consultation_info %}
+                                    {% if consultation_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ consultation_info.scheduled_at|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">15 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Coach</span>
+                                                <span class="value">{{ consultation_info.coach_name|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-{{ consultation_info.status|default('scheduled') }}">
+                                                    {% if consultation_info and consultation_info.status == 'requested' %}
+                                                        Requested
+                                                    {% else %}
+                                                        {{ consultation_info.status|default('Scheduled')|title }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if consultation_info and consultation_info.status in ['scheduled', 'confirmed'] %}
+                                    <a href="{{ url_for('join_call', call_id=consultation_info.consultation_id) }}" class="btn join-session-btn">
+                                        <i class="fas fa-phone"></i>
+                                        Join Call
+                                    </a>
+                                    {% elif consultation_info and consultation_info.status == 'requested' %}
+                                    <div class="consultation-request-status">
+                                        <span class="text-sm text-gray-600 italic">Waiting for coach response...</span>
+                                    </div>
+                                    {% endif %}
+                                    {% if consultation_info and consultation_info.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_call', call_id=consultation_info.consultation_id) if consultation_info else '#' }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </a>
+                                    {% endif %}
+                                    {% if consultation_info and consultation_info.status == 'scheduled' %}
+                                    <button class="btn reschedule-btn" onclick="requestConsultationReschedule({{ consultation_info.consultation_id }})">
+                                        <i class="fas fa-clock"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'MEETING_LINK_READY' %}
+                            <!-- Meeting Link Ready Card -->
+                            <div class="session-preview-card meeting-link">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Meeting Link Ready!</h4>
+                                        <span class="session-type meeting">Google Meet Session</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set meeting_info = message.content|from_json %}
+                                    {% if meeting_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Session</span>
+                                                <span class="value">#{{ meeting_info.session_number|default('1') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ meeting_info.scheduled_at|default('TBD') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ meeting_info.duration|default('60') }} min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Coach</span>
+                                                <span class="value">{{ meeting_info.coach_name|default('N/A') }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if meeting_info and meeting_info.meeting_url %}
+                                    <a href="{{ meeting_info.meeting_url }}" target="_blank" class="btn join-session-btn">
+                                        <i class="fas fa-play"></i>
+                                        Join Meeting
+                                    </a>
+                                    {% endif %}
+                                    {% if meeting_info and meeting_info.session_id %}
+                                    <a href="{{ url_for('join_session', session_id=meeting_info.session_id) }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Session
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message Metadata -->
+                    <div class="message-time">
+                        <span class="message-timestamp" 
+                              data-utc-time="{{ message.created_at|utc_iso }}"
+                              title="{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                            {{ message.created_at.strftime('%I:%M %p') }}
+                        </span>
+                        {% if message.edited_at %}
+                            <small class="edited-indicator ms-1" title="Edited {{ message.edited_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                                (edited)
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Message Actions (for received messages) -->
+                <div class="message-actions mt-1" style="display: none;">
+                    <button class="btn btn-sm btn-link text-muted p-0 me-2" onclick="replyToMessage({{ message.id }})">
+                        <i class="fas fa-reply"></i> Reply
+                    </button>
+                    <button class="btn btn-sm btn-link text-muted p-0" onclick="reportMessage({{ message.id }})">
+                        <i class="fas fa-flag"></i> Report
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+    {% else %}
+        <!-- Sent Message -->
+        <div class="d-flex align-items-start justify-content-end">
+            <div class="flex-grow-1 max-width-70 text-end">
+                <!-- Message Actions (for sent messages) -->
+                <div class="message-actions mb-1" style="display: none;">
+                    {% if message.is_editable(current_user.id) %}
+                        <button class="btn btn-sm btn-link text-muted p-0 me-2" onclick="editMessage({{ message.id }})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    {% endif %}
+                    <button class="btn btn-sm btn-link text-muted p-0" onclick="deleteMessage({{ message.id }})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+                
+                <div class="message-bubble sent">
+                    <!-- Message Content -->
+                    <div class="message-content">
+                        {% if message.message_type == 'TEXT' %}
+                            {% set contract_info = message.content|extract_contract_info %}
+                            {% if contract_info %}
+                                <!-- Contract Preview Card (Call-style Design) - Detected from JSON content -->
+                                <div class="session-preview-card contract-card sent">
+                                    <div class="session-header">
+                                        <div class="session-icon contract-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <div class="session-title">
+                                            <h4>Contract Sent</h4>
+                                            {% if contract_info.status %}
+                                                <span class="session-type contract-{{ contract_info.status }}">{{ contract_info.status|title }}</span>
+                                            {% else %}
+                                                <span class="session-type contract-sent">Awaiting Response</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-details">
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">{{ contract_info.project|default('Learning Project') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Start Date</span>
+                                                <span class="value">{{ contract_info.start_date|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Sessions</span>
+                                                <span class="value">{{ contract_info.sessions|default('N/A') }} sessions</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ contract_info.duration|default('60') }} min each</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Rate</span>
+                                                <span class="value">{{ contract_info.rate|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Total Amount</span>
+                                                <span class="value amount">{{ contract_info.amount|default('N/A') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="session-actions">
+                                        {% if contract_info.contract_id %}
+                                        <a href="{{ url_for('view_contract', contract_id=contract_info.contract_id) }}" class="btn view-detailed-contract-btn">
+                                            <i class="fas fa-file-text"></i>
+                                            View Detailed Contract
+                                        </a>
+                                        {% else %}
+                                        <a href="#" class="btn view-detailed-contract-btn" onclick="viewContractFromMessage({{ message.id }})">
+                                            <i class="fas fa-file-text"></i>
+                                            View Detailed Contract
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                {{ message.content|e|replace('\n', '<br>')|safe }}
+                            {% endif %}
+                        {% elif message.message_type == 'CONTRACT_OFFER' %}
+                            <!-- Contract Preview Card (Call-style Design - Sent) -->
+                            <div class="session-preview-card contract-card sent">
+                                <div class="session-header">
+                                    <div class="session-icon contract-icon">
+                                        <i class="fas fa-file-contract"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Contract Sent</h4>
+                                        {% set contract_info = message.content|extract_contract_info %}
+                                        {% if contract_info and contract_info.status %}
+                                            <span class="session-type contract-{{ contract_info.status }}">{{ contract_info.status|title }}</span>
+                                        {% else %}
+                                            <span class="session-type contract-sent">Awaiting Response</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set contract_info = message.content|extract_contract_info %}
+                                    {% if contract_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">{{ contract_info.project|default('Learning Project') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Start Date</span>
+                                                <span class="value">{{ contract_info.start_date|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Sessions</span>
+                                                <span class="value">{{ contract_info.sessions|default('N/A') }} sessions</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ contract_info.duration|default('60') }} min each</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Rate</span>
+                                                <span class="value">{{ contract_info.rate|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Total Amount</span>
+                                                <span class="value amount">{{ contract_info.amount|default('N/A') }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if contract_info and contract_info.contract_id %}
+                                    <a href="{{ url_for('view_contract', contract_id=contract_info.contract_id) }}" class="btn view-detailed-contract-btn">
+                                        <i class="fas fa-file-text"></i>
+                                        View Detailed Contract
+                                    </a>
+                                    {% else %}
+                                    <a href="#" class="btn view-detailed-contract-btn" onclick="viewContractFromMessage({{ message.id }})">
+                                        <i class="fas fa-file-text"></i>
+                                        View Detailed Contract
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'SYSTEM' %}
+                            <div class="system-message">
+                                <i class="fas fa-info-circle text-white me-2"></i>
+                                {{ message.content }}
+                            </div>
+                        {% elif message.message_type == 'SESSION_SCHEDULED' %}
+                            <!-- Interactive Session Card (Sent) -->
+                            <div class="session-preview-card sent">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Session Scheduled</h4>
+                                        {% set session_info = message.content|extract_session_info %}
+                                        {% if session_info and session_info.session_type %}
+                                            <span class="session-type {{ session_info.session_type }}">{{ session_info.session_type|title }}</span>
+                                        {% else %}
+                                            <span class="session-type paid">Learning Session</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set session_info = message.content|extract_session_info %}
+                                    {% if session_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ session_info.scheduled_at|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ session_info.duration|default('60') }} min</span>
+                                            </div>
+                                            {% if session_info.session_type == 'free_consultation' %}
+                                            <div class="info-item">
+                                                <span class="label">Type</span>
+                                                <span class="value">Free 15-min Consultation</span>
+                                            </div>
+                                            {% else %}
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">{{ session_info.session_number|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">{{ session_info.contract_title|default('N/A') }}</span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-{{ session_info.status|default('scheduled') }}">{{ session_info.status|default('Scheduled')|title }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if session_info and session_info.status in ['scheduled', 'confirmed'] %}
+                                    <a href="{{ url_for('join_call', call_id=session_info.session_id) }}" class="btn join-session-btn">
+                                        <i class="fas fa-play"></i>
+                                        Join Call
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_call', call_id=session_info.session_id) if session_info else '#' }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status == 'scheduled' %}
+                                    <button class="btn reschedule-btn" onclick="requestReschedule({{ session_info.session_id }})">
+                                        <i class="fas fa-clock"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'FREE_CONSULTATION' %}
+                            <!-- Interactive Free Consultation Card (Sent) -->
+                            <div class="session-preview-card consultation sent">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Free Consultation Scheduled</h4>
+                                        <span class="session-type free">15-Min Free Call</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set consultation_info = message.content|extract_consultation_info %}
+                                    {% if consultation_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ consultation_info.scheduled_at|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">15 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Coach</span>
+                                                <span class="value">{{ consultation_info.coach_name|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-{{ consultation_info.status|default('scheduled') }}">{{ consultation_info.status|default('Scheduled')|title }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if consultation_info and consultation_info.status in ['scheduled', 'confirmed'] %}
+                                    <a href="{{ url_for('join_call', call_id=consultation_info.consultation_id) }}" class="btn join-session-btn">
+                                        <i class="fas fa-phone"></i>
+                                        Join Call
+                                    </a>
+                                    {% endif %}
+                                    {% if consultation_info and consultation_info.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_call', call_id=consultation_info.consultation_id) if consultation_info else '#' }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Details
+                                    </a>
+                                    {% endif %}
+                                    {% if consultation_info and consultation_info.status == 'scheduled' %}
+                                    <button class="btn reschedule-btn" onclick="requestConsultationReschedule({{ consultation_info.consultation_id }})">
+                                        <i class="fas fa-clock"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'MEETING_LINK_READY' %}
+                            <!-- Meeting Link Ready Card (Sent) -->
+                            <div class="session-preview-card meeting-link sent">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i class="fas fa-video"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Meeting Link Ready!</h4>
+                                        <span class="session-type meeting">Google Meet Session</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set meeting_info = message.content|from_json %}
+                                    {% if meeting_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Session</span>
+                                                <span class="value">#{{ meeting_info.session_number|default('1') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ meeting_info.scheduled_at|default('TBD') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ meeting_info.duration|default('60') }} min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Coach</span>
+                                                <span class="value">{{ meeting_info.coach_name|default('N/A') }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if meeting_info and meeting_info.meeting_url %}
+                                    <a href="{{ meeting_info.meeting_url }}" target="_blank" class="btn join-session-btn">
+                                        <i class="fas fa-play"></i>
+                                        Join Meeting
+                                    </a>
+                                    {% endif %}
+                                    {% if meeting_info and meeting_info.session_id %}
+                                    <a href="{{ url_for('join_session', session_id=meeting_info.session_id) }}" class="btn view-session-btn">
+                                        <i class="fas fa-eye"></i>
+                                        View Session
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% else %}
+                            {{ message.content|e|replace('\n', '<br>')|safe }}
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Message Metadata -->
+                    <div class="message-time">
+                        <span class="message-timestamp" 
+                              data-utc-time="{{ message.created_at|utc_iso }}"
+                              title="{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                            {{ message.created_at.strftime('%I:%M %p') }}
+                        </span>
+                        
+                        <!-- Read Status Indicators -->
+                        {% if message.is_read %}
+                            <i class="fas fa-check-double text-white-50 ms-1" title="Read"></i>
+                        {% else %}
+                            <i class="fas fa-check text-white-50 ms-1" title="Sent"></i>
+                        {% endif %}
+                        
+                        {% if message.edited_at %}
+                            <small class="edited-indicator ms-1" title="Edited {{ message.edited_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                                (edited)
+                            </small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+/* Message Item Specific Styles */
+.message-item {
+    animation: messageSlideIn 0.3s ease-out;
+    position: relative;
+}
+
+.message-item:hover .message-actions {
+    display: block !important;
+}
+
+.message-bubble {
+    max-width: 100%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+}
+
+.message-bubble.sent {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border-bottom-right-radius: 6px;
+}
+
+.message-bubble.received {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message-content {
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
+.message-bubble.received .message-time {
+    color: #666;
+    justify-content: flex-start;
+}
+
+.message-avatar, .message-avatar-placeholder {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.message-avatar:hover, .message-avatar-placeholder:hover {
+    transform: scale(1.1);
+}
+
+.message-avatar-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.max-width-70 {
+    max-width: 70%;
+}
+
+.message-actions {
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.message-actions .btn {
+    font-size: 0.75rem;
+    padding: 2px 4px;
+    transition: all 0.2s ease;
+}
+
+.message-actions .btn:hover {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+
+
+.system-message {
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.message-bubble.received .contract-message,
+.message-bubble.received .system-message {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.edited-indicator {
+    font-style: italic;
+    opacity: 0.7;
+    font-size: 0.7rem;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .max-width-70 {
+        max-width: 85%;
+    }
+    
+    .message-bubble {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+    }
+    
+    .message-time {
+        font-size: 0.7rem;
+    }
+    
+    .message-avatar, .message-avatar-placeholder {
+        width: 25px;
+        height: 25px;
+    }
+    
+    .message-avatar-placeholder {
+        font-size: 10px;
+    }
+    
+
+}
+
+/* Dark Mode Support (if needed) */
+@media (prefers-color-scheme: dark) {
+    .message-bubble.received {
+        background: #2d3748;
+        color: #e2e8f0;
+        border-color: #4a5568;
+    }
+    
+    .message-bubble.received .message-time {
+        color: #a0aec0;
+    }
+    
+
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+    .message-bubble.sent {
+        background: #000;
+        color: #fff;
+        border: 2px solid #fff;
+    }
+    
+    .message-bubble.received {
+        background: #fff;
+        color: #000;
+        border: 2px solid #000;
+    }
+    
+    .contract-preview-card {
+        border: 2px solid #000;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .message-actions {
+        display: none !important;
+    }
+    
+    .message-item {
+        break-inside: avoid;
+        margin-bottom: 10px;
+    }
+    
+    .message-bubble {
+        border: 1px solid #ccc;
+        background: white !important;
+        color: black !important;
+    }
+    
+
+}
+
+/* Contract Preview Card Styles */
+.contract-preview-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.contract-preview-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-1px);
+}
+
+.contract-preview-card.sent {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+}
+
+.contract-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.contract-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    color: white;
+    font-size: 18px;
+}
+
+.contract-title h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.contract-preview-card.sent .contract-title h4 {
+    color: white;
+}
+
+.contract-status {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+.contract-status.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.contract-status.accepted {
+    background: #d4edda;
+    color: #155724;
+}
+
+.contract-status.declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.contract-status.sent {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.contract-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-item .label {
+    font-size: 11px;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.contract-preview-card.sent .info-item .label {
+    color: rgba(255,255,255,0.8);
+}
+
+.info-item .value {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+}
+
+.contract-preview-card.sent .info-item .value {
+    color: white;
+}
+
+.info-item .value.amount {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.contract-preview-card.sent .info-item .value.amount {
+    color: #90EE90;
+}
+
+.contract-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.contract-actions .btn {
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.contract-fallback {
+    color: #666;
+    font-style: italic;
+}
+
+/* Session Preview Card Styles - Now in dedicated CSS file */
+
+/* Contract-specific styling for session cards */
+.session-preview-card.contract-card .session-icon.contract-icon {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.session-type.contract-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.session-type.contract-accepted {
+    background: #d4edda;
+    color: #155724;
+}
+
+.session-type.contract-declined {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.session-type.contract-sent {
+    background: rgba(255,255,255,0.2);
+    color: white;
+}
+
+.view-detailed-contract-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    font-size: 12px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.view-detailed-contract-btn:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.session-preview-card.sent .view-detailed-contract-btn {
+    background: rgba(255,255,255,0.2);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.session-preview-card.sent .view-detailed-contract-btn:hover {
+    background: rgba(255,255,255,0.3);
+    border-color: rgba(255,255,255,0.5);
+}
+</style>
+
+<script>
+// Message item specific JavaScript functions
+
+function replyToMessage(messageId) {
+    // Focus on message input and add reply indicator
+    const messageInput = document.getElementById('message-input');
+    if (messageInput) {
+        messageInput.focus();
+        // You could add a reply indicator here
+        const message = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (message) {
+            const content = message.querySelector('.message-content').textContent.trim();
+            const preview = content.length > 50 ? content.substring(0, 50) + '...' : content;
+            messageInput.placeholder = `Replying to: "${preview}"`;
+        }
+    }
+}
+
+function editMessage(messageId) {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    if (!messageElement) return;
+    
+    const contentElement = messageElement.querySelector('.message-content');
+    if (!contentElement) return;
+    
+    const currentContent = contentElement.textContent.trim();
+    
+    // Create edit interface
+    const editForm = document.createElement('div');
+    editForm.className = 'edit-message-form mt-2';
+    editForm.innerHTML = `
+        <div class="input-group">
+            <textarea class="form-control" rows="2" maxlength="5000">${currentContent}</textarea>
+            <button class="btn btn-success btn-sm" onclick="saveMessageEdit(${messageId}, this)">
+                <i class="fas fa-check"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="cancelMessageEdit(${messageId})">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Hide original content and show edit form
+    contentElement.style.display = 'none';
+    contentElement.parentNode.appendChild(editForm);
+}
+
+function saveMessageEdit(messageId, button) {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    const editForm = messageElement.querySelector('.edit-message-form');
+    const textarea = editForm.querySelector('textarea');
+    const newContent = textarea.value.trim();
+    
+    if (!newContent) {
+        alert('Message cannot be empty');
+        return;
+    }
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    
+    fetch('/api/messages/edit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message_id: messageId,
+            content: newContent
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update message content
+            const contentElement = messageElement.querySelector('.message-content');
+            contentElement.innerHTML = escapeHtml(newContent).replace(/\n/g, '<br>');
+            contentElement.style.display = 'block';
+            
+            // Add edited indicator if not present
+            let editedIndicator = messageElement.querySelector('.edited-indicator');
+            if (!editedIndicator) {
+                const timeElement = messageElement.querySelector('.message-time');
+                editedIndicator = document.createElement('small');
+                editedIndicator.className = 'edited-indicator ms-1';
+                editedIndicator.textContent = '(edited)';
+                timeElement.appendChild(editedIndicator);
+            }
+            
+            // Remove edit form
+            editForm.remove();
+        } else {
+            alert('Failed to edit message: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error editing message:', error);
+        alert('Error editing message');
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+    });
+}
+
+function cancelMessageEdit(messageId) {
+    const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+    const contentElement = messageElement.querySelector('.message-content');
+    const editForm = messageElement.querySelector('.edit-message-form');
+    
+    // Show original content and remove edit form
+    contentElement.style.display = 'block';
+    editForm.remove();
+}
+
+function deleteMessage(messageId) {
+    if (!confirm('Are you sure you want to delete this message?')) {
+        return;
+    }
+    
+    fetch('/api/messages/delete', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            message_id: messageId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove message from UI
+            const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.style.animation = 'messageSlideOut 0.3s ease-out forwards';
+                setTimeout(() => {
+                    messageElement.remove();
+                }, 300);
+            }
+        } else {
+            alert('Failed to delete message: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting message:', error);
+        alert('Error deleting message');
+    });
+}
+
+function reportMessage(messageId) {
+    // You could implement a report modal here
+    const reason = prompt('Please specify the reason for reporting this message:');
+    if (reason) {
+        fetch('/api/messages/report', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message_id: messageId,
+                reason: reason
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Message reported successfully. Our team will review it.');
+            } else {
+                alert('Failed to report message: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error reporting message:', error);
+            alert('Error reporting message');
+        });
+    }
+}
+
+function viewContractFromMessage(messageId) {
+    // Use the messaging system if available, otherwise fallback
+    if (window.messagingSystem && typeof window.messagingSystem.viewContractFromMessage === 'function') {
+        window.messagingSystem.viewContractFromMessage(messageId);
+    } else {
+        // Fallback implementation
+        fetch(`/api/contracts/view/${messageId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.contract_url) {
+                    window.open(data.contract_url, '_blank');
+                } else {
+                    window.location.href = `/contracts/find-from-message/${messageId}`;
+                }
+            })
+            .catch(error => {
+                console.error('Error finding contract:', error);
+                window.location.href = '/contracts';
+            });
+    }
+}
+
+function acceptContractFromMessage(messageId) {
+    // Use the messaging system if available, otherwise fallback
+    if (window.messagingSystem && typeof window.messagingSystem.acceptContractFromMessage === 'function') {
+        window.messagingSystem.acceptContractFromMessage(messageId);
+    } else {
+        // Fallback implementation
+        if (!confirm('Are you sure you want to accept this contract offer?')) {
+            return;
+        }
+
+        const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
+        if (!messageElement) return;
+
+        const contractInfo = messageElement.querySelector('.contract-preview-card .contract-info-grid');
+        if (!contractInfo) return;
+
+        const project = contractInfo.querySelector('.info-item:nth-child(1) .value')?.textContent.trim() || 'Learning Project';
+        const sessions = contractInfo.querySelector('.info-item:nth-child(2) .value')?.textContent.trim() || 'N/A';
+        const amount = contractInfo.querySelector('.info-item:nth-child(3) .value')?.textContent.trim() || 'N/A';
+        const startDate = contractInfo.querySelector('.info-item:nth-child(4) .value')?.textContent.trim() || 'N/A';
+
+        const contractData = {
+            project: project,
+            sessions: sessions,
+            amount: amount,
+            start_date: startDate
+        };
+
+        fetch('/api/contracts/accept', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message_id: messageId,
+                contract_data: contractData
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Contract accepted successfully!');
+                location.reload(); // Refresh to show updated status
+            } else {
+                alert('Failed to accept contract: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error accepting contract:', error);
+            alert('Error accepting contract');
+        });
+    }
+}
+
+function declineContractFromMessage(messageId) {
+    // Use the messaging system if available, otherwise fallback
+    if (window.messagingSystem && typeof window.messagingSystem.declineContractFromMessage === 'function') {
+        window.messagingSystem.declineContractFromMessage(messageId);
+    } else {
+        // Fallback implementation
+        if (!confirm('Are you sure you want to decline this contract offer?')) {
+            return;
+        }
+
+        fetch('/api/contracts/decline', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message_id: messageId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Contract declined successfully.');
+                location.reload(); // Refresh to show updated status
+            } else {
+                alert('Failed to decline contract: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error declining contract:', error);
+            alert('Error declining contract');
+        });
+    }
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Session card specific functions
+function requestReschedule(sessionId) {
+    if (!confirm('Are you sure you want to request a reschedule for this session?')) {
+        return;
+    }
+    
+    // Redirect to reschedule page
+    window.location.href = `/calls/${sessionId}/reschedule`;
+}
+
+function requestConsultationReschedule(consultationId) {
+    if (!confirm('Are you sure you want to request a reschedule for this consultation?')) {
+        return;
+    }
+    
+    // Redirect to consultation reschedule page
+    window.location.href = `/calls/${consultationId}/reschedule`;
+}
+
+// Animation for message deletion
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes messageSlideOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+            max-height: 200px;
+        }
+        to {
+            opacity: 0;
+            transform: translateX(100px);
+            max-height: 0;
+            margin: 0;
+            padding: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Upwork-style timezone conversion
+document.addEventListener('DOMContentLoaded', function() {
+    // Convert all message timestamps to user's local timezone
+    const timestamps = document.querySelectorAll('.message-timestamp[data-utc-time]');
+    
+    timestamps.forEach(timestamp => {
+        const utcTime = timestamp.getAttribute('data-utc-time');
+        if (utcTime) {
+            const date = new Date(utcTime);
+            const localTime = date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            });
+            timestamp.textContent = localTime;
+        }
+    });
+});
+</script>
+

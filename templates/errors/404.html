@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found - Skileez</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Configure Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full mx-auto text-center">
+        <!-- 404 Icon -->
+        <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i data-feather="search" class="w-12 h-12 text-blue-600"></i>
+        </div>
+        
+        <!-- Error Message -->
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Page Not Found</h1>
+        <p class="text-gray-600 mb-8">
+            The page you're looking for doesn't exist or has been moved.
+        </p>
+        
+        <!-- Actions -->
+        <div class="space-y-4">
+            <a href="{{ url_for('index') }}" 
+               class="w-full bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 transition-colors inline-block">
+                <i data-feather="home" class="w-4 h-4 mr-2 inline"></i>
+                Return Home
+            </a>
+            
+            <button onclick="window.history.back()" 
+                    class="w-full bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 transition-colors">
+                <i data-feather="arrow-left" class="w-4 h-4 mr-2 inline"></i>
+                Go Back
+            </button>
+        </div>
+        
+        <!-- Error Code -->
+        <div class="mt-8 text-sm text-gray-500">
+            Error Code: 404
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+    </script>
+</body>
+</html>

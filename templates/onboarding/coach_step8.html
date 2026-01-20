@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Onboarding - Step 8 - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {{ step }} of 9</span>
+                <span>{{ ((step-1)/8*100)|round|int }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((step-1)/8*100)|round|int }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Step Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            {% for i in range(1, 10) %}
+            <div class="flex items-center">
+                <a href="{{ url_for('coach_onboarding', step=i) }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 {% if i == step %}bg-primary-600 text-white cursor-default{% elif i < step %}bg-green-500 text-white hover:bg-green-600 cursor-pointer{% else %}bg-gray-200 text-gray-500 cursor-not-allowed{% endif %}" {% if i > step %}onclick="return false;"{% endif %}>
+                    {% if i < step %}
+                        <i data-feather="check" class="w-4 h-4"></i>
+                    {% else %}
+                        {{ i }}
+                    {% endif %}
+                </a>
+                {% if i < 9 %}
+                <div class="w-8 h-1 bg-gray-200 mx-2">
+                    <div class="h-1 {% if i < step %}bg-green-500{% else %}bg-gray-200{% endif %} transition-all duration-300"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="premium-card p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="user-check" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Complete your profile</h2>
+                <p class="text-gray-600">Add your personal details, photo, and set your hourly rate to complete your coach profile.</p>
+            </div>
+            
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {{ form.hidden_tag() }}
+                
+                <!-- Profile Picture Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-4">
+                        <i data-feather="camera" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Profile Picture
+                    </h3>
+                    
+                    <div class="flex items-center space-x-6">
+                        <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden" id="profile-preview">
+                            {% if coach_profile and coach_profile.profile_picture %}
+                                <img src="{{ coach_profile.profile_picture|profile_pic_url }}" alt="Current Profile" class="w-24 h-24 rounded-full object-cover">
+                            {% else %}
+                                <i data-feather="user" class="w-12 h-12 text-gray-400"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            {{ form.profile_picture.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
+                                <div class="space-y-1 text-center">
+                                    <i data-feather="upload" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                    <div class="flex text-sm text-gray-600">
+                                        <label for="profile_picture" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                            <span>Upload a photo</span>
+                                            {{ form.profile_picture(class="sr-only") }}
+                                        </label>
+                                        <p class="pl-1">or drag and drop</p>
+                                    </div>
+                                    <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Upload your professional headshot. This helps build trust with students.
+                            </p>
+                            {% if form.profile_picture.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.profile_picture.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Personal Details Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-4">
+                        <i data-feather="map-pin" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Personal Details
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            {{ form.country.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.country(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., United States") }}
+                            {% if form.country.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.country.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                {{ form.phone_number.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.phone_number(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="+1 (555) 123-4567") }}
+                                {% if form.phone_number.errors %}
+                                    <div class="mt-1 text-sm text-red-600">
+                                        {% for error in form.phone_number.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                {{ form.date_of_birth.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                                {{ form.date_of_birth(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                                {% if form.date_of_birth.errors %}
+                                    <div class="mt-1 text-sm text-red-600">
+                                        {% for error in form.date_of_birth.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pricing Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-4">
+                        <i data-feather="dollar-sign" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Set Your Hourly Rate
+                    </h3>
+                    
+                    <div>
+                        {{ form.hourly_rate.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">$</span>
+                            </div>
+                            {{ form.hourly_rate(class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="25.00", step="0.01") }}
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">/ hour</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2 text-sm text-gray-600">
+                            <p class="mb-2">Consider these factors when setting your rate:</p>
+                            <ul class="text-xs space-y-1 text-gray-500">
+                                <li>• Your experience and expertise level</li>
+                                <li>• Market rates for similar skills</li>
+                                <li>• You can always adjust this later</li>
+                            </ul>
+                        </div>
+                        
+                        {% if form.hourly_rate.errors %}
+                            <div class="mt-1 text-sm text-red-600">
+                                {% for error in form.hourly_rate.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Rate Guide -->
+                    <div class="mt-4 bg-primary-50 border border-primary-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-primary-800 mb-2 flex items-center">
+                            <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                            Pricing guide
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-primary-700">
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-primary-800">$15 - $30</div>
+                                <div>Beginner coaches</div>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-primary-800">$30 - $60</div>
+                                <div>Experienced coaches</div>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-primary-800">$60+</div>
+                                <div>Expert specialists</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between pt-8 border-t border-gray-200">
+                    <a href="{{ url_for('coach_onboarding', step=7) }}" class="btn-secondary px-6 py-3 rounded-lg transition-all duration-200">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back
+                    </a>
+                    
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-lg transition-all duration-200" id="next-btn">
+                        Review Profile
+                        <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const profilePicInput = document.getElementById('profile_picture');
+    const profilePicPreview = document.getElementById('profile-preview');
+    const uploadArea = profilePicInput.closest('.border-dashed');
+    
+    // Handle file selection
+    function handleFileSelect(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePicPreview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="w-24 h-24 rounded-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Handle file input change
+    profilePicInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        handleFileSelect(file);
+    });
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-primary-500', 'bg-primary-50');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            profilePicInput.files = files;
+            handleFileSelect(file);
+        }
+    });
+});
+</script>
+{% endblock %}

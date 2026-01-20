@@ -1,0 +1,37 @@
+{% extends "email_base.html" %}
+
+{% block content %}
+<h2>🎥 Meeting Link Ready!</h2>
+<p>Hello {{ session.student.first_name }},</p>
+
+<p>Great news! Your coach {{ session.coach.first_name }} has created a Google Meet meeting for your session.</p>
+
+<div class="session-details">
+    <h3>Session Details:</h3>
+    <ul>
+        <li><strong>Coach:</strong> {{ session.coach.first_name }} {{ session.coach.last_name }}</li>
+        <li><strong>Date:</strong> {{ session.scheduled_at.strftime('%B %d, %Y at %I:%M %p') }}</li>
+        <li><strong>Duration:</strong> {{ session.duration_minutes }} minutes</li>
+        <li><strong>Type:</strong> {{ 'Free Consultation' if session.is_consultation else 'Paid Session' }}</li>
+    </ul>
+</div>
+
+<div class="meeting-link">
+    <h3>Join Your Meeting:</h3>
+    <p><a href="{{ session.google_meet_url }}" class="btn btn-primary">🎥 Join Google Meet</a></p>
+    <p><strong>Meeting Link:</strong> <a href="{{ session.google_meet_url }}">{{ session.google_meet_url }}</a></p>
+</div>
+
+<div class="meeting-instructions">
+    <h3>Meeting Instructions:</h3>
+    <ol>
+        <li>Click the "Join Google Meet" button above</li>
+        <li>Allow camera and microphone access when prompted</li>
+        <li>Wait for your coach to join the meeting</li>
+        <li>If you have technical issues, contact your coach</li>
+    </ol>
+</div>
+
+<p>See you in the meeting!</p>
+<p>Best regards,<br>The Skileez Team</p>
+{% endblock %}

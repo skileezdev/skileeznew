@@ -1,0 +1,385 @@
+{% extends "base.html" %}
+
+{% block title %}Job Management - Skileez{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">
+                        <i class="fas fa-briefcase me-2"></i>Job Management
+                    </h2>
+                    <p class="text-muted mb-0">Manage your job post and review applications</p>
+                </div>
+                <div class="text-end">
+                    <a href="{{ url_for('post_job') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Post New Job
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Details -->
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Job Information -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Job Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4 class="mb-2">{{ job_post.title }}</h4>
+                            <p class="text-muted mb-3">{{ job_post.description[:200] }}{% if job_post.description|length > 200 %}...{% endif %}</p>
+                            
+                            <!-- Skill Tags -->
+                            {% if skill_tags %}
+                            <div class="mb-3">
+                                {% for tag in skill_tags %}
+                                <span class="badge bg-primary me-1 mb-1">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="h4 text-success mb-1">${{ "%.2f"|format(job_post.price_per_hour) }}/hr</div>
+                            <small class="text-muted">{{ job_post.number_of_sessions }} sessions</small>
+                            <br>
+                            <small class="text-muted">{{ job_post.timeframe }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Job Stats -->
+                    <div class="row text-center mt-3">
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h5 mb-1">{{ job_post.views_count }}</div>
+                                <small class="text-muted">Views</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h5 mb-1">{{ job_post.applications_count }}</div>
+                                <small class="text-muted">Applications</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border-end">
+                                <div class="h5 mb-1">{{ job_post.created_at.strftime('%b %d') }}</div>
+                                <small class="text-muted">Posted</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="h5 mb-1">
+                                <span class="badge bg-{{ 'success' if job_post.status == 'active' else 'warning' if job_post.status == 'paused' else 'secondary' }}">
+                                    {{ job_post.status.title() }}
+                                </span>
+                            </div>
+                            <small class="text-muted">Status</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Applications -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-users me-2"></i>Applications ({{ applications|length }})
+                        </h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="filterApplications('all')">All</button>
+                            <button type="button" class="btn btn-outline-warning btn-sm" onclick="filterApplications('pending')">Pending</button>
+                            <button type="button" class="btn btn-outline-info btn-sm" onclick="filterApplications('shortlisted')">Shortlisted</button>
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="filterApplications('rejected')">Rejected</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                        {% for application in applications %}
+                        <div class="application-item border-bottom pb-4 mb-4 application-{{ application.status }}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="avatar-placeholder bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            {{ application.coach.first_name[0] }}{{ application.coach.last_name[0] }}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">{{ application.coach.first_name }} {{ application.coach.last_name }}</h6>
+                                        <small class="text-muted">
+                                            Applied {{ application.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                            {% if application.is_invited %}
+                                            <span class="badge bg-info ms-2">Invited</span>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="h6 text-success mb-1">${{ "%.2f"|format(application.proposed_price_per_hour) }}/hr</div>
+                                    <small class="text-muted">{{ application.proposed_number_of_sessions }} sessions</small>
+                                    <br>
+                                    <span class="badge bg-{{ 'warning' if application.status == 'pending' else 'info' if application.status == 'shortlisted' else 'danger' if application.status == 'rejected' else 'secondary' }} mt-1">
+                                        {{ application.status.title() }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Experience Summary -->
+                            <div class="mb-3">
+                                <strong>Experience Summary:</strong>
+                                <p class="mb-2">{{ application.experience_summary[:300] }}{% if application.experience_summary|length > 300 %}...{% endif %}</p>
+                            </div>
+
+                            <!-- Cover Letter Preview -->
+                            <div class="mb-3">
+                                <strong>Cover Letter:</strong>
+                                <p class="mb-2">{{ application.cover_letter[:200] }}{% if application.cover_letter|length > 200 %}...{% endif %}</p>
+                            </div>
+
+                            <!-- Screening Answers -->
+                            {% if application.screening_answers %}
+                            <div class="mb-3">
+                                <strong>Screening Questions:</strong>
+                                <div class="mt-2">
+                                    {% for answer in application.screening_answers %}
+                                    <div class="mb-2">
+                                        <small class="text-muted">{{ answer.screening_question.question_text }}</small>
+                                        <p class="mb-1">{{ answer.answer_text[:150] }}{% if answer.answer_text|length > 150 %}...{% endif %}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{{ url_for('conversation', user_id=application.coach_id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-comment me-1"></i>Message
+                                </a>
+                                <a href="{{ url_for('send_contract', application_id=application.id) }}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-file-contract me-1"></i>Send Contract
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog me-1"></i>Actions
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'shortlisted')">
+                                            <i class="fas fa-star me-1"></i>Shortlist
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'rejected')">
+                                            <i class="fas fa-times me-1"></i>Reject
+                                        </a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'pending')">
+                                            <i class="fas fa-clock me-1"></i>Mark Pending
+                                        </a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item text-danger" href="#" onclick="deleteApplication({{ application.id }})">
+                                            <i class="fas fa-trash me-1"></i>Delete
+                                        </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No applications yet</h5>
+                            <p class="text-muted">Share your job post to attract qualified coaches!</p>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-primary" onclick="shareJob()">
+                                    <i class="fas fa-share me-1"></i>Share Job
+                                </button>
+                                <button class="btn btn-outline-secondary" onclick="editJob()">
+                                    <i class="fas fa-edit me-1"></i>Edit Job
+                                </button>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="editJob()">
+                            <i class="fas fa-edit me-1"></i>Edit Job Post
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="shareJob()">
+                            <i class="fas fa-share me-1"></i>Share Job
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="pauseJob()">
+                            <i class="fas fa-pause me-1"></i>Pause Job
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="deleteJob()">
+                            <i class="fas fa-trash me-1"></i>Delete Job
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Stats -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Application Stats
+                    </h6>
+                </div>
+                <div class="card-body">
+                    {% set pending_count = applications|selectattr('status', 'equalto', 'pending')|list|length %}
+                    {% set shortlisted_count = applications|selectattr('status', 'equalto', 'shortlisted')|list|length %}
+                    {% set rejected_count = applications|selectattr('status', 'equalto', 'rejected')|list|length %}
+                    
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="h5 text-warning mb-1">{{ pending_count }}</div>
+                            <small class="text-muted">Pending</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h5 text-info mb-1">{{ shortlisted_count }}</div>
+                            <small class="text-muted">Shortlisted</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h5 text-danger mb-1">{{ rejected_count }}</div>
+                            <small class="text-muted">Rejected</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Performance -->
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-trending-up me-2"></i>Job Performance
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-eye text-primary me-2"></i>
+                            <strong>Views:</strong> {{ job_post.views_count }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-users text-success me-2"></i>
+                            <strong>Applications:</strong> {{ job_post.applications_count }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-calendar text-warning me-2"></i>
+                            <strong>Posted:</strong> {{ job_post.created_at.strftime('%B %d, %Y') }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-clock text-info me-2"></i>
+                            <strong>Status:</strong> {{ job_post.status.title() }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Filter applications
+function filterApplications(status) {
+    const applications = document.querySelectorAll('.application-item');
+    
+    applications.forEach(app => {
+        if (status === 'all' || app.classList.contains(`application-${status}`)) {
+            app.style.display = 'block';
+        } else {
+            app.style.display = 'none';
+        }
+    });
+}
+
+// Update application status
+function updateStatus(applicationId, status) {
+    if (confirm('Are you sure you want to update this application status?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/application/${applicationId}/status`;
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'status';
+        input.value = status;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Delete application
+function deleteApplication(applicationId) {
+    if (confirm('Are you sure you want to delete this application? This action cannot be undone.')) {
+        // Implement delete functionality
+        console.log('Delete application:', applicationId);
+    }
+}
+
+// Job actions
+function editJob() {
+    // Implement edit functionality
+    console.log('Edit job');
+}
+
+function shareJob() {
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ job_post.title }}',
+            text: 'Check out this job opportunity on Skileez!',
+            url: url
+        });
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Job URL copied to clipboard!');
+        });
+    }
+}
+
+function pauseJob() {
+    if (confirm('Are you sure you want to pause this job? It will no longer be visible to coaches.')) {
+        // Implement pause functionality
+        console.log('Pause job');
+    }
+}
+
+function deleteJob() {
+    if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+        // Implement delete functionality
+        console.log('Delete job');
+    }
+}
+
+// Initialize tooltips
+document.addEventListener('DOMContentLoaded', function() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
+</script>
+{% endblock %}

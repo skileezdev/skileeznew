@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Portfolio Item - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-4">
+                <a href="{{ url_for('edit_coach_profile') }}#portfolio" class="text-gray-500 hover:text-primary-600 mr-4">
+                    <i data-feather="arrow-left" class="w-5 h-5"></i>
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Portfolio Item</h1>
+            </div>
+            <p class="text-gray-600">Update your portfolio item details</p>
+        </div>
+
+        <!-- Edit Portfolio Form -->
+        <div class="premium-card p-8">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                
+                <!-- Portfolio Category -->
+                <div class="mb-6">
+                    {{ form.category.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.category(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                    {% if form.category.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.category.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Choose the type of portfolio item to help students understand your work</p>
+                </div>
+
+                <!-- Project Title -->
+                <div class="mb-6">
+                    {{ form.title.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                    {% if form.title.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.title.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Project Description -->
+                <div class="mb-6">
+                    {{ form.description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", rows="6") }}
+                    {% if form.description.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.description.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Minimum 50 characters required. Be specific about your contributions and achievements.</p>
+                </div>
+
+                <!-- Project Links -->
+                <div class="mb-6">
+                    {{ form.project_links.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.project_links(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500", rows="4") }}
+                    {% if form.project_links.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.project_links.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Add multiple links (one per line). Supported: YouTube, Google Drive, Dropbox, OneDrive, GitHub, GitLab, Vimeo, Loom</p>
+                </div>
+
+                <!-- Thumbnail/Cover Image -->
+                <div class="mb-6">
+                    {{ form.thumbnail_image.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    
+                    <!-- Show current thumbnail if exists -->
+                    {% if portfolio_item.thumbnail_image %}
+                        <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600 mb-2">Current thumbnail:</p>
+                            <img src="{{ url_for('static', filename=portfolio_item.thumbnail_image) }}" alt="Current thumbnail" class="w-32 h-32 object-cover rounded-lg">
+                        </div>
+                    {% endif %}
+                    
+                    <!-- New Image Preview Container -->
+                    <div id="image-preview-container" class="mb-4 hidden">
+                        <div class="relative inline-block">
+                            <img id="image-preview" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
+                            <button type="button" id="remove-image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                                <i data-feather="x" class="w-3 h-3"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-green-600 mt-2 flex items-center">
+                            <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
+                            New image uploaded successfully! You can review it above.
+                        </p>
+                    </div>
+                    
+                    <div id="upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-primary-400 transition-colors">
+                        <div class="space-y-1 text-center">
+                            <div class="mx-auto h-12 w-12 text-gray-400">
+                                <i data-feather="image" class="w-12 h-12"></i>
+                            </div>
+                            <div class="flex text-sm text-gray-600">
+                                <label for="{{ form.thumbnail_image.id }}" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                    <span>Upload a new file</span>
+                                    {{ form.thumbnail_image(class="sr-only", accept=".jpg,.jpeg,.png,.gif") }}
+                                </label>
+                                <p class="pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                            <p class="text-xs text-gray-400">Leave empty to keep current thumbnail</p>
+                        </div>
+                    </div>
+                    {% if form.thumbnail_image.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.thumbnail_image.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Optional: Upload a new cover image or thumbnail for your portfolio item</p>
+                </div>
+
+                <!-- Skills Used -->
+                <div class="mb-8">
+                    {{ form.skills.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.skills(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500") }}
+                    {% if form.skills.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.skills.errors %}
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    {{ error }}
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <p class="mt-1 text-sm text-gray-500">Separate multiple skills with commas</p>
+                </div>
+
+                <!-- Warning Notice -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8">
+                    <div class="flex items-start">
+                        <i data-feather="alert-triangle" class="w-5 h-5 text-yellow-600 mt-0.5 mr-3"></i>
+                        <div>
+                            <h4 class="font-semibold text-yellow-800 mb-1">Profile Re-approval Required</h4>
+                            <p class="text-sm text-yellow-700">
+                                Updating your portfolio will require your profile to be re-approved by our team. This ensures quality and maintains trust with students.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex justify-between">
+                    <a href="{{ url_for('edit_coach_profile') }}#portfolio" class="btn-secondary px-6 py-3 rounded-lg">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn-primary px-6 py-3 rounded-lg">
+                        <i data-feather="save" class="w-4 h-4 mr-2"></i>
+                        Update Portfolio Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-resize textarea
+    const textarea = document.querySelector('textarea[name="description"]');
+    if (textarea) {
+        // Initial resize
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+        
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    }
+    
+    // Character counter for description
+    const descInput = textarea;
+    if (descInput) {
+        const counter = document.createElement('div');
+        counter.className = 'text-xs text-gray-400 mt-1';
+        counter.textContent = `${descInput.value.length} characters`;
+        descInput.parentNode.appendChild(counter);
+        
+        descInput.addEventListener('input', function() {
+            counter.textContent = `${this.value.length} characters`;
+            if (this.value.length < 50) {
+                counter.className = 'text-xs text-red-500 mt-1';
+            } else {
+                counter.className = 'text-xs text-gray-400 mt-1';
+            }
+        });
+    }
+    
+    // Image preview functionality
+    const fileInput = document.querySelector('input[type="file"]');
+    const imagePreview = document.getElementById('image-preview');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const uploadArea = document.getElementById('upload-area');
+    const removeImageBtn = document.getElementById('remove-image');
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validate file type
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPG, PNG, or GIF)');
+                    this.value = '';
+                    return;
+                }
+                
+                // Validate file size (10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                if (file.size > maxSize) {
+                    alert('File size must be less than 10MB');
+                    this.value = '';
+                    return;
+                }
+                
+                // Create preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('hidden');
+                    uploadArea.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+    
+    // Remove image functionality
+    if (removeImageBtn) {
+        removeImageBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+        });
+    }
+    
+    // Drag and drop functionality
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-primary-400', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-400', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-400', 'bg-primary-50');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                fileInput.dispatchEvent(new Event('change'));
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

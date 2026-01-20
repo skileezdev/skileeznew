@@ -1,0 +1,316 @@
+/* Square Interactive Consultation Cards */
+
+.consultation-card-container {
+    display: flex;
+    justify-content: center;
+    margin: 16px 0;
+    width: 100%;
+}
+
+.consultation-card {
+    width: 300px;
+    height: 360px;
+    background: linear-gradient(135deg, #4F46E5 0%, #4A90E2 100%);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 12px 40px rgba(79, 70, 229, 0.25);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.consultation-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 60px rgba(79, 70, 229, 0.35);
+}
+
+.consultation-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Card Header */
+.consultation-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.consultation-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.consultation-badge {
+    background: rgba(255, 255, 255, 0.95);
+    color: #4F46E5;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Content */
+.consultation-card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 24px;
+    min-height: 0;
+}
+
+.consultation-title {
+    color: white;
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0 0 20px 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    line-height: 1.2;
+}
+
+.consultation-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+    min-height: 0;
+}
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 4px 0;
+}
+
+.detail-row i {
+    color: rgba(255, 255, 255, 0.7);
+    flex-shrink: 0;
+}
+
+/* Card Actions */
+.consultation-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 24px;
+    flex-shrink: 0;
+}
+
+.join-call-btn {
+    background: rgba(255, 255, 255, 0.95);
+    color: #4F46E5;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.join-call-btn:hover {
+    background: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    color: #4F46E5;
+}
+
+.card-secondary-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.card-action-btn {
+    width: 44px;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(12px);
+}
+
+.card-action-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Message Container Adjustments for Cards */
+.message-container.sent .consultation-card-container {
+    justify-content: flex-end;
+}
+
+.message-container.received .consultation-card-container {
+    justify-content: flex-start;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .consultation-card {
+        width: 280px;
+        height: 340px;
+        padding: 20px;
+    }
+    
+    .consultation-title {
+        font-size: 22px;
+        margin-bottom: 16px;
+    }
+    
+    .consultation-details {
+        gap: 10px;
+    }
+    
+    .detail-row {
+        font-size: 14px;
+        gap: 8px;
+    }
+    
+    .join-call-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+    }
+    
+    .card-action-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .consultation-card {
+        width: 260px;
+        height: 320px;
+        padding: 18px;
+    }
+    
+    .consultation-title {
+        font-size: 20px;
+        margin-bottom: 14px;
+    }
+    
+    .consultation-details {
+        gap: 8px;
+    }
+    
+    .detail-row {
+        font-size: 13px;
+        gap: 6px;
+    }
+    
+    .join-call-btn {
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+    
+    .card-action-btn {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .consultation-card {
+        background: linear-gradient(135deg, #3730A3 0%, #1E40AF 100%);
+        box-shadow: 0 12px 40px rgba(79, 70, 229, 0.3);
+    }
+    
+    .consultation-card:hover {
+        box-shadow: 0 20px 60px rgba(79, 70, 229, 0.4);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .consultation-card {
+        border: 2px solid white;
+    }
+    
+    .consultation-icon,
+    .card-action-btn {
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    
+    .join-call-btn {
+        border: 2px solid #4F46E5;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .consultation-card,
+    .join-call-btn,
+    .card-action-btn {
+        transition: none;
+    }
+    
+    .consultation-card:hover {
+        transform: none;
+    }
+}
+
+/* Consultation Request Status */
+.consultation-request-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.consultation-request-status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.consultation-request-actions .text-sm,
+.consultation-request-status .text-sm {
+    color: rgba(255, 255, 255, 0.9);
+    font-style: italic;
+    text-align: center;
+}

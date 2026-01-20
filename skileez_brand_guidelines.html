@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skileez Brand Guidelines</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: #1A1A1A;
+            background: linear-gradient(135deg, #F0F4FF 0%, #FAFAFA 50%, #E0EBFF 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            letter-spacing: -2px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #6B7280;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1A1A1A;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .logo-concept {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.1);
+        }
+
+        .logo-concept h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .logo-main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            min-height: 150px;
+        }
+
+        .logo-concept p {
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .variations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .variation {
+            text-align: center;
+            padding: 20px;
+            background: #FAFAFA;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .variation h5 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 15px;
+        }
+
+        .variation p {
+            font-size: 14px;
+            color: #6B7280;
+            margin-top: 10px;
+        }
+
+        .variation-small {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4A90E2;
+            margin-top: 10px;
+        }
+
+        /* Concept 1: Typography with Manga Touches */
+        .concept1 .manga-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .manga-text {
+            font-size: 72px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 30%, #8B5CF6 70%, #7C3AED 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -3px;
+            position: relative;
+        }
+
+        .manga-text::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 20px;
+            z-index: -1;
+        }
+
+        .manga-accent {
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #4A90E2, #8B5CF6);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .manga-accent::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 20px;
+            width: 8px;
+            height: 8px;
+            background: #8B5CF6;
+            border-radius: 50%;
+        }
+
+        .manga-accent::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            right: 20px;
+            width: 8px;
+            height: 8px;
+            background: #4A90E2;
+            border-radius: 50%;
+        }
+
+        .manga-small {
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .manga-minimal {
+            font-size: 28px;
+            font-weight: 800;
+            color: #4A90E2;
+            letter-spacing: -1px;
+        }
+
+        /* Concept 2: Letter "S" Focus */
+        .concept2 .s-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+        }
+
+        .s-symbol {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.3);
+        }
+
+        .s-symbol::before {
+            content: 'S';
+            font-size: 64px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -2px;
+        }
+
+        .s-symbol::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 50%;
+        }
+
+        .s-wordmark {
+            font-size: 48px;
+            font-weight: 800;
+            color: #1A1A1A;
+            letter-spacing: -1px;
+        }
+
+        .s-small {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A90E2 0%, #8B5CF6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .s-small::before {
+            content: 'S';
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .s-minimal {
+            width: 50px;
+            height: 50px;
+            background: #4A90E2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .s-minimal::before {
+            content: 'S';
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Concept 3: Letter "S" in Rounded Square */
+        .s-square-symbol {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.3);
+        }
+
+        .s-square-symbol::before {
+            content: 'S';
+            font-size: 64px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -2px;
+        }
+
+        .s-square-symbol::after {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            right: -8px;
+            bottom: -8px;
+            border-radius: 32px;
+        }
+
+        .s-square-small {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A90E2 0%, #8B5CF6 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .s-square-small::before {
+            content: 'S';
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .s-square-minimal {
+            width: 50px;
+            height: 50px;
+            background: #4A90E2;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .s-square-minimal::before {
+            content: 'S';
+            font-size: 28px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Concept 4: Ladder Symbol */
+        .ladder-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .ladder-symbol {
+            width: 100px;
+            height: 120px;
+            position: relative;
+        }
+
+        .ladder-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .ladder-wordmark {
+            text-align: center;
+        }
+
+        .skileez-text {
+            font-size: 48px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            letter-spacing: -1px;
+        }
+
+        .tagline-small {
+            font-size: 12px;
+            color: #6B7280;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .ladder-small {
+            width: 60px;
+            height: 72px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .ladder-small::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 40px;
+            background: white;
+            border-radius: 4px;
+            opacity: 0.9;
+        }
+
+        .ladder-small::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: 40px;
+            background: #4A90E2;
+            border-radius: 1px;
+            left: 20px;
+        }
+
+        .ladder-minimal {
+            width: 50px;
+            height: 60px;
+            background: #4A90E2;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .ladder-minimal::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 32px;
+            background: white;
+            border-radius: 3px;
+            opacity: 0.9;
+        }
+
+        .ladder-minimal::after {
+            content: '';
+            position: absolute;
+            width: 1px;
+            height: 32px;
+            background: #2563EB;
+            border-radius: 1px;
+            left: 16px;
+        }
+
+        /* Concept 5: Skil + eez (Upwork Style) */
+        .skil-eez-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .skil-eez-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1A1A1A;
+            letter-spacing: -1px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+        }
+
+        .skil-text {
+            font-weight: 700;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .eez-text {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .skil-minimal {
+            width: 80px;
+            height: 40px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .skil-minimal::before {
+            content: 'Skil';
+            font-size: 18px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .skil-icon {
+            width: 60px;
+            height: 30px;
+            background: #4A90E2;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .skil-icon::before {
+            content: 'Skil';
+            font-size: 14px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Concept 6: Growth Spiral Symbol */
+        .spiral-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 25px;
+        }
+
+        .spiral-symbol {
+            width: 120px;
+            height: 120px;
+            position: relative;
+        }
+
+        .spiral-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .spiral-wordmark {
+            text-align: center;
+        }
+
+        .spiral-small {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .spiral-small::before {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 3px solid white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .spiral-small::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .spiral-minimal {
+            width: 50px;
+            height: 50px;
+            background: #4A90E2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .spiral-minimal::before {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 2px solid white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .spiral-minimal::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            border: 1px solid white;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        /* Concept 7: Skil∞z (Infinity Integration) */
+        .infinity-integration-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .infinity-integration-logo {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1A1A1A;
+            letter-spacing: -1px;
+            font-family: 'Inter', sans-serif;
+            position: relative;
+            display: flex;
+            align-items: baseline;
+        }
+
+        .skil-text {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .infinity-symbol-text {
+            font-size: 64px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .z-text {
+            font-weight: 700;
+            color: #1A1A1A;
+        }
+
+        .infinity-integration-small {
+            width: 80px;
+            height: 40px;
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .infinity-integration-small::before {
+            content: 'Skil∞z';
+            font-size: 16px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .infinity-integration-text-only {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1A1A1A;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -1px;
+        }
+
+        .infinity-integration-text-only .infinity-symbol-text {
+            background: linear-gradient(135deg, #4A90E2 0%, #4F46E5 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .infinity-integration-minimal {
+            width: 60px;
+            height: 30px;
+            background: #4A90E2;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .infinity-integration-minimal::before {
+            content: '∞';
+            font-size: 20px;
+            font-weight: 900;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+
+
+        /* Brand Colors */
+        .colors {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .color-item {
+            text-align: center;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-name {
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 5px;
+        }
+
+        .color-code {
+            font-size: 14px;
+            color: #6B7280;
+            font-family: 'Courier New', monospace;
+        }
+
+        .primary-500 { background: #4A90E2; }
+        .primary-600 { background: #4F46E5; }
+        .primary-700 { background: #3B82F6; }
+        .purple-500 { background: #8B5CF6; }
+        .purple-600 { background: #7C3AED; }
+        .success { background: #10B981; }
+        .warning { background: #F59E0B; }
+        .error { background: #EF4444; }
+
+        /* Typography */
+        .typography {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            margin-top: 40px;
+        }
+
+        .font-sample {
+            margin-bottom: 30px;
+        }
+
+        .font-sample h4 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1A1A1A;
+            margin-bottom: 10px;
+        }
+
+        .font-sample p {
+            font-size: 24px;
+            color: #6B7280;
+            margin-bottom: 5px;
+        }
+
+        .font-sample .weight-300 { font-weight: 300; }
+        .font-sample .weight-400 { font-weight: 400; }
+        .font-sample .weight-500 { font-weight: 500; }
+        .font-sample .weight-600 { font-weight: 600; }
+        .font-sample .weight-700 { font-weight: 700; }
+        .font-sample .weight-800 { font-weight: 800; }
+        .font-sample .weight-900 { font-weight: 900; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .footer {
+            background: #1A1A1A;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-top: 60px;
+        }
+
+        .footer p {
+            color: #9CA3AF;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Skileez Brand Guidelines</h1>
+            <p>Comprehensive brand identity and logo concepts for the global learning platform that makes skills accessible to everyone.</p>
+        </div>
+
+        <div class="section">
+            <h2>Logo Concepts</h2>
+            
+            <!-- Concept 1: Typography with Manga Touches -->
+            <div class="logo-concept concept1">
+                <h3>Concept 1: Typography with Manga Touches</h3>
+                <div class="logo-main">
+                    <div class="manga-container">
+                        <div class="manga-text">Skileez</div>
+                        <div class="manga-accent"></div>
+                    </div>
+                </div>
+                <p>Bold typography with dynamic manga-inspired elements. The gradient text creates energy and movement, while the accent line with floating dots adds playful character that appeals to learners of all ages.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Manga</h5>
+                        <div class="manga-text" style="font-size: 36px;">Skileez</div>
+                        <div class="manga-accent" style="width: 60px; height: 3px;"></div>
+                        <p>Complete version</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Text Only</h5>
+                        <div class="manga-small">Skileez</div>
+                        <p>Typography only</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="manga-minimal">Skileez</div>
+                        <p>Clean version</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 2: Letter "S" Focus -->
+            <div class="logo-concept concept2">
+                <h3>Concept 2: Letter "S" Focus</h3>
+                <div class="logo-main">
+                    <div class="s-container">
+                        <div class="s-symbol"></div>
+                        <div class="s-wordmark">Skileez</div>
+                    </div>
+                </div>
+                <p>Prominent "S" symbol paired with clean typography. The circular gradient background creates a modern, professional look while the "S" serves as a memorable brand mark that works across all applications.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Logo</h5>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <div class="s-small"></div>
+                            <div class="variation-small">Skileez</div>
+                        </div>
+                        <p>Complete version</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Icon Only</h5>
+                        <div class="s-small"></div>
+                        <p>S symbol only</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="s-minimal"></div>
+                        <p>Clean minimal S</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 3: Letter "S" in Rounded Square -->
+            <div class="logo-concept concept3">
+                <h3>Concept 3: Letter "S" in Rounded Square</h3>
+                <div class="logo-main">
+                    <div class="s-container">
+                        <div class="s-square-symbol"></div>
+                        <div class="s-wordmark">Skileez</div>
+                    </div>
+                </div>
+                <p>Modern "S" symbol in a rounded square format. The square shape provides stability and structure while the rounded corners maintain approachability. Perfect for digital applications and app icons.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Logo</h5>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <div class="s-square-small"></div>
+                            <div class="variation-small">Skileez</div>
+                        </div>
+                        <p>Complete version</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Icon Only</h5>
+                        <div class="s-square-small"></div>
+                        <p>S square symbol only</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="s-square-minimal"></div>
+                        <p>Clean minimal S square</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 4: Ladder Symbol -->
+            <div class="logo-concept concept4">
+                <h3>Concept 4: Ladder Symbol ⭐</h3>
+                <div class="logo-main">
+                    <div class="ladder-container">
+                        <div class="ladder-symbol">
+                            <svg viewBox="0 0 100 120" class="ladder-svg">
+                                <defs>
+                                    <linearGradient id="ladderGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#4F46E5;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <!-- Ladder sides -->
+                                <rect x="25" y="10" width="6" height="100" fill="url(#ladderGradient)" rx="3"/>
+                                <rect x="69" y="10" width="6" height="100" fill="url(#ladderGradient)" rx="3"/>
+                                
+                                <!-- Ladder rungs -->
+                                <rect x="25" y="25" width="50" height="4" fill="url(#ladderGradient)" rx="2"/>
+                                <rect x="25" y="40" width="50" height="4" fill="url(#ladderGradient)" rx="2"/>
+                                <rect x="25" y="55" width="50" height="4" fill="url(#ladderGradient)" rx="2"/>
+                                <rect x="25" y="70" width="50" height="4" fill="url(#ladderGradient)" rx="2"/>
+                                <rect x="25" y="85" width="50" height="4" fill="url(#ladderGradient)" rx="2"/>
+                                
+                                <!-- Progress indicators -->
+                                <circle cx="30" cy="27" r="2" fill="#10B981"/>
+                                <circle cx="30" cy="42" r="2" fill="#10B981"/>
+                                <circle cx="30" cy="57" r="2" fill="#F59E0B"/>
+                                <circle cx="30" cy="72" r="2" fill="#F59E0B"/>
+                                <circle cx="30" cy="87" r="2" fill="#EF4444"/>
+                                
+                                <!-- Top platform -->
+                                <rect x="20" y="5" width="60" height="8" fill="url(#ladderGradient)" rx="4"/>
+                                <rect x="22" y="7" width="56" height="4" fill="white" rx="2"/>
+                            </svg>
+                        </div>
+                        <div class="ladder-wordmark">
+                            <span class="skileez-text">Skileez</span>
+                            <span class="tagline-small">Climb Your Way to Success</span>
+                        </div>
+                    </div>
+                </div>
+                <p><strong>The ultimate symbol of growth and achievement:</strong> A ladder representing the journey from beginner to expert. Each rung represents a skill level, with progress indicators showing advancement. The ladder symbolizes upward mobility, skill progression, and the structured path to success that Skileez provides.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Ladder</h5>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <div class="ladder-small"></div>
+                            <div class="variation-small">Skileez</div>
+                        </div>
+                        <p>Complete ladder version</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Icon Only</h5>
+                        <div class="ladder-small"></div>
+                        <p>Ladder symbol only</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="ladder-minimal"></div>
+                        <p>Simplified ladder</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 5: Skil + eez (Upwork Style) -->
+            <div class="logo-concept concept5">
+                <h3>Concept 5: Skil + eez (Upwork Style) ⭐</h3>
+                <div class="logo-main">
+                    <div class="skil-eez-container">
+                        <div class="skil-eez-logo">
+                            <span class="skil-text">Skil</span><span class="eez-text">eez</span>
+                        </div>
+                    </div>
+                </div>
+                <p><strong>Upwork-style separation:</strong> Just like Upwork separates "Up" and "work" with different fonts, we separate "Skil" and "eez" with distinct styling. "Skil" uses bold, modern typography representing skills and expertise, while "eez" uses lighter, flowing typography representing ease and accessibility. Perfect for social media and minimal applications.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Logo</h5>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <div class="skil-minimal"></div>
+                            <div class="variation-small">Skil + eez</div>
+                        </div>
+                        <p>Complete separated design</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Skil Only</h5>
+                        <div class="skil-minimal"></div>
+                        <p>Perfect for social media</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="skil-icon"></div>
+                        <p>Clean minimal Skil</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Concept 6: Growth Spiral Symbol -->
+            <div class="logo-concept concept6">
+                <h3>Concept 6: Growth Spiral Symbol ⭐</h3>
+                <div class="logo-main">
+                    <div class="spiral-container">
+                        <div class="spiral-symbol">
+                            <svg viewBox="0 0 120 120" class="spiral-svg">
+                                <defs>
+                                    <linearGradient id="spiralGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+                                        <stop offset="50%" style="stop-color:#4F46E5;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#8B5CF6;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                
+                                <!-- Main spiral path -->
+                                <path d="M60 20 A40 40 0 0 1 100 60 A40 40 0 0 1 60 100 A40 40 0 0 1 20 60 A40 40 0 0 1 60 20" 
+                                      stroke="url(#spiralGradient)" 
+                                      stroke-width="8" 
+                                      fill="none" 
+                                      stroke-linecap="round"/>
+                                
+                                <!-- Inner spiral -->
+                                <path d="M60 35 A25 25 0 0 1 85 60 A25 25 0 0 1 60 85 A25 25 0 0 1 35 60 A25 25 0 0 1 60 35" 
+                                      stroke="url(#spiralGradient)" 
+                                      stroke-width="4" 
+                                      fill="none" 
+                                      stroke-linecap="round" 
+                                      opacity="0.6"/>
+                                
+                                <!-- Core circle -->
+                                <circle cx="60" cy="60" r="8" fill="url(#spiralGradient)"/>
+                                
+                                <!-- Growth indicators -->
+                                <circle cx="80" cy="40" r="3" fill="#10B981"/>
+                                <circle cx="40" cy="80" r="3" fill="#10B981"/>
+                                <circle cx="80" cy="80" r="3" fill="#F59E0B"/>
+                                <circle cx="40" cy="40" r="3" fill="#F59E0B"/>
+                            </svg>
+                        </div>
+                        <div class="spiral-wordmark">
+                            <span class="skileez-text">Skileez</span>
+                            <span class="tagline-small">Continuous Growth</span>
+                        </div>
+                    </div>
+                </div>
+                <p><strong>Production-level growth symbol:</strong> A sophisticated spiral representing continuous learning and skill development. The symbol embodies upward progression, infinite growth potential, and the journey from beginner to expert. Clean, scalable, and instantly recognizable - perfect for professional applications.</p>
+                
+                <div class="variations">
+                    <div class="variation">
+                        <h5>Full Symbol</h5>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                            <div class="spiral-small"></div>
+                            <div class="variation-small">Skileez</div>
+                        </div>
+                        <p>Complete spiral design</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Icon Only</h5>
+                        <div class="spiral-small"></div>
+                        <p>Spiral symbol only</p>
+                    </div>
+                    <div class="variation">
+                        <h5>Minimal</h5>
+                        <div class="spiral-minimal"></div>
+                        <p>Simplified spiral</p>
+                    </div>
+                </div>
+            </div>
+
+                </div>
+            </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="section">
+            <h2>Brand Colors</h2>
+            <div class="colors">
+                <p style="text-align: center; color: #6B7280; margin-bottom: 30px;">Our carefully selected color palette reflects trust, innovation, and accessibility</p>
+                
+                <div class="color-grid">
+                    <div class="color-item">
+                        <div class="color-swatch primary-500"></div>
+                        <div class="color-name">Primary Blue</div>
+                        <div class="color-code">#4A90E2</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch primary-600"></div>
+                        <div class="color-name">Primary Purple</div>
+                        <div class="color-code">#4F46E5</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch primary-700"></div>
+                        <div class="color-name">Deep Blue</div>
+                        <div class="color-code">#3B82F6</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch purple-500"></div>
+                        <div class="color-name">Purple</div>
+                        <div class="color-code">#8B5CF6</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch purple-600"></div>
+                        <div class="color-name">Deep Purple</div>
+                        <div class="color-code">#7C3AED</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch success"></div>
+                        <div class="color-name">Success</div>
+                        <div class="color-code">#10B981</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch warning"></div>
+                        <div class="color-name">Warning</div>
+                        <div class="color-code">#F59E0B</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch error"></div>
+                        <div class="color-name">Error</div>
+                        <div class="color-code">#EF4444</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Typography</h2>
+            <div class="typography">
+                <p style="text-align: center; color: #6B7280; margin-bottom: 30px;">Inter font family provides excellent readability and modern aesthetic</p>
+                
+                <div class="font-sample">
+                    <h4>Inter Font Family</h4>
+                    <p class="weight-300">Light (300) - Elegant and refined</p>
+                    <p class="weight-400">Regular (400) - Clean and readable</p>
+                    <p class="weight-500">Medium (500) - Balanced weight</p>
+                    <p class="weight-600">Semi Bold (600) - Strong emphasis</p>
+                    <p class="weight-700">Bold (700) - High impact</p>
+                    <p class="weight-800">Extra Bold (800) - Maximum emphasis</p>
+                    <p class="weight-900">Black (900) - Ultimate boldness</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2024 Skileez. All rights reserved. | Skills Made Easy, Growth Made Global</p>
+    </div>
+</body>
+</html>

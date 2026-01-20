@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Modern Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-red-600 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-feather="shield" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                    <p class="text-gray-600 mt-1">Manage users, content, and platform operations</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                <h2 class="text-xl font-bold text-white flex items-center">
+                    <i data-feather="bar-chart-2" class="w-5 h-5 mr-3"></i>
+                    Platform Overview
+                </h2>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="text-center p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                        <div class="text-3xl font-bold text-blue-600 mb-2">{{ stats.total_users }}</div>
+                        <div class="text-sm text-gray-600">Total Users</div>
+                    </div>
+                    <div class="text-center p-6 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                        <div class="text-3xl font-bold text-green-600 mb-2">{{ stats.total_coaches }}</div>
+                        <div class="text-sm text-gray-600">Active Coaches</div>
+                    </div>
+                    <div class="text-center p-6 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl border border-purple-200">
+                        <div class="text-3xl font-bold text-purple-600 mb-2">{{ stats.total_students }}</div>
+                        <div class="text-sm text-gray-600">Active Students</div>
+                    </div>
+                    <div class="text-center p-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
+                        <div class="text-3xl font-bold text-yellow-600 mb-2">{{ stats.pending_approvals }}</div>
+                        <div class="text-sm text-gray-600">Pending Approvals</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Pending Coach Approvals -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-yellow-600 to-orange-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-white flex items-center">
+                            <i data-feather="user-check" class="w-5 h-5 mr-3"></i>
+                            Pending Coach Approvals
+                        </h2>
+                        <span class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                            {{ pending_coaches|length }} pending
+                        </span>
+                    </div>
+                </div>
+
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% if pending_coaches %}
+                        {% for coach in pending_coaches %}
+                        <div class="p-6">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-start space-x-4">
+                                    <div class="flex-shrink-0">
+                                        {% if coach.profile_picture %}
+                                        <img src="{{ coach.profile_picture }}" alt="{{ coach.user.first_name }}" class="w-12 h-12 rounded-xl object-cover">
+                                        {% else %}
+                                        <div class="w-12 h-12 bg-gray-200 rounded-xl flex items-center justify-center">
+                                            <i data-feather="user" class="w-6 h-6 text-gray-400"></i>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="flex-grow">
+                                        <h3 class="text-sm font-medium text-gray-900">
+                                            {{ coach.user.first_name }} {{ coach.user.last_name }}
+                                        </h3>
+                                        <p class="text-sm text-gray-600 mt-1">{{ coach.user.email }}</p>
+                                        
+                                        {% if coach.skills %}
+                                        <div class="flex flex-wrap gap-1 mt-2">
+                                            {% for skill in coach.skills.split(',')[:3] %}
+                                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                {{ skill.strip() }}
+                                            </span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
+                                            <span>Applied: {{ coach.created_at.strftime('%m/%d/%Y') }}</span>
+                                            <span>${{ "%.0f"|format(coach.hourly_rate or 0) }}/hr</span>
+                                            <span>{{ coach.country or 'Location not set' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center space-x-2">
+                                    <button class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5" 
+                                            onclick="approveCoach({{ coach.id }})">
+                                        Approve
+                                    </button>
+                                    <button class="bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                            onclick="rejectCoach({{ coach.id }})">
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            {% if coach.bio %}
+                            <div class="mt-3">
+                                <p class="text-sm text-gray-600">{{ coach.bio[:150] }}...</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i data-feather="check-circle" class="w-8 h-8 text-green-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">All caught up!</h3>
+                        <p class="text-gray-600">No pending coach approvals</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <i data-feather="activity" class="w-5 h-5 mr-3"></i>
+                        Recent Activity
+                    </h2>
+                </div>
+
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% if recent_users %}
+                        {% for user in recent_users %}
+                        <div class="p-6">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                <div class="flex-grow">
+                                    <p class="text-sm text-gray-900">
+                                        <strong>{{ user.first_name }} {{ user.last_name }}</strong> joined as 
+                                        {% if user.is_coach %}coach{% else %}student{% endif %}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{ user.created_at.strftime('%m/%d/%Y at %H:%M') }}</p>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    {% if user.is_coach %}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                                        Coach
+                                    </span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                        Student
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="p-8 text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                            <i data-feather="activity" class="w-8 h-8 text-blue-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">No recent activity</h3>
+                        <p class="text-gray-600">User activity will appear here</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Requests -->
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-white flex items-center">
+                        <i data-feather="book-open" class="w-5 h-5 mr-3"></i>
+                        Recent Learning Requests
+                    </h2>
+                    <span class="bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-medium">
+                        {{ stats.active_requests }} active
+                    </span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proposals</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Sample data - in production this would come from the database -->
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-gray-200 rounded-xl flex items-center justify-center">
+                                        <i data-feather="user" class="w-4 h-4 text-gray-400"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
+                                        <div class="text-sm text-gray-500">john@example.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-gray-900">Learn Python Programming</div>
+                                <div class="text-sm text-gray-500">Beginner level, 4 weeks</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$500</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                    Active
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+                                <button class="text-red-600 hover:text-red-900">Delete</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Dangerous Operations Section -->
+        <div class="mt-8 bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                <div class="flex items-center space-x-2">
+                    <i data-feather="alert-triangle" class="w-5 h-5 text-white"></i>
+                    <h2 class="text-xl font-bold text-white">Dangerous Operations</h2>
+                </div>
+                <p class="text-sm text-white/80 mt-1">These actions permanently delete user data and cannot be undone.</p>
+            </div>
+
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-red-900 mb-2">Delete All Users</h3>
+                        <p class="text-sm text-red-700 mb-4">Remove all coaches and students from the platform</p>
+                        <button onclick="deleteAllUsers()" 
+                                class="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Delete All Users
+                        </button>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-blue-900 mb-2">Test Deletion</h3>
+                        <p class="text-sm text-blue-700 mb-4">Test the deletion functionality</p>
+                        <button onclick="testDelete()" 
+                                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Test Delete Function
+                        </button>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-green-900 mb-2">Test Single Delete</h3>
+                        <p class="text-sm text-green-700 mb-4">Test deleting a single user</p>
+                        <button onclick="testSingleDelete()" 
+                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Test Single Delete
+                        </button>
+                    </div>
+
+                    <div class="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-purple-900 mb-2">🚨 CLEAR ALL DATA</h3>
+                        <p class="text-sm text-purple-700 mb-4">⚠️ DANGEROUS: Clear ALL data from database (Admin Only)</p>
+                                <button onclick="clearAllData()" 
+                class="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mb-3">
+            🗑️ Clear All Database Data
+        </button>
+        
+        <button onclick="createScheduledSessionTable()" 
+                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+            🗄️ Create Scheduled Session Table
+        </button>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-red-900 mb-2">Delete All Coaches</h3>
+                        <p class="text-sm text-red-700 mb-4">Remove all coach accounts and their profiles</p>
+                        <button onclick="deleteAllCoaches()" 
+                                class="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Delete All Coaches
+                        </button>
+                    </div>
+
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-6">
+                        <h3 class="font-semibold text-red-900 mb-2">Delete All Students</h3>
+                        <p class="text-sm text-red-700 mb-4">Remove all student accounts and their profiles</p>
+                        <button onclick="deleteAllStudents()" 
+                                class="w-full bg-gradient-to-r from-red-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-red-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Delete All Students
+                        </button>
+                    </div>
+                    
+                    <!-- Database Fix Section -->
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
+                        <h3 class="font-semibold text-blue-900 mb-2">Database Schema Fix</h3>
+                        <p class="text-sm text-gray-600 mb-4">Fix production database schema issues (PostgreSQL only)</p>
+                        <a href="{{ url_for('admin_fix_database') }}" 
+                           class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 inline-block text-center">
+                            Apply Database Fix
+                        </a>
+                    </div>
+                    
+                    <!-- Test Mode Toggle -->
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-6 border border-yellow-200">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="font-semibold text-yellow-900 mb-1">Payment Test Mode</h3>
+                                <p class="text-sm text-gray-600">Enable/disable test mode for payment system</p>
+                            </div>
+                            <div class="flex items-center">
+                                <span class="mr-3 text-sm font-medium text-gray-700">
+                                    {% if config.TEST_MODE %}ON{% else %}OFF{% endif %}
+                                </span>
+                                <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                    <input type="checkbox" name="toggle" id="test-mode-toggle" 
+                                           class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out"
+                                           {% if config.TEST_MODE %}checked{% endif %}
+                                           onchange="toggleTestMode(this.checked)">
+                                    <label for="test-mode-toggle" 
+                                           class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out"></label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {% if config.TEST_MODE %}
+                        <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-3 mb-4">
+                            <div class="flex items-center">
+                                <i data-feather="alert-triangle" class="w-4 h-4 text-yellow-600 mr-2"></i>
+                                <span class="text-sm text-yellow-800 font-medium">Test Mode Active</span>
+                            </div>
+                            <p class="text-xs text-yellow-700 mt-1">Payment system is in test mode. No real charges will be made.</p>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="text-xs text-gray-500">
+                            <p>• Test mode bypasses Stripe integration</p>
+                            <p>• Allows testing with any payment data</p>
+                            <p>• Shows test indicators in payment forms</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.toggle-checkbox:checked {
+    transform: translateX(1.5rem);
+    border-color: #f59e0b;
+}
+.toggle-checkbox:checked + .toggle-label {
+    background-color: #f59e0b;
+}
+</style>
+
+<script>
+function approveCoach(coachId) {
+    if (confirm('Are you sure you want to approve this coach?')) {
+        window.location.href = `/admin/approve-coach/${coachId}`;
+    }
+}
+
+function rejectCoach(coachId) {
+    if (confirm('Are you sure you want to reject this coach? This action cannot be undone.')) {
+        window.location.href = `/admin/reject-coach/${coachId}`;
+    }
+}
+
+function testDelete() {
+    if (confirm('Test the deletion functionality?')) {
+        // Create a form and submit it as POST with CSRF token
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/test-delete';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function testSingleDelete() {
+    if (confirm('Test deleting a single user? This will delete one user from the database.')) {
+        // Create a form and submit it as POST with CSRF token
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/test-single-delete';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+            }
+    }
+    
+    function createScheduledSessionTable() {
+        if (confirm('Create the scheduled_session table? This will enable session scheduling functionality.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/create-scheduled-session-table';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+    
+    function clearAllData() {
+    if (confirm('🚨 WARNING: This will PERMANENTLY DELETE ALL DATA from the database!\n\nThis includes:\n• All users (coaches and students)\n• All messages\n• All contracts and proposals\n• All sessions and payments\n• All profiles and portfolios\n• ALL ADMIN USERS (including yourself)\n• Everything else\n\n⚠️ YOU WILL LOSE ADMIN ACCESS AFTER THIS OPERATION!\n\nThis action CANNOT be undone!')) {
+        if (confirm('⚠️ FINAL CONFIRMATION: Are you absolutely sure you want to clear ALL data?\n\n⚠️ WARNING: You will lose admin access and need to recreate it!\n\nType "YES" to confirm.')) {
+            const confirmation = prompt('Type "YES" to confirm database clear (you will lose admin access):');
+            if (confirmation === 'YES') {
+                // Create a form and submit it as POST with CSRF token
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/admin/clear-all-data';
+                
+                // Add CSRF token
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrf_token';
+                csrfInput.value = csrfToken;
+                form.appendChild(csrfInput);
+                
+                document.body.appendChild(form);
+                form.submit();
+            } else {
+                alert('Database clear cancelled.');
+            }
+        }
+    }
+}
+
+function deleteAllUsers() {
+    if (confirm('⚠️ DANGER: This will permanently delete ALL users (coaches and students) and all their data!\n\nThis action cannot be undone. Are you absolutely sure?')) {
+        if (confirm('This is your final warning. Type confirmation is required.\n\nPress OK to proceed with deleting ALL user accounts.')) {
+            // Create a form and submit it as POST with CSRF token
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/delete-all-users';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+
+function deleteAllCoaches() {
+    if (confirm('⚠️ DANGER: This will permanently delete ALL coach accounts and their data!\n\nThis action cannot be undone. Are you sure?')) {
+        if (confirm('Final confirmation: Delete all coach accounts?')) {
+            // Create a form and submit it as POST with CSRF token
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/delete-coaches';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+
+function deleteAllStudents() {
+    if (confirm('⚠️ DANGER: This will permanently delete ALL student accounts and their data!\n\nThis action cannot be undone. Are you sure?')) {
+        if (confirm('Final confirmation: Delete all student accounts?')) {
+            // Create a form and submit it as POST with CSRF token
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/delete-students';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
+
+function toggleTestMode(enabled) {
+    if (confirm(`Are you sure you want to ${enabled ? 'enable' : 'disable'} payment test mode?`)) {
+        // Create a form and submit it as POST with CSRF token
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/admin/toggle-test-mode';
+        
+        // Add CSRF token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrf_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+        
+        // Add test mode value
+        const testModeInput = document.createElement('input');
+        testModeInput.type = 'hidden';
+        testModeInput.name = 'test_mode';
+        testModeInput.value = enabled ? 'true' : 'false';
+        form.appendChild(testModeInput);
+        
+        document.body.appendChild(form);
+        form.submit();
+    } else {
+        // Reset the toggle if user cancels
+        document.getElementById('test-mode-toggle').checked = !enabled;
+    }
+}
+
+// Auto refresh every 30 seconds
+setInterval(function() {
+    // In production, this would use AJAX to refresh data
+    // location.reload();
+}, 30000);
+</script>
+{% endblock %}

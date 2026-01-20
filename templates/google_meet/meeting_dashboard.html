@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Meeting Dashboard - {{ session.coach.first_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header">
+                    <h4>📊 Meeting Dashboard</h4>
+                </div>
+                <div class="card-body">
+                    <div class="session-overview mb-4">
+                        <h5>Session Overview</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Coach:</strong> {{ session.coach.first_name }} {{ session.coach.last_name }}</p>
+                                <p><strong>Student:</strong> {{ session.student.first_name }} {{ session.student.last_name }}</p>
+                                <p><strong>Date:</strong> {{ session.scheduled_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Duration:</strong> {{ session.duration_minutes }} minutes</p>
+                                <p><strong>Type:</strong> {{ 'Free Consultation' if session.is_consultation else 'Paid Session' }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span class="badge badge-{{ 'success' if session.meeting_status == 'active' else 'warning' if session.meeting_status == 'created' else 'secondary' }}">
+                                        {{ session.meeting_status|title }}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="meeting-actions mb-4">
+                        <h5>Meeting Actions</h5>
+                        <div class="row">
+                            {% if session.google_meet_url %}
+                                <div class="col-md-4">
+                                    <a href="{{ session.google_meet_url }}" target="_blank" class="btn btn-success btn-block mb-2">
+                                        Join Meeting
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{{ url_for('edit_meeting', session_id=session.id) }}" class="btn btn-primary btn-block mb-2">
+                                        ✏️ Edit Meeting
+                                    </a>
+                                </div>
+                                <div class="col-md-4">
+                                    <form method="POST" action="{{ url_for('delete_meeting', session_id=session.id) }}" class="d-inline">
+                                        <button type="submit" class="btn btn-danger btn-block mb-2" onclick="return confirm('Are you sure you want to delete this meeting?')">
+                                            🗑️ Delete Meeting
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('create_google_meet', session_id=session.id) }}" target="_blank" class="btn btn-primary btn-block mb-2">
+                                        Create Meeting
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="{{ url_for('meeting_setup', session_id=session.id) }}" class="btn btn-secondary btn-block mb-2">
+                                        ⚙️ Setup Meeting
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if session.google_meet_url %}
+                        <div class="meeting-details mb-4">
+                            <h5>Meeting Details</h5>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <p><strong>Meeting Link:</strong> <a href="{{ session.google_meet_url }}" target="_blank">{{ session.google_meet_url }}</a></p>
+                                    {% if session.meeting_notes %}
+                                        <p><strong>Notes:</strong> {{ session.meeting_notes }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    <p><strong>Created:</strong> {{ session.meeting_created_at.strftime('%B %d, %Y at %I:%M %p') if session.meeting_created_at else 'Recently' }}</p>
+                                    <p><strong>Created By:</strong> {{ session.meeting_created_by_user.first_name if session.meeting_created_by_user else 'Unknown' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="session-actions mt-4">
+                        <h5>Session Actions</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <a href="{{ url_for('view_session', session_id=session.id) }}" class="btn btn-outline-primary btn-block mb-2">
+                                    👁️ View Session
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ url_for('edit_session', session_id=session.id) }}" class="btn btn-outline-secondary btn-block mb-2">
+                                    ✏️ Edit Session
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ url_for('reschedule_session', session_id=session.id) }}" class="btn btn-outline-warning btn-block mb-2">
+                                    📅 Reschedule
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <form method="POST" action="{{ url_for('cancel_session', session_id=session.id) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger btn-block mb-2" onclick="return confirm('Are you sure you want to cancel this session?')">
+                                        ❌ Cancel
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

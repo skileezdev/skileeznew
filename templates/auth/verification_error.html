@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Verification Error - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full">
+        <!-- Error Card -->
+        <div class="premium-card p-8 text-center relative overflow-hidden">
+            <!-- Background decorative elements -->
+            <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100 to-red-100 rounded-full -translate-y-16 translate-x-16 opacity-50"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-yellow-100 to-orange-100 rounded-full translate-y-12 -translate-x-12 opacity-50"></div>
+            
+            <!-- Error Icon -->
+            <div class="relative z-10 mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-red-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                    <i data-feather="alert-triangle" class="w-10 h-10 text-white"></i>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div class="relative z-10 mb-8">
+                <h1 class="text-3xl font-black text-gray-900 mb-4">Verification Error</h1>
+                <div class="space-y-3 text-gray-600">
+                    <div class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                        <p class="text-lg font-medium text-orange-800 mb-2">
+                            {{ error_message }}
+                        </p>
+                        <p class="text-base text-orange-700">
+                            This could be because the verification link has expired or is invalid.
+                        </p>
+                    </div>
+                    <p class="text-base text-gray-600 mt-4">
+                        Don't worry! You can request a new verification email.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="relative z-10 space-y-4">
+                <form method="POST" action="{{ url_for('resend_verification') }}" class="w-full">
+                    <input type="hidden" name="email" value="{{ email if email else '' }}">
+                    <button type="submit" class="w-full bg-primary-600 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center justify-center space-x-2">
+                        <i data-feather="mail" class="w-5 h-5"></i>
+                        <span>Request New Verification Email</span>
+                    </button>
+                </form>
+                
+                <a href="{{ url_for('login') }}" class="w-full bg-gray-100 text-gray-700 px-8 py-4 rounded-xl text-lg font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center space-x-2">
+                    <i data-feather="arrow-left" class="w-5 h-5"></i>
+                    <span>Back to Login</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="mt-6 premium-card p-6">
+            <div class="flex items-start space-x-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i data-feather="help-circle" class="w-4 h-4 text-blue-600"></i>
+                </div>
+                <div class="text-left">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Need Help?</h3>
+                    <p class="text-sm text-gray-600">
+                        Check your spam folder or contact support if you continue having issues.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .premium-card {
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.875rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    
+    // Add entrance animation
+    const card = document.querySelector('.premium-card');
+    if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, 100);
+    }
+});
+</script>
+{% endblock %} 

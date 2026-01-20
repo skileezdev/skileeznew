@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Skileez</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+    
+    <!-- Configure Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+    <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+
+    <div class="relative z-10 w-full max-w-md">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-lg {% if category == 'error' %}bg-red-500 text-white{% else %}bg-blue-500 text-white{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-lg shadow-2xl p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="shield" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-900">Admin Access</h2>
+                <p class="text-gray-600 mt-2">Enter admin credentials to continue</p>
+            </div>
+
+            <!-- Login Form -->
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                <!-- Security Notice -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i data-feather="alert-triangle" class="w-5 h-5 text-yellow-400"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-yellow-800">
+                                Restricted Access
+                            </h3>
+                            <div class="mt-2 text-sm text-yellow-700">
+                                This area is restricted to authorized administrators only. 
+                                All access attempts are logged and monitored.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Field -->
+                <div>
+                    {{ form.password.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    <div class="relative">
+                        {{ form.password(id="password", class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Enter admin password") }}
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-feather="lock" class="w-5 h-5 text-gray-400"></i>
+                        </div>
+                    </div>
+                    {% if form.password.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.password.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Remember Me -->
+                <div class="flex items-center">
+                    <input id="remember-me" 
+                           name="remember-me" 
+                           type="checkbox" 
+                           class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                    <label for="remember-me" class="ml-2 block text-sm text-gray-700">
+                        Keep me signed in
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 px-4 rounded-lg font-semibold hover:from-primary-700 hover:to-primary-800 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-105">
+                    <i data-feather="log-in" class="w-4 h-4 mr-2 inline"></i>
+                    Access Admin Panel
+                </button>
+            </form>
+
+            <!-- Security Features -->
+            <div class="mt-8 pt-6 border-t border-gray-200">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mb-2">
+                            <i data-feather="eye" class="w-4 h-4 text-green-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-600">Activity Monitored</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mb-2">
+                            <i data-feather="shield" class="w-4 h-4 text-blue-600"></i>
+                        </div>
+                        <span class="text-xs text-gray-600">Secure Connection</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Site -->
+        <div class="text-center mt-6">
+            <a href="{{ url_for('index') }}" 
+               class="text-gray-400 hover:text-gray-300 text-sm transition-colors">
+                <i data-feather="arrow-left" class="w-4 h-4 mr-1 inline"></i>
+                Back to Skileez
+            </a>
+        </div>
+    </div>
+
+    <!-- Background Animation -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -inset-10 opacity-5">
+            <div class="animate-pulse absolute top-1/4 left-1/4 w-72 h-72 bg-primary-500 rounded-full mix-blend-multiply filter blur-xl"></div>
+            <div class="animate-pulse absolute top-1/3 right-1/4 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl animation-delay-2000"></div>
+            <div class="animate-pulse absolute bottom-1/4 left-1/2 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl animation-delay-4000"></div>
+        </div>
+    </div>
+
+    <script>
+        feather.replace();
+
+        // Focus on password field
+        document.getElementById('password').focus();
+
+        // Enhanced security - disable right click and dev tools
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || 
+                (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+                (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+                (e.ctrlKey && e.key === 'u')) {
+                e.preventDefault();
+            }
+        });
+
+        // Auto-logout after inactivity
+        let inactivityTimer;
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(function() {
+                alert('Session expired due to inactivity');
+                window.location.href = '{{ url_for("index") }}';
+            }, 300000); // 5 minutes
+        }
+
+        document.addEventListener('mousemove', resetInactivityTimer);
+        document.addEventListener('keypress', resetInactivityTimer);
+        resetInactivityTimer();
+    </script>
+</body>
+</html>

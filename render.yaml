@@ -1,0 +1,51 @@
+services:
+  - type: web
+    name: skileez
+    env: python
+    plan: free
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      chmod +x build_simple.sh
+      ./build_simple.sh
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --timeout 90 --workers 2 --threads 4 app:app
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: TEST_MODE
+        value: true
+      - key: SESSION_SECRET
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skileez-db
+          property: connectionString
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
+      - key: BASE_URL
+        sync: false
+      - key: REPLIT_URL
+        sync: false
+      - key: REPLIT_DOMAINS
+        sync: false
+      - key: REPL_SLUG
+        sync: false
+      - key: REPL_OWNER
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: ENABLE_EMAIL_VERIFICATION
+        value: true
+      # LiveKit configuration removed - video functionality no longer available
+
+databases:
+  - name: skileez-db
+    plan: free 

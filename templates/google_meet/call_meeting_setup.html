@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Meeting Setup - Call {{ call.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4>📅 Meeting Setup</h4>
+                </div>
+                <div class="card-body">
+                    <div class="call-info mb-4">
+                        <h5>Call Details</h5>
+                        <p><strong>Call ID:</strong> {{ call.id }}</p>
+                        <p><strong>Call Type:</strong> {{ call.call_type.replace('_', ' ').title() }}</p>
+                        <p><strong>Coach:</strong> {{ call.coach.first_name }} {{ call.coach.last_name }}</p>
+                        <p><strong>Student:</strong> {{ call.student.first_name }} {{ call.student.last_name }}</p>
+                        <p><strong>Date:</strong> {{ call.scheduled_at.strftime('%B %d, %Y at %I:%M %p') if call.scheduled_at else 'Not set' }}</p>
+                        <p><strong>Duration:</strong> {{ call.duration_minutes }} minutes</p>
+                        {% if call.contract %}
+                        <p><strong>Contract:</strong> {{ call.contract.title }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="meeting-setup">
+                        <h6>🎥 Create Google Meet</h6>
+                        <p>Click the button below to create a Google Meet meeting for this call.</p>
+                        
+                        <a href="{{ url_for('create_call_google_meet', call_id=call.id) }}" target="_blank" class="btn btn-primary btn-lg mb-3">
+                            🎥 Create Google Meet (Opens in New Tab)
+                        </a>
+                        
+                        <div class="meeting-link-form mt-4">
+                            <h6>🔗 Add Meeting Link</h6>
+                            <p>After creating the meeting, copy the link and paste it here:</p>
+                            
+                            <form method="POST" action="{{ url_for('save_call_meeting_link', call_id=call.id) }}">
+                                <div class="form-group">
+                                    <label for="meeting_url">Google Meet Link:</label>
+                                    <input type="url" name="meeting_url" id="meeting_url" class="form-control" 
+                                           placeholder="https://meet.google.com/..." required>
+                                </div>
+                                <div class="form-group mt-3">
+                                    <label for="meeting_notes">Meeting Notes (Optional):</label>
+                                    <textarea name="meeting_notes" id="meeting_notes" class="form-control" rows="3" 
+                                              placeholder="Any additional notes about the meeting..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success mt-3">💾 Save Meeting Link</button>
+                            </form>
+                        </div>
+
+                        {% if call.google_meet_url %}
+                        <div class="current-meeting mt-4">
+                            <h6>✅ Current Meeting Link</h6>
+                            <div class="alert alert-success">
+                                <p><strong>Meeting URL:</strong> <a href="{{ call.google_meet_url }}" target="_blank">{{ call.google_meet_url }}</a></p>
+                                <p><strong>Status:</strong> {{ call.meeting_status.title() }}</p>
+                                {% if call.meeting_created_at %}
+                                <p><strong>Created:</strong> {{ call.meeting_created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+                                {% endif %}
+                                {% if call.meeting_notes %}
+                                <p><strong>Notes:</strong> {{ call.meeting_notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,495 @@
+{% extends "base.html" %}
+
+{% block title %}{{ coach.first_name }} {{ coach.last_name }} - Coach Profile - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Profile Container with Outline -->
+        <div class="border-2 border-gray-200 rounded-2xl p-6 bg-white shadow-sm">
+        <!-- Hero Header Section -->
+        <div class="bg-white mb-8">
+            <div class="px-6 py-6">
+                <div class="flex flex-col lg:flex-row items-start lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
+                    <!-- Profile Picture -->
+                    <div class="flex-shrink-0 relative">
+                        {% if coach.coach_profile.profile_picture %}
+                        <img src="{{ coach.coach_profile.profile_picture|profile_pic_url }}" alt="{{ coach.first_name }}" class="w-16 h-16 rounded-full object-cover">
+                        {% else %}
+                        <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
+                            <i data-feather="user" class="w-8 h-8 text-gray-400"></i>
+                        </div>
+                        {% endif %}
+                        <!-- Online Status Indicator -->
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-gray-400 border-2 border-white rounded-full"></div>
+                    </div>
+                    
+                    <!-- Name and Info -->
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-3 mb-2">
+                            <h1 class="text-3xl font-black text-gray-900">{{ coach.first_name }} {{ coach.last_name }}</h1>
+                            <i data-feather="check-circle" class="w-5 h-5 text-blue-500"></i>
+                        </div>
+                        {% if coach.coach_profile.country %}
+                        <p class="text-sm text-gray-500 flex items-center">
+                            <i data-feather="map-pin" class="w-3 h-3 mr-1"></i>
+                            {{ coach.coach_profile.country }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex space-x-3">
+                        {% if get_current_user() and get_current_user().is_student %}
+                        <a href="{{ url_for('conversation', user_id=coach.id) }}" class="bg-white border-2 border-primary-500 text-primary-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-50 transition-all duration-200 flex items-center space-x-2">
+                            <i data-feather="message-circle" class="w-4 h-4"></i>
+                            <span>Message</span>
+                        </a>
+                        <button class="bg-gradient-to-r from-primary-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-primary-600 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                            Rehire
+                        </button>
+                        {% else %}
+                        <a href="{{ url_for('signup') }}" class="bg-gradient-to-r from-primary-500 to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:from-primary-600 hover:to-purple-600 transition-all duration-200 text-center shadow-md hover:shadow-lg">
+                            Sign Up to Contact
+                        </a>
+                        {% endif %}
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Separator Line -->
+        <div class="border-t border-gray-200 mb-8"></div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <!-- Sidebar -->
+            <div class="xl:col-span-1 space-y-6">
+                <!-- Basic Info Card -->
+                <div class="bg-gradient-to-br from-white to-primary-50 rounded-2xl shadow-lg border border-primary-200 p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-primary-200 to-purple-200 rounded-full -translate-y-8 translate-x-8 opacity-20"></div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 relative z-10">Basic Information</h3>
+                    <div class="space-y-4 relative z-10">
+                        {% if coach.coach_profile.coach_title %}
+                        <div>
+                            <span class="text-sm text-primary-600 font-medium">Title</span>
+                            <div class="text-lg font-semibold text-gray-900">{{ coach.coach_profile.coach_title }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if coach.coach_profile.hourly_rate %}
+                        <div>
+                            <span class="text-sm text-primary-600 font-medium">Hourly Rate</span>
+                            <div class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-purple-600 bg-clip-text text-transparent">${{ "%.0f"|format(coach.coach_profile.hourly_rate) }}/hour</div>
+                    </div>
+                        {% endif %}
+                        
+                        {% if coach.coach_profile.country %}
+                        <div>
+                            <span class="text-sm text-primary-600 font-medium">Nationality</span>
+                            <div class="text-sm font-medium text-gray-900">{{ coach.coach_profile.country }}</div>
+                        </div>
+                    {% endif %}
+                        </div>
+                    </div>
+
+                <!-- Skills Card -->
+                {% if coach.coach_profile.skills %}
+                <div class="bg-gradient-to-br from-white to-green-50 rounded-2xl shadow-lg border border-green-200 p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-green-200 to-emerald-200 rounded-full -translate-y-8 translate-x-8 opacity-20"></div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 relative z-10 flex items-center">
+                        <i data-feather="award" class="w-5 h-5 text-green-500 mr-2"></i>
+                        Skills & Expertise
+                    </h3>
+                    <div class="relative z-10">
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in coach.coach_profile.skills.split(',') %}
+                            {% set skill_name = skill.strip() %}
+                            {% if skill_name %}
+                            <span class="px-3 py-2 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-full text-sm font-medium border border-green-200 hover:from-green-200 hover:to-emerald-200 transition-all duration-200 shadow-sm">
+                                {{ skill_name }}
+                            </span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Languages Card -->
+                    {% if coach.coach_profile.languages %}
+                <div class="bg-gradient-to-br from-white to-purple-50 rounded-2xl shadow-lg border border-purple-200 p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-purple-200 to-pink-200 rounded-full -translate-y-8 translate-x-8 opacity-20"></div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 relative z-10 flex items-center">
+                        <i data-feather="globe" class="w-5 h-5 text-purple-500 mr-2"></i>
+                            Languages
+                    </h3>
+                    <div class="space-y-3 relative z-10">
+                            {% for language in coach.coach_profile.languages %}
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700">{{ language.language }}</span>
+                            <span class="px-3 py-1 bg-gradient-to-r from-purple-400 to-pink-400 text-white text-xs font-semibold rounded-full capitalize shadow-sm">{{ language.proficiency }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="xl:col-span-3">
+                <!-- Tabbed Content -->
+                <div class="bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
+                    <!-- Tab Navigation -->
+                    <div class="bg-gradient-to-r from-primary-50 to-purple-50 border-b border-primary-200 overflow-x-auto">
+                        <nav class="flex space-x-4 sm:space-x-8 px-4 sm:px-6 min-w-max">
+                            <button class="tab-button active py-4 px-1 border-b-2 border-primary-500 text-primary-600 font-semibold whitespace-nowrap flex items-center" data-tab="overview">
+                                <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                                Overview
+                            </button>
+                            <button class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-600 hover:text-primary-600 font-semibold whitespace-nowrap flex items-center transition-colors duration-200" data-tab="work-history">
+                                <i data-feather="briefcase" class="w-4 h-4 mr-2"></i>
+                                Work History
+                            </button>
+                            <button class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-600 hover:text-primary-600 font-semibold whitespace-nowrap flex items-center transition-colors duration-200" data-tab="reviews">
+                                <i data-feather="star" class="w-4 h-4 mr-2"></i>
+                                Reviews
+                            </button>
+                            <button class="tab-button py-4 px-1 border-b-2 border-transparent text-gray-600 hover:text-primary-600 font-semibold whitespace-nowrap flex items-center transition-colors duration-200" data-tab="certifications">
+                                <i data-feather="folder" class="w-4 h-4 mr-2"></i>
+                                Portfolio
+                            </button>
+                        </nav>
+                    </div>
+                    
+                    <!-- Tab Content -->
+                    <div class="p-4 sm:p-6">
+                        <!-- Overview Tab -->
+                        <div id="overview-tab" class="tab-content">
+                            <!-- About Section -->
+                            {% if coach.coach_profile.bio %}
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">About {{ coach.first_name }}</h3>
+                        <p class="text-gray-600 leading-relaxed whitespace-pre-line">{{ coach.coach_profile.bio }}</p>
+                </div>
+                {% endif %}
+
+                            <!-- Employment History Preview -->
+                            {% if coach.coach_profile.experiences %}
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i data-feather="briefcase" class="w-4 h-4 text-white"></i>
+                    </div>
+                                    Recent Experience
+                                </h3>
+                                <div class="space-y-4">
+                                    {% for exp in coach.coach_profile.experiences[:2] %}
+                                    <div class="flex items-start space-x-4 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 hover:shadow-md transition-all duration-200">
+                                        <div class="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <i data-feather="briefcase" class="w-5 h-5 text-white"></i>
+                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-semibold text-gray-900 mb-1">{{ exp.title }}</h4>
+                                {% if exp.company %}
+                                <p class="text-blue-600 font-medium mb-2">{{ exp.company }}</p>
+                                {% endif %}
+                                {% if exp.start_date %}
+                                            <p class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full inline-block">
+                                    {{ exp.start_date.strftime('%B %Y') }} - 
+                                    {% if exp.is_current %}Present{% elif exp.end_date %}{{ exp.end_date.strftime('%B %Y') }}{% else %}Present{% endif %}
+                                </p>
+                                {% endif %}
+                                        </div>
+                            </div>
+                            {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                            <!-- Education Preview -->
+                {% if coach.coach_profile.educations %}
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i data-feather="book" class="w-4 h-4 text-white"></i>
+                                    </div>
+                            Education
+                                </h3>
+                                <div class="space-y-4">
+                                    {% for edu in coach.coach_profile.educations[:2] %}
+                                    <div class="flex items-start space-x-4 p-5 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-200 hover:shadow-md transition-all duration-200">
+                                        <div class="w-10 h-10 bg-gradient-to-r from-purple-400 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                                            <i data-feather="book" class="w-5 h-5 text-white"></i>
+                    </div>
+                                        <div class="flex-1">
+                                {% if edu.degree %}
+                                            <h4 class="font-semibold text-gray-900 mb-1">{{ edu.degree }}</h4>
+                                {% endif %}
+                                {% if edu.field_of_study %}
+                                            <p class="text-purple-600 font-medium mb-2">{{ edu.field_of_study }}</p>
+                                {% endif %}
+                                <p class="text-gray-700 font-medium mb-2">{{ edu.institution }}</p>
+                                {% if edu.start_date %}
+                                            <p class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full inline-block">
+                                    {{ edu.start_date.strftime('%Y') }} - 
+                                    {% if edu.is_current %}Present{% elif edu.end_date %}{{ edu.end_date.strftime('%Y') }}{% else %}Present{% endif %}
+                                </p>
+                                {% endif %}
+                                        </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Portfolio Preview -->
+                            {% if coach.coach_profile.portfolio_items %}
+                            <div class="mb-8">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-green-400 to-green-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i data-feather="folder" class="w-4 h-4 text-white"></i>
+                                    </div>
+                                    Recent Work
+                                </h3>
+                                <div class="grid gap-4 md:grid-cols-2">
+                                    {% for item in coach.coach_profile.portfolio_items[:2] %}
+                                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200 hover:shadow-md transition-all duration-200">
+                                        <h4 class="font-semibold text-gray-900 mb-2">{{ item.title }}</h4>
+                                        {% if item.description %}
+                                        <p class="text-sm text-gray-600 mb-3">{{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}</p>
+                                        {% endif %}
+                                        {% if item.skills %}
+                                        <div class="flex flex-wrap gap-1">
+                                            {% for skill in item.skills.split(',')[:3] %}
+                                            <span class="px-2 py-1 bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-full text-xs font-medium">{{ skill.strip() }}</span>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                            <!-- Client Reviews -->
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center mr-3">
+                                        <i data-feather="star" class="w-4 h-4 text-white"></i>
+                                    </div>
+                                    Client Reviews
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-5 border border-yellow-200">
+                                        <div class="flex items-center space-x-2 mb-3">
+                                            <div class="flex text-yellow-400">
+                                                {% for i in range(5) %}
+                                                <i data-feather="star" class="w-4 h-4 fill-current"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-full">2 weeks ago</span>
+                                        </div>
+                                        <p class="text-gray-700 italic">"{{ coach.first_name }} helped me land my dream developer job!" - Alex C.</p>
+                                    </div>
+                                    
+                                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-5 border border-yellow-200">
+                                        <div class="flex items-center space-x-2 mb-3">
+                                            <div class="flex text-yellow-400">
+                                                {% for i in range(5) %}
+                                                <i data-feather="star" class="w-4 h-4 fill-current"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="text-sm text-gray-500 bg-white px-2 py-1 rounded-full">2 weeks ago</span>
+                                        </div>
+                                        <p class="text-gray-700 italic">"Excellent mentor, clear explanations." - Sarah K.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Work History Tab -->
+                        <div id="work-history-tab" class="tab-content hidden">
+                            {% if coach.coach_profile.experiences %}
+                            <div class="space-y-6">
+                                {% for exp in coach.coach_profile.experiences %}
+                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-gray-900 mb-1">{{ exp.title }}</h4>
+                                            {% if exp.company %}
+                                            <p class="text-primary-600 font-medium">{{ exp.company }}</p>
+                                            {% endif %}
+                                        </div>
+                                        {% if exp.start_date %}
+                                        <span class="text-sm text-gray-500 bg-white px-3 py-1 rounded-full">
+                                            {{ exp.start_date.strftime('%B %Y') }} - 
+                                            {% if exp.is_current %}Present{% elif exp.end_date %}{{ exp.end_date.strftime('%B %Y') }}{% else %}Present{% endif %}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if exp.description %}
+                                    <p class="text-gray-600 leading-relaxed">{{ exp.description }}</p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-12">
+                                <i data-feather="briefcase" class="w-12 h-12 text-gray-300 mx-auto mb-4"></i>
+                                <p class="text-gray-500">No work history available.</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Reviews Tab -->
+                        <div id="reviews-tab" class="tab-content hidden">
+                            <div class="space-y-6">
+                                <!-- Sample reviews - in production, these would come from database -->
+                                <div class="bg-gray-50 rounded-xl p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="flex text-yellow-400">
+                                            {% for i in range(5) %}
+                                            <i data-feather="star" class="w-4 h-4 fill-current"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">2 weeks ago</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">"Excellent coach! Very patient and knowledgeable."</p>
+                                    <p class="text-xs text-gray-500">- Sarah M.</p>
+                                </div>
+                                
+                                <div class="bg-gray-50 rounded-xl p-6">
+                                    <div class="flex items-center mb-3">
+                                        <div class="flex text-yellow-400">
+                                            {% for i in range(5) %}
+                                            <i data-feather="star" class="w-4 h-4 fill-current"></i>
+                                            {% endfor %}
+                                        </div>
+                                        <span class="text-sm text-gray-500 ml-2">1 month ago</span>
+                                    </div>
+                                    <p class="text-gray-600 mb-2">"Great teaching style and very responsive."</p>
+                                    <p class="text-xs text-gray-500">- Mike R.</p>
+                                </div>
+                            </div>
+                    </div>
+                    
+                        <!-- Portfolio Tab -->
+                        <div id="certifications-tab" class="tab-content hidden">
+                            {% if coach.coach_profile.portfolio_items %}
+                        <div class="grid gap-6 md:grid-cols-2">
+                            {% for item in coach.coach_profile.portfolio_items %}
+                                <div class="bg-gray-50 rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all duration-200">
+                                <!-- Thumbnail -->
+                                {% if item.thumbnail_image %}
+                                <div class="w-full h-48 bg-gray-200">
+                                    <img src="{{ url_for('static', filename=item.thumbnail_image) }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+                                </div>
+                                {% else %}
+                                    <div class="w-full h-48 bg-gradient-to-br from-primary-100 to-purple-100 flex items-center justify-center">
+                                        <i data-feather="image" class="w-12 h-12 text-primary-400"></i>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="p-6">
+                                        <!-- Category Badge -->
+                                    {% if item.category %}
+                                    <div class="mb-3">
+                                            <span class="inline-block px-3 py-1 bg-primary-100 text-primary-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+                                            {{ item.category.replace('_', ' ') }}
+                                        </span>
+                                    </div>
+                                    {% endif %}
+                                    
+                                        <!-- Title -->
+                                    <h4 class="text-lg font-semibold text-gray-900 mb-3">{{ item.title }}</h4>
+                                    
+                                        <!-- Description -->
+                                        {% if item.description %}
+                                        <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ item.description }}</p>
+                                        {% endif %}
+                                        
+                                        <!-- Project Links -->
+                                        {% if item.project_links %}
+                                        <div class="mb-4">
+                                            <p class="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                                                <i data-feather="link" class="w-3 h-3 mr-1"></i>
+                                                Project Links:
+                                            </p>
+                                            {% for link in item.project_links.split('\n')[:2] if link.strip() %}
+                                            <a href="{{ link.strip() }}" target="_blank" class="block text-primary-600 hover:text-primary-700 text-xs truncate mb-1">
+                                                <i data-feather="external-link" class="w-3 h-3 inline mr-1"></i>
+                                                {{ link.strip() }}
+                                            </a>
+                                            {% endfor %}
+                                            {% if item.project_links.split('\n')|length > 2 %}
+                                            <p class="text-xs text-gray-500">+{{ item.project_links.split('\n')|length - 2 }} more links</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <!-- Skills -->
+                                        {% if item.skills %}
+                                        <div class="flex flex-wrap gap-2">
+                                            {% for skill in item.skills.split(',')[:4] %}
+                                            <span class="px-2 py-1 bg-white text-gray-700 rounded-full text-xs font-medium border border-gray-200">{{ skill.strip() }}</span>
+                                            {% endfor %}
+                                            {% if item.skills.split(',')|length > 4 %}
+                                            <span class="px-2 py-1 bg-white text-gray-500 rounded-full text-xs font-medium border border-gray-200">+{{ item.skills.split(',')|length - 4 }}</span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                            {% else %}
+                            <div class="text-center py-12">
+                                <i data-feather="folder" class="w-12 h-12 text-gray-300 mx-auto mb-4"></i>
+                                <p class="text-gray-500">No portfolio items available.</p>
+                </div>
+                {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ </div>
+ 
+ <!-- Tab Functionality Script -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Skills are now displayed as tags, no progress bars needed
+
+    // Tab functionality
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all buttons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'border-primary-500', 'text-primary-600');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active', 'border-primary-500', 'text-primary-600');
+            this.classList.remove('border-transparent', 'text-gray-500');
+            
+            // Hide all tab contents
+            tabContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show target tab content
+            document.getElementById(targetTab + '-tab').classList.remove('hidden');
+        });
+    });
+});
+</script>
+{% endblock %}

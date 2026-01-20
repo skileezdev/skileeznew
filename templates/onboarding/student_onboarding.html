@@ -1,0 +1,435 @@
+{% extends "base.html" %}
+
+{% block title %}Student Onboarding - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-feather="book-open" class="w-8 h-8 text-primary-600"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Complete your student profile</h2>
+            <p class="text-gray-600">Tell us about yourself so coaches can get to know you better.</p>
+        </div>
+        
+        <!-- Form -->
+        <div class="premium-card p-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {{ form.hidden_tag() }}
+                
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="user" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Personal Information
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            {{ form.profile_picture.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden" id="profile-preview">
+                                    <i data-feather="camera" class="w-8 h-8 text-gray-400"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-primary-400 transition-colors">
+                                        <div class="space-y-1 text-center">
+                                            <i data-feather="upload" class="mx-auto h-8 w-8 text-gray-400"></i>
+                                            <div class="flex text-sm text-gray-600">
+                                                <label for="profile_picture" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                                    <span>Upload a photo</span>
+                                                    {{ form.profile_picture(class="sr-only") }}
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Upload your photo (optional)</p>
+                            {% if form.profile_picture.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.profile_picture.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            {{ form.age.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.age(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="25") }}
+                            {% if form.age.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.age.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {{ form.country.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.country(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="United States") }}
+                            {% if form.country.errors %}
+                                <div class="mt-1 text-sm text-red-600">
+                                    {% for error in form.country.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Languages Section -->
+                        <div>
+                            <h4 class="block text-sm font-medium text-gray-700 mb-4">Preferred Languages</h4>
+                            
+                            <!-- Current Languages Display -->
+                            <div id="languages-list" class="mb-6">
+                                <div id="student-languages-container"></div>
+                            </div>
+
+                            <!-- Add New Language Form -->
+                            <div class="space-y-4 mb-6">
+                                <h5 class="font-semibold text-gray-800 flex items-center">
+                                    <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
+                                    Add Language
+                                </h5>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Language</label>
+                                        <select id="student-language" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                                            <option value="">Select a language</option>
+                                            <option value="English">English</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="French">French</option>
+                                            <option value="German">German</option>
+                                            <option value="Portuguese">Portuguese</option>
+                                            <option value="Italian">Italian</option>
+                                            <option value="Mandarin">Mandarin</option>
+                                            <option value="Japanese">Japanese</option>
+                                            <option value="Korean">Korean</option>
+                                            <option value="Arabic">Arabic</option>
+                                            <option value="Hindi">Hindi</option>
+                                            <option value="Russian">Russian</option>
+                                            <option value="Dutch">Dutch</option>
+                                            <option value="Swedish">Swedish</option>
+                                            <option value="Norwegian">Norwegian</option>
+                                            <option value="Danish">Danish</option>
+                                            <option value="Finnish">Finnish</option>
+                                            <option value="Polish">Polish</option>
+                                            <option value="Turkish">Turkish</option>
+                                            <option value="Hebrew">Hebrew</option>
+                                            <option value="Thai">Thai</option>
+                                            <option value="Vietnamese">Vietnamese</option>
+                                            <option value="Indonesian">Indonesian</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">Proficiency Level</label>
+                                        <select id="student-proficiency" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors">
+                                            <option value="">Select proficiency</option>
+                                            <option value="Basic">Basic</option>
+                                            <option value="Conversational">Conversational</option>
+                                            <option value="Fluent">Fluent</option>
+                                            <option value="Native">Native</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <button type="button" id="add-student-language-btn" class="btn-secondary px-4 py-2 rounded-lg transition-all duration-200 flex items-center opacity-50" disabled>
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Language
+                                </button>
+                            </div>
+                            
+                            <!-- Proficiency Guide -->
+                            <div class="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-4">
+                                <h4 class="font-semibold text-primary-800 mb-3 flex items-center">
+                                    <i data-feather="help-circle" class="w-4 h-4 mr-2"></i>
+                                    Proficiency levels guide
+                                </h4>
+                                <div class="space-y-2 text-sm text-primary-700">
+                                    <div class="flex items-start">
+                                        <span class="font-medium w-28">Basic:</span>
+                                        <span>Can understand and use basic phrases</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-medium w-28">Conversational:</span>
+                                        <span>Can handle everyday conversations</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-medium w-28">Fluent:</span>
+                                        <span>Can express complex ideas clearly</span>
+                                    </div>
+                                    <div class="flex items-start">
+                                        <span class="font-medium w-28">Native:</span>
+                                        <span>Native speaker level</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Hidden input to store languages data -->
+                            <input type="hidden" id="languages-data" name="languages_data" value="">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bio Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="edit-3" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Tell us about yourself
+                    </h3>
+                    
+                    <div>
+                        {{ form.bio.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.bio(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="6", placeholder="Tell us about your background, what you're interested in learning, your goals, and anything else that would help coaches understand how to best help you...") }}
+                        
+                        <div class="flex items-center justify-between mt-2 text-sm">
+                            <div class="text-gray-500">
+                                <span id="char-count">0</span> / 1000 characters
+                                <span class="text-gray-400">(minimum 50)</span>
+                            </div>
+                            <div id="char-status" class="text-red-500 hidden">
+                                <i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                                <span>Minimum 50 characters required</span>
+                            </div>
+                        </div>
+                        
+                        {% if form.bio.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.bio.errors %}
+                                    <p class="flex items-center">
+                                        <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+
+                </div>
+                
+
+                
+                <!-- Submit Button -->
+                <div class="pt-8 border-t border-gray-200">
+                    <button type="submit" class="w-full btn-primary px-6 py-4 rounded-lg text-lg font-semibold transition-all duration-200 opacity-50" id="submit-btn" disabled>
+                        <i data-feather="user-check" class="w-5 h-5 mr-2"></i>
+                        Complete Profile
+                    </button>
+                    
+                    <p class="text-center text-sm text-gray-500 mt-4">
+                        You can always edit your profile later from your dashboard
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const bioTextarea = document.getElementById('bio');
+    const charCount = document.getElementById('char-count');
+    const charStatus = document.getElementById('char-status');
+    const submitBtn = document.getElementById('submit-btn');
+    const profilePicInput = document.getElementById('profile_picture');
+    const profilePreview = document.getElementById('profile-preview');
+    
+    // Language management
+    const studentLanguageSelect = document.getElementById('student-language');
+    const studentProficiencySelect = document.getElementById('student-proficiency');
+    const addStudentLanguageBtn = document.getElementById('add-student-language-btn');
+    const studentLanguagesContainer = document.getElementById('student-languages-container');
+    const languagesData = document.getElementById('languages-data');
+    
+    let selectedLanguages = [];
+    
+    // Bio character count and validation
+    function updateCharCount() {
+        const length = bioTextarea.value.length;
+        charCount.textContent = length;
+        
+        if (length < 50) {
+            charStatus.classList.remove('hidden');
+            charStatus.className = 'text-red-500';
+            charStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Minimum 50 characters required</span>';
+            updateSubmitButton();
+        } else {
+            charStatus.classList.remove('hidden');
+            charStatus.className = 'text-green-500';
+            charStatus.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i><span>Looking great!</span>';
+            updateSubmitButton();
+        }
+        
+        feather.replace();
+    }
+    
+    // Update submit button state
+    function updateSubmitButton() {
+        const bioLength = bioTextarea.value.length;
+        const hasLanguages = selectedLanguages.length > 0;
+        
+        if (bioLength >= 50 && hasLanguages) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50');
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+        }
+    }
+    
+    // Profile picture preview
+    function handleFileSelect(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profilePreview.innerHTML = `<img src="${e.target.result}" alt="Profile Preview" class="w-16 h-16 rounded-full object-cover">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
+    // Language management functions
+    function validateAddLanguageForm() {
+        const hasLanguage = studentLanguageSelect.value !== '';
+        const hasProficiency = studentProficiencySelect.value !== '';
+        
+        if (hasLanguage && hasProficiency) {
+            addStudentLanguageBtn.disabled = false;
+            addStudentLanguageBtn.classList.remove('opacity-50');
+        } else {
+            addStudentLanguageBtn.disabled = true;
+            addStudentLanguageBtn.classList.add('opacity-50');
+        }
+    }
+    
+    function renderStudentLanguages() {
+        if (selectedLanguages.length > 0) {
+            studentLanguagesContainer.innerHTML = `
+                <div class="space-y-3 mb-4">
+                    <h5 class="font-semibold text-gray-800 flex items-center">
+                        <i data-feather="check-circle" class="w-4 h-4 mr-2 text-green-600"></i>
+                        Your Languages
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${selectedLanguages.map((lang, index) => `
+                            <div class="language-item bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                                <div>
+                                    <span class="font-medium text-green-800">${lang.language}</span>
+                                    <span class="text-sm text-green-600 ml-2">(${lang.proficiency})</span>
+                                </div>
+                                <button type="button" onclick="removeStudentLanguage(${index})" class="text-red-500 hover:text-red-700 transition-colors">
+                                    <i data-feather="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        } else {
+            studentLanguagesContainer.innerHTML = '';
+        }
+        feather.replace();
+        updateLanguagesData();
+        updateSubmitButton();
+    }
+    
+    function updateLanguagesData() {
+        languagesData.value = JSON.stringify(selectedLanguages);
+    }
+    
+    function addStudentLanguage() {
+        const language = studentLanguageSelect.value;
+        const proficiency = studentProficiencySelect.value;
+        
+        if (!language || !proficiency) {
+            return;
+        }
+        
+        // Check if language already exists
+        const exists = selectedLanguages.some(lang => lang.language === language);
+        if (exists) {
+            alert('You have already added this language.');
+            return;
+        }
+        
+        selectedLanguages.push({ language, proficiency });
+        
+        // Reset form
+        studentLanguageSelect.value = '';
+        studentProficiencySelect.value = '';
+        validateAddLanguageForm();
+        
+        renderStudentLanguages();
+    }
+    
+    function removeStudentLanguage(index) {
+        selectedLanguages.splice(index, 1);
+        renderStudentLanguages();
+    }
+    
+    // Make functions global for onclick handlers
+    window.removeStudentLanguage = removeStudentLanguage;
+    
+    // Event listeners
+    bioTextarea.addEventListener('input', updateCharCount);
+    studentLanguageSelect.addEventListener('change', validateAddLanguageForm);
+    studentProficiencySelect.addEventListener('change', validateAddLanguageForm);
+    addStudentLanguageBtn.addEventListener('click', addStudentLanguage);
+    
+    // Handle file input change
+    profilePicInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        handleFileSelect(file);
+    });
+    
+    // Handle drag and drop
+    const uploadArea = profilePicInput.closest('.border-dashed');
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.classList.add('border-primary-500', 'bg-primary-50');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.classList.remove('border-primary-500', 'bg-primary-50');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            profilePicInput.files = files;
+            handleFileSelect(file);
+        }
+    });
+    
+    // Add event listeners to language suggestion buttons if they exist
+    const languageOptions = document.querySelectorAll('.language-option-btn');
+    languageOptions.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            addLanguage(this.textContent.trim());
+        });
+    });
+    
+    // Initial checks
+    updateCharCount();
+});
+</script>
+{% endblock %}

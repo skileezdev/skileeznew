@@ -1,0 +1,798 @@
+{% extends "base.html" %}
+
+{% block title %}{{ other_user.first_name }} {{ other_user.last_name }} - Messages - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('inbox') }}" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-feather="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    
+                    <div class="flex items-center space-x-3">
+                        {% if (other_user.is_coach and other_user.coach_profile and other_user.coach_profile.profile_picture) or (other_user.is_student and other_user.student_profile and other_user.student_profile.profile_picture) %}
+                            {% set profile_pic = other_user.coach_profile.profile_picture if other_user.is_coach else other_user.student_profile.profile_picture %}
+                            <img src="{{ profile_pic }}" alt="{{ other_user.first_name }}" class="w-10 h-10 rounded-full object-cover">
+                        {% else %}
+                            <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                <i data-feather="user" class="w-5 h-5 text-primary-600"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <h1 class="text-lg font-semibold text-gray-900">
+                                {{ other_user.first_name }} {{ other_user.last_name }}
+                            </h1>
+                            <div class="flex items-center space-x-2 text-sm text-gray-500">
+                                {% if other_user.is_coach %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Coach
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Student
+                                </span>
+                                {% endif %}
+                                <span class="flex items-center">
+                                    <i data-feather="circle" class="w-2 h-2 text-green-500 mr-1 fill-current"></i>
+                                    Online
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    {% if other_user.is_coach %}
+                    <a href="{{ url_for('coach_profile', coach_id=other_user.id) }}" 
+                       class="btn-secondary px-4 py-2 rounded-lg text-sm">
+                        <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                        View Profile
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Action Buttons for Students with Accepted Proposals -->
+                    {% if get_current_user().current_role == 'student' and other_user.current_role == 'coach' %}
+                        {% set accepted_proposal = proposals|selectattr('coach_id', 'equalto', other_user.id)|selectattr('status', 'equalto', 'accepted')|first %}
+                        {% if accepted_proposal %}
+                            {% set existing_contract = accepted_proposal.get_contract() %}
+                            {% if existing_contract %}
+                                <a href="{{ url_for('view_contract', contract_id=existing_contract.id) }}" 
+                                   class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                    View Contract
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('create_contract_from_messages', user_id=other_user.id) }}" 
+                                   class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    <i data-feather="file-text" class="w-4 h-4 mr-2"></i>
+                                    Create Contract
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    
+                    <!-- Dynamic Scheduling Button -->
+                    <div data-coach-id="{{ other_user.id }}" class="scheduling-button-container">
+                        {% if get_current_user().current_role == 'student' and other_user.current_role == 'coach' %}
+                            {% set active_contract = contracts|selectattr('coach_id', 'equalto', other_user.id)|selectattr('status', 'equalto', 'active')|selectattr('payment_status', 'equalto', 'paid')|first %}
+                            {% if active_contract %}
+                                <a href="{{ url_for('schedule_paid_session', contract_id=active_contract.id) }}" 
+                                   class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                                    Schedule Learning Session
+                                </a>
+                            {% else %}
+                                <a href="{{ url_for('schedule_free_consultation', coach_id=other_user.id) }}" 
+                                   class="btn-primary px-4 py-2 rounded-lg text-sm">
+                                    <i data-feather="phone" class="w-4 h-4 mr-2"></i>
+                                    Schedule Free 15-min Call
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('schedule_call_from_messages', user_id=other_user.id) }}" 
+                               class="btn-secondary px-4 py-2 rounded-lg text-sm">
+                                <i data-feather="phone" class="w-4 h-4 mr-2"></i>
+                                Schedule Call
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i data-feather="more-vertical" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div class="premium-card p-0 flex flex-col overflow-hidden" style="height: calc(100vh - 200px);">
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto messages-container" id="messages-container">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="message-container {% if message.sender_id == get_current_user().id %}sent{% else %}received{% endif %}" data-message-time="{{ message.created_at.isoformat() }}">
+                        {% if message.message_type == 'FREE_CONSULTATION' %}
+                            <!-- Square Interactive Consultation Card - Rich Media Element -->
+                            <div class="consultation-card-container">
+                                <div class="consultation-card">
+                                    {% set consultation_info = message.content|extract_consultation_info %}
+                                    
+                                    <!-- Card Header -->
+                                    <div class="consultation-card-header">
+                                        <div class="consultation-icon">
+                                            <i data-feather="phone" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="consultation-badge">
+                                            <span>FREE CALL</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Card Content -->
+                                    <div class="consultation-card-content">
+                                        <h3 class="consultation-title">
+                                            {% if consultation_info and consultation_info.status == 'requested' %}
+                                                Consultation Request
+                                            {% else %}
+                                                Free Consultation
+                                            {% endif %}
+                                        </h3>
+                                        {% if consultation_info %}
+                                            <div class="consultation-details">
+                                                                                            <div class="detail-row">
+                                                <i data-feather="calendar" class="w-4 h-4"></i>
+                                                <span>
+                                                    {% if consultation_info and consultation_info.status == 'requested' %}
+                                                        TBD (Requested)
+                                                    {% else %}
+                                                        {{ consultation_info.scheduled_at|default('TBD') }}
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                                <div class="detail-row">
+                                                    <i data-feather="clock" class="w-4 h-4"></i>
+                                                    <span>15 minutes</span>
+                                                </div>
+                                                <div class="detail-row">
+                                                    <i data-feather="user" class="w-4 h-4"></i>
+                                                    <span>{{ consultation_info.coach_name|default('Coach') }}</span>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <!-- Card Actions -->
+                                    <div class="consultation-card-actions">
+                                        {% if consultation_info and consultation_info.status in ['scheduled', 'confirmed'] %}
+                                        <button class="join-call-btn" onclick="joinConsultationCall({{ consultation_info.consultation_id }})">
+                                            <i data-feather="phone" class="w-4 h-4"></i>
+                                            <span>Join Call</span>
+                                        </button>
+                                        {% elif consultation_info and consultation_info.status == 'requested' %}
+                                        <div class="consultation-request-actions">
+                                            <span class="text-sm text-gray-600 italic">Waiting for coach to respond with available times...</span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="card-secondary-actions">
+                                            <button class="card-action-btn" onclick="viewConsultationDetails({{ consultation_info.consultation_id if consultation_info else 'null' }})">
+                                                <i data-feather="eye" class="w-4 h-4"></i>
+                                            </button>
+                                            {% if consultation_info and consultation_info.status == 'scheduled' %}
+                                            <button class="card-action-btn" onclick="rescheduleConsultation({{ consultation_info.consultation_id }})">
+                                                <i data-feather="clock" class="w-4 h-4"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'SESSION_SCHEDULED' %}
+                            <!-- Interactive Session Card - Standalone Element -->
+                            <div class="session-preview-card {% if message.sender_id == get_current_user().id %}sent{% endif %}">
+                                <div class="session-header">
+                                    <div class="session-icon">
+                                        <i data-feather="video" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="session-title">
+                                        <h4>Session Scheduled</h4>
+                                        {% set session_info = message.content|extract_session_info %}
+                                        {% if session_info and session_info.session_type %}
+                                            <span class="session-type {{ session_info.session_type }}">{{ session_info.session_type|title }}</span>
+                                        {% else %}
+                                            <span class="session-type paid">Learning Session</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="session-details">
+                                    {% set session_info = message.content|extract_session_info %}
+                                    {% if session_info %}
+                                        <div class="session-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Date & Time</span>
+                                                <span class="value">{{ session_info.scheduled_at|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">{{ session_info.duration|default('60') }} min</span>
+                                            </div>
+                                            {% if session_info.session_type == 'free_consultation' %}
+                                            <div class="info-item">
+                                                <span class="label">Type</span>
+                                                <span class="value">Free 15-min Consultation</span>
+                                            </div>
+                                            {% else %}
+                                            <div class="info-item">
+                                                <span class="label">Session #</span>
+                                                <span class="value">{{ session_info.session_number|default('N/A') }}</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Contract</span>
+                                                <span class="value">{{ session_info.contract_title|default('N/A') }}</span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value status-{{ session_info.status|default('scheduled') }}">{{ session_info.status|default('Scheduled')|title }}</span>
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                        <!-- Fallback to original content if parsing fails -->
+                                        <div class="session-fallback">
+                                            {{ message.content|safe }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="session-actions">
+                                    {% if session_info and session_info.status in ['scheduled', 'confirmed'] %}
+                                    <a href="{{ url_for('join_call', call_id=session_info.session_id) }}" class="btn join-session-btn">
+                                        <i data-feather="play" class="w-4 h-4 mr-1"></i>
+                                        Join Call
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_call', call_id=session_info.session_id) if session_info else '#' }}" class="btn view-session-btn">
+                                        <i data-feather="eye" class="w-4 h-4 mr-1"></i>
+                                        View Details
+                                    </a>
+                                    {% endif %}
+                                    {% if session_info and session_info.status == 'scheduled' %}
+                                    <button class="btn reschedule-btn" onclick="requestReschedule({{ session_info.session_id }})">
+                                        <i data-feather="clock" class="w-4 h-4 mr-1"></i>
+                                        Reschedule
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% elif message.message_type == 'CONTRACT_OFFER' %}
+                            <!-- Contract Offer Card - Rendered outside message bubble like call cards -->
+                            {% from 'messages/components/contract_card.html' import render_contract_card %}
+                            {% set contract_data = message.content|extract_contract_info %}
+                            {% if contract_data %}
+                                {{ render_contract_card(contract_data, get_current_user(), message) }}
+                            {% else %}
+                                <!-- Fallback to regular message if contract data can't be parsed -->
+                                <div class="message-bubble {% if message.sender_id == get_current_user().id %}message-sent{% else %}message-received{% endif %}">
+                                    <div class="contract-message">
+                                        <div class="flex items-center mb-2">
+                                            <i data-feather="file-text" class="w-4 h-4 mr-2 text-primary-600"></i>
+                                            <span class="font-semibold text-primary-600">Contract Offer</span>
+                                        </div>
+                                        <div class="text-sm mb-3">{{ message.content|safe }}</div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <!-- Regular Text Messages -->
+                            <div class="message-bubble {% if message.sender_id == get_current_user().id %}message-sent{% else %}message-received{% endif %}">
+                                {% if message.message_type == 'SYSTEM' %}
+                                    <div class="system-message">
+                                        <div class="flex items-center mb-1">
+                                            <i data-feather="info" class="w-4 h-4 mr-2 text-blue-600"></i>
+                                            <span class="font-semibold text-blue-600">System Message</span>
+                                        </div>
+                                        <div class="text-sm">{{ message.content|safe }}</div>
+                                    </div>
+                                {% elif message.message_type == 'CALL_SCHEDULED' %}
+                                    {% from 'scheduling/call_card.html' import render_call_card %}
+                                    {% set call = message.get_call() %}
+                                    {% if call %}
+                                        {{ render_call_card(call, get_current_user()) }}
+                                    {% else %}
+                                        <div class="call-message">
+                                            <div class="flex items-center mb-2">
+                                                <i data-feather="phone" class="w-4 h-4 mr-2 text-green-600"></i>
+                                                <span class="font-semibold text-green-600">Call Scheduled</span>
+                                            </div>
+                                            <div class="text-sm">{{ message.content|safe }}</div>
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    {{ message.content }}
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        <div class="message-timestamp">
+                            <span class="message-timestamp" 
+                                  data-utc-time="{{ message.created_at|utc_iso }}"
+                                  title="{{ message.created_at.strftime('%B %d, %Y at %I:%M %p') }}">
+                                <!-- This will be replaced by JavaScript -->
+                                Loading...
+                            </span>
+                            {% if message.sender_id == get_current_user().id and message.is_read %}
+                            <span class="read-indicator">
+                                <i data-feather="check-circle" class="w-3 h-3 inline opacity-60"></i>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Date separator -->
+                    {% if loop.nextitem is defined and message.created_at.date() != loop.nextitem.created_at.date() %}
+                    <div class="flex items-center my-4">
+                        <div class="flex-1 border-t border-gray-200"></div>
+                        <span class="px-4 text-xs text-gray-500 bg-gray-50">
+                            {{ loop.nextitem.created_at|format_datetime('date_only') }}
+                        </span>
+                        <div class="flex-1 border-t border-gray-200"></div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                {% else %}
+                <!-- No messages state -->
+                <div class="flex items-center justify-center h-full text-center">
+                    <div class="max-w-sm">
+                        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-feather="message-circle" class="w-8 h-8 text-primary-600"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Start the conversation</h3>
+                        <p class="text-gray-600 mb-4">Send your first message to {{ other_user.first_name }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Message Input -->
+            <div class="border-t border-gray-200 p-4">
+                <form id="message-form" class="flex items-end space-x-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    
+                    <!-- Attachment Button -->
+                    <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors p-2">
+                        <i data-feather="paperclip" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Message Input -->
+                    <div class="flex-1">
+                        <textarea name="content" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none" rows="1" placeholder="Type your message..." id="message-input"></textarea>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="flex items-center space-x-2">
+                        <button type="button" class="text-gray-400 hover:text-gray-600 transition-colors p-2">
+                            <i data-feather="smile" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <button type="submit" class="btn-primary px-4 py-2 rounded-lg disabled:opacity-50" id="send-btn" disabled>
+                            <i data-feather="send" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- Typing Indicator -->
+                <div id="typing-indicator" class="text-xs text-gray-500 mt-2 hidden">
+                    {{ other_user.first_name }} is typing...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Response Templates -->
+<div class="fixed bottom-20 right-6 space-y-2 hidden" id="quick-responses">
+    <div class="bg-white rounded-lg shadow-lg border border-gray-200 p-3 max-w-xs">
+        <h4 class="text-sm font-semibold text-gray-900 mb-2">Quick responses</h4>
+        <div class="space-y-2">
+            <button class="block w-full text-left text-sm text-gray-600 hover:bg-gray-50 p-2 rounded quick-response" 
+                    data-message="Thanks for your message! I'll get back to you soon.">
+                Thanks for your message!
+            </button>
+            <button class="block w-full text-left text-sm text-gray-600 hover:bg-gray-50 p-2 rounded quick-response" 
+                    data-message="Could we schedule a quick call to discuss this?">
+                Schedule a call
+            </button>
+            <button class="block w-full text-left text-sm text-gray-600 hover:bg-gray-50 p-2 rounded quick-response" 
+                    data-message="I'll review this and get back to you within 24 hours.">
+                I'll review this
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set user timezone for JavaScript - Upwork style
+window.userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+console.log('Detected timezone:', window.userTimezone);
+
+document.addEventListener('DOMContentLoaded', function() {
+    const messageInput = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-btn');
+    const messagesContainer = document.getElementById('messages-container');
+    const messageForm = document.getElementById('message-form');
+    const quickResponses = document.querySelectorAll('.quick-response');
+    
+    let lastMessageTime = null;
+    let currentUserId = {{ get_current_user().id }};
+    let otherUserId = {{ other_user.id }};
+    let isLoadingMessages = false;
+    
+    // Upwork-style time formatting function
+    function formatMessageTime(utcTimeString) {
+        const date = new Date(utcTimeString);
+        return date.toLocaleTimeString([], {
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+    
+    // Get CSRF token
+    function getCSRFToken() {
+        return document.querySelector('input[name="csrf_token"]').value;
+    }
+    
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+        
+        // Enable/disable send button
+        if (this.value.trim().length > 0) {
+            sendBtn.disabled = false;
+            sendBtn.classList.remove('opacity-50');
+        } else {
+            sendBtn.disabled = true;
+            sendBtn.classList.add('opacity-50');
+        }
+    });
+    
+    // Create message bubble HTML - iOS Style with External Timestamps (Upwork style)
+    function createMessageBubble(message, isCurrentUser) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message-container ${isCurrentUser ? 'sent' : 'received'}`;
+        messageDiv.setAttribute('data-message-time', message.created_at);
+        
+        // Create bubble without timestamp inside
+        const bubbleDiv = document.createElement('div');
+        bubbleDiv.className = `message-bubble ${isCurrentUser ? 'message-sent' : 'message-received'}`;
+        bubbleDiv.textContent = message.content;
+        
+        // Create external timestamp with Upwork-style time conversion
+        const timestampDiv = document.createElement('div');
+        timestampDiv.className = 'message-timestamp';
+        timestampDiv.textContent = formatMessageTime(message.created_at);
+        
+        // Add read indicator for sent messages
+        if (isCurrentUser && message.is_read) {
+            const readSpan = document.createElement('span');
+            readSpan.className = 'read-indicator';
+            const readIcon = document.createElement('i');
+            readIcon.setAttribute('data-feather', 'check-circle');
+            readIcon.className = 'w-3 h-3 inline opacity-60';
+            readSpan.appendChild(readIcon);
+            timestampDiv.appendChild(readSpan);
+        }
+        
+        messageDiv.appendChild(bubbleDiv);
+        messageDiv.appendChild(timestampDiv);
+        
+        return messageDiv;
+    }
+    
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Add message to UI
+    function addMessageToUI(message) {
+        const isCurrentUser = message.sender_id === currentUserId;
+        const messageElement = createMessageBubble(message, isCurrentUser);
+        messagesContainer.appendChild(messageElement);
+        
+        // Re-render Feather icons only for the new message
+        feather.replace();
+        
+        scrollToBottom();
+        if (!message.is_optimistic) {
+            lastMessageTime = message.created_at;
+        }
+        
+        return messageElement;
+    }
+    
+    // Send message via AJAX with optimistic UI
+    function sendMessage(content) {
+        if (isLoadingMessages) return;
+        
+        // Optimistic UI: immediately add message to chat
+        const optimisticMessage = {
+            content: content,
+            sender_id: currentUserId,
+            created_at: new Date().toISOString(),
+            is_optimistic: true
+        };
+        
+        const messageElement = addMessageToUI(optimisticMessage);
+        messageElement.classList.add('message-sending');
+        
+        // Clear input immediately
+        messageInput.value = '';
+        messageInput.style.height = 'auto';
+        messageInput.dispatchEvent(new Event('input'));
+        messageInput.focus();
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('content', content);
+        formData.append('csrf_token', getCSRFToken());
+        
+        // Show sending state on button
+        sendBtn.disabled = true;
+        const originalBtn = sendBtn.innerHTML;
+        sendBtn.innerHTML = '<i data-feather="loader" class="w-4 h-4 animate-spin"></i>';
+        feather.replace();
+        
+        // Send to server
+        fetch(`/send-message/${otherUserId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.error || 'Failed to send message');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Remove optimistic styling and update with server response
+                messageElement.classList.remove('message-sending');
+                
+                // Update last message time for real-time checking
+                lastMessageTime = data.message.created_at;
+            } else {
+                throw new Error(data.error || 'Failed to send message');
+            }
+        })
+        .catch(error => {
+            console.error('Error sending message:', error);
+            
+            // Mark message as failed
+            messageElement.classList.remove('message-sending');
+            messageElement.classList.add('message-failed');
+            
+            // Show error to user
+            setTimeout(() => {
+                if (confirm('Message failed to send. Click OK to retry or Cancel to remove.')) {
+                    // Retry sending
+                    messageElement.classList.remove('message-failed');
+                    messageElement.classList.add('message-sending');
+                    sendMessage(content);
+                } else {
+                    // Remove failed message
+                    messageElement.remove();
+                }
+            }, 1000);
+        })
+        .finally(() => {
+            // Reset send button
+            sendBtn.disabled = messageInput.value.trim().length === 0;
+            sendBtn.innerHTML = originalBtn;
+            feather.replace();
+        });
+    }
+    
+    // Check for new messages
+    function checkNewMessages() {
+        if (isLoadingMessages) return;
+        
+        isLoadingMessages = true;
+        const url = lastMessageTime ? 
+            `/messages/${otherUserId}/new-messages?since=${lastMessageTime}` :
+            `/messages/${otherUserId}/new-messages`;
+        
+        fetch(url, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.messages.length > 0) {
+                data.messages.forEach(message => {
+                    // Only add messages that aren't already displayed
+                    if (!lastMessageTime || message.created_at > lastMessageTime) {
+                        addMessageToUI(message);
+                    }
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error checking new messages:', error);
+        })
+        .finally(() => {
+            isLoadingMessages = false;
+        });
+    }
+    
+    // Handle form submission
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const content = messageInput.value.trim();
+        if (content.length > 0) {
+            sendMessage(content);
+        }
+    });
+    
+    // Send message on Enter (but allow Shift+Enter for new lines)
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (this.value.trim().length > 0) {
+                sendMessage(this.value.trim());
+            }
+        }
+    });
+    
+    // Quick responses
+    quickResponses.forEach(btn => {
+        btn.addEventListener('click', function() {
+            messageInput.value = this.dataset.message;
+            messageInput.focus();
+            messageInput.dispatchEvent(new Event('input'));
+        });
+    });
+    
+    // Auto-scroll to bottom with smooth animation
+    function scrollToBottom() {
+        setTimeout(() => {
+            messagesContainer.scrollTo({
+                top: messagesContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }, 50);
+    }
+    
+    // Initialize last message time from existing messages
+    const existingMessages = messagesContainer.querySelectorAll('[data-message-time]');
+    if (existingMessages.length > 0) {
+        lastMessageTime = existingMessages[existingMessages.length - 1].dataset.messageTime;
+    }
+    
+    // Scroll to bottom on page load
+    scrollToBottom();
+    
+    // Focus on message input
+    messageInput.focus();
+    
+    // Real-time message checking
+    setInterval(checkNewMessages, 2000); // Check every 2 seconds
+    
+    // Mark messages as read when conversation is viewed
+    fetch(`/messages/${otherUserId}/mark-read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCSRFToken()
+        }
+    });
+    
+    // Mark messages as read when window gets focus
+    window.addEventListener('focus', function() {
+        fetch(`/messages/${otherUserId}/mark-read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': getCSRFToken()
+            }
+        });
+    });
+    
+    // Convert existing message timestamps to user's local timezone on page load
+    function convertExistingTimestamps() {
+        const timestamps = document.querySelectorAll('.message-timestamp[data-utc-time]');
+        console.log('=== TIMEZONE CONVERSION DEBUG ===');
+        console.log('Converting timestamps:', timestamps.length, 'found');
+        console.log('User timezone:', window.userTimezone);
+        console.log('Current local time:', new Date().toLocaleTimeString());
+        
+        timestamps.forEach((timestamp, index) => {
+            const utcTime = timestamp.getAttribute('data-utc-time');
+            console.log(`Timestamp ${index}: UTC=${utcTime}`);
+            
+            if (utcTime) {
+                const date = new Date(utcTime);
+                console.log(`Timestamp ${index}: Date object=${date}`);
+                console.log(`Timestamp ${index}: Date.getTime()=${date.getTime()}`);
+                
+                const localTime = date.toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+                console.log(`Timestamp ${index}: Local=${localTime}`);
+                
+                // Also test with explicit timezone
+                const dubaiTime = date.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true,
+                    timeZone: 'Asia/Dubai'
+                });
+                console.log(`Timestamp ${index}: Dubai=${dubaiTime}`);
+                
+                timestamp.textContent = localTime;
+            }
+        });
+        console.log('=== END TIMEZONE CONVERSION ===');
+    }
+    
+    // Convert timestamps when page loads
+    convertExistingTimestamps();
+    
+    // Also convert timestamps after a short delay to ensure all elements are rendered
+    setTimeout(convertExistingTimestamps, 100);
+    
+    // Convert timestamps periodically to catch any dynamically loaded content
+    setInterval(convertExistingTimestamps, 1000);
+    
+    // Initialize scheduling system
+    if (window.schedulingManager) {
+        // Update scheduling buttons based on contract status
+        const coachId = {{ other_user.id }};
+        window.schedulingManager.getSchedulingOptions(coachId);
+    }
+});
+
+// Consultation Card JavaScript Functions
+function joinConsultationCall(consultationId) {
+    if (consultationId) {
+        window.location.href = `/join-call/${consultationId}`;
+    }
+}
+
+function viewConsultationDetails(consultationId) {
+    if (consultationId) {
+        window.location.href = `/view-call/${consultationId}`;
+    }
+}
+
+function rescheduleConsultation(consultationId) {
+    if (consultationId) {
+        if (confirm('Do you want to reschedule this consultation?')) {
+            window.location.href = `/reschedule-call/${consultationId}`;
+        }
+    }
+}
+</script>
+
+<!-- Include scheduling JavaScript -->
+<script src="{{ url_for('static', filename='js/scheduling.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Join Video Session{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Join Video Session</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-video fa-3x text-primary mb-3"></i>
+                        <h5>{{ session.proposal.learning_request.title }}</h5>
+                        <p class="text-muted">Session #{{ session.session_number }}</p>
+                    </div>
+                    
+                    <!-- Meeting Status Display -->
+                    <div class="meeting-status-container mb-4">
+                        {% if session.status == 'scheduled' %}
+                            {% if session.can_join_early() %}
+                                <div class="alert alert-warning">
+                                    <h6><i class="fas fa-clock"></i> Early Join Available</h6>
+                                    <p class="mb-0">You can join the meeting early. The host will be notified when you join.</p>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info">
+                                    <h6><i class="fas fa-clock"></i> Meeting Not Started Yet</h6>
+                                    <p class="mb-0">
+                                        This meeting will start at the scheduled time. 
+                                        {% if session.early_join_enabled %}
+                                            Early join will be available 5-10 minutes before the scheduled time.
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            {% endif %}
+                        {% elif session.status == 'active' %}
+                            <div class="alert alert-success">
+                                <h6><i class="fas fa-play-circle"></i> Meeting is Active</h6>
+                                <p class="mb-0">The meeting has started. You can join now!</p>
+                            </div>
+                        {% elif session.status == 'completed' %}
+                            <div class="alert alert-secondary">
+                                <h6><i class="fas fa-check-circle"></i> Meeting Completed</h6>
+                                <p class="mb-0">This meeting has already ended.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Session Details</h6>
+                                    <p><strong>Duration:</strong> {{ session.duration_minutes or 60 }} minutes</p>
+                                    <p><strong>Status:</strong> 
+                                        {% if session.status == 'scheduled' %}
+                                            <span class="badge bg-info">Scheduled</span>
+                                        {% elif session.status == 'active' %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% elif session.status == 'completed' %}
+                                            <span class="badge bg-secondary">Completed</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">{{ session.status|title }}</span>
+                                        {% endif %}
+                                    </p>
+                                    {% if session.scheduled_at %}
+                                        <p><strong>Scheduled:</strong> 
+                                            {{ session.scheduled_at|format_datetime('full') }}
+                                            {% if current_user.timezone %}
+                                                <br><small class="text-muted">Your timezone: {{ current_user.timezone }}</small>
+                                            {% endif %}
+                                        </p>
+                                    {% endif %}
+                                    {% if session.meeting_started_at %}
+                                        <p><strong>Started:</strong> {{ session.meeting_started_at|format_datetime('full') }}</p>
+                                    {% endif %}
+                                    {% if session.meeting_ended_at %}
+                                        <p><strong>Ended:</strong> {{ session.meeting_ended_at|format_datetime('full') }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body text-center">
+                                    <h6>Participants</h6>
+                                    {% set contract = session.get_contract() %}
+                                    {% if contract %}
+                                        <p><strong>Coach:</strong> {{ contract.coach.first_name }} {{ contract.coach.last_name }}</p>
+                                        <p><strong>Student:</strong> {{ contract.student.first_name }} {{ contract.student.last_name }}</p>
+                                    {% endif %}
+                                    
+                                    <!-- Meeting Settings -->
+                                    <hr>
+                                    <h6>Meeting Settings</h6>
+                                    <p><strong>Early Join:</strong> 
+                                        {% if session.early_join_enabled %}
+                                            <span class="badge bg-success">Enabled</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Disabled</span>
+                                        {% endif %}
+                                    </p>
+                                    <p><strong>Waiting Room:</strong> 
+                                        {% if session.waiting_room_enabled %}
+                                            <span class="badge bg-success">Enabled</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Disabled</span>
+                                        {% endif %}
+                                    </p>
+                                    {% if session.buffer_minutes > 0 %}
+                                        <p><strong>Buffer Time:</strong> {{ session.buffer_minutes }} minutes</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Meeting Preparation -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle"></i> Before joining:</h6>
+                        <ul class="mb-0">
+                            <li>Make sure you have a stable internet connection</li>
+                            <li>Allow camera and microphone access when prompted</li>
+                            <li>Test your audio and video before the session</li>
+                            <li>Find a quiet environment for the best experience</li>
+                            {% if session.waiting_room_enabled %}
+                                <li>You may be placed in a waiting room until the host admits you</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="text-center">
+                        {% if session.status == 'active' or session.can_join_early() %}
+                            <a href="#" class="btn btn-primary btn-lg" onclick="alert('Video functionality has been removed from this application.')">
+                                <i class="fas fa-play"></i> 
+                                {% if session.status == 'active' %}
+                                    Video Session (Unavailable)
+                                {% else %}
+                                    Video Session (Unavailable)
+                                {% endif %}
+                            </a>
+                        {% elif session.status == 'scheduled' %}
+                            <button class="btn btn-secondary btn-lg" disabled>
+                                <i class="fas fa-clock"></i> Meeting Not Started Yet
+                            </button>
+                            <div class="mt-2">
+                                <small class="text-muted">
+                                    Meeting will start at {{ session.scheduled_at|format_datetime('full') }}
+                                </small>
+                            </div>
+                            <!-- Manual start button for testing -->
+                            <form method="POST" action="{{ url_for('start_session', session_id=session.id) }}" class="mt-2">
+                                <button type="submit" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-play"></i> Start Session Now (Test)
+                                </button>
+                            </form>
+                        {% elif session.status == 'completed' %}
+                            <button class="btn btn-secondary btn-lg" disabled>
+                                <i class="fas fa-check"></i> Meeting Completed
+                            </button>
+                        {% endif %}
+                        
+                        <a href="{{ url_for('sessions_list') }}" class="btn btn-outline-secondary btn-lg ms-2">
+                            <i class="fas fa-arrow-left"></i> Back to Sessions
+                        </a>
+                    </div>
+                    
+                    <!-- Auto-refresh for scheduled meetings -->
+                    {% if session.status == 'scheduled' %}
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-sync-alt"></i> This page will automatically refresh when the meeting starts
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh JavaScript for scheduled meetings -->
+{% if session.status == 'scheduled' %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check meeting status every 30 seconds
+    setInterval(function() {
+        fetch('{{ url_for("check_meeting_status", session_id=session.id) }}')
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'active' || data.can_join_early) {
+                    location.reload();
+                }
+            })
+            .catch(error => console.log('Status check failed:', error));
+    }, 30000);
+});
+</script>
+{% endif %}
+{% endblock %}

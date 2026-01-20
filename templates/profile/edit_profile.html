@@ -1,0 +1,702 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Modern Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-primary-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-feather="user" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Edit Profile</h1>
+                    <p class="text-gray-600 mt-1">Update your profile information and preferences</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 xl:grid-cols-4 gap-8">
+            <!-- Modern Sidebar Navigation -->
+            <div class="xl:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 profile-edit-sidebar">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center flex-shrink-0">
+                        <i data-feather="settings" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Profile Sections
+                    </h3>
+                    
+                    <nav class="space-y-2 flex-1 overflow-visible">
+                        <a href="#basic-info" class="profile-nav-link active group" data-section="basic-info">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-primary-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-primary-200 transition-colors">
+                                    <i data-feather="user" class="w-4 h-4 text-primary-600"></i>
+                                </div>
+                                <span class="font-medium">Basic Information</span>
+                            </div>
+                        </a>
+                        
+                        {% if user.is_coach %}
+                        <a href="#skills" class="profile-nav-link group" data-section="skills">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-primary-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-purple-200 transition-colors">
+                                    <i data-feather="award" class="w-4 h-4 text-purple-600"></i>
+                                </div>
+                                <span class="font-medium">Skills & Bio</span>
+                            </div>
+                        </a>
+                        
+                        <a href="#experience" class="profile-nav-link group" data-section="experience">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-primary-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                    <i data-feather="briefcase" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <span class="font-medium">Experience</span>
+                            </div>
+                        </a>
+                        
+                        <a href="#education" class="profile-nav-link group" data-section="education">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-primary-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                                    <i data-feather="book" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <span class="font-medium">Education</span>
+                            </div>
+                        </a>
+                        
+                        <a href="#portfolio" class="profile-nav-link group" data-section="portfolio">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-primary-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-orange-200 transition-colors">
+                                    <i data-feather="folder" class="w-4 h-4 text-orange-600"></i>
+                                </div>
+                                <span class="font-medium">Portfolio</span>
+                            </div>
+                        </a>
+                        {% endif %}
+                        
+
+                    </nav>
+
+                    <!-- Profile Status Card -->
+                    <div class="mt-8 p-4 bg-gradient-to-r from-primary-50 to-purple-50 border border-primary-200 rounded-xl flex-shrink-0">
+                        <h4 class="font-semibold text-primary-800 mb-3 flex items-center">
+                            <i data-feather="activity" class="w-4 h-4 mr-2"></i>
+                            Profile Status
+                        </h4>
+                        {% if user.is_coach and user.coach_profile %}
+                            {% if user.coach_profile.is_approved %}
+                            <div class="flex items-center text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                                <i data-feather="check-circle" class="w-4 h-4 mr-2"></i>
+                                <span class="text-sm font-medium">Approved & Active</span>
+                            </div>
+                            {% else %}
+                            <div class="flex items-center text-yellow-700 bg-yellow-50 px-3 py-2 rounded-lg">
+                                <i data-feather="clock" class="w-4 h-4 mr-2"></i>
+                                <span class="text-sm font-medium">Pending Review</span>
+                            </div>
+                            {% endif %}
+                        {% else %}
+                        <div class="flex items-center text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                            <i data-feather="check-circle" class="w-4 h-4 mr-2"></i>
+                            <span class="text-sm font-medium">Active Student</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="xl:col-span-3 space-y-8">
+                <!-- Basic Information Section -->
+                <div id="basic-info" class="profile-section-content">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-primary-600 to-purple-600 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="user" class="w-5 h-5 mr-3"></i>
+                                Basic Information
+                            </h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <form method="POST" class="space-y-8">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                
+                                <!-- Profile Picture Upload -->
+                                <div class="space-y-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Profile Picture</label>
+                                    <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                                        <div class="relative">
+                                            <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-primary-400 transition-colors" id="profile-preview">
+                                                {% if (user.is_coach and user.coach_profile.profile_picture) or (user.is_student and user.student_profile.profile_picture) %}
+                                                    {% set profile_pic = user.coach_profile.profile_picture if user.is_coach else user.student_profile.profile_picture %}
+                                                    <img src="{{ profile_pic }}" alt="Profile" class="w-24 h-24 rounded-2xl object-cover">
+                                                {% else %}
+                                                    <i data-feather="camera" class="w-8 h-8 text-gray-400"></i>
+                                                {% endif %}
+                                            </div>
+                                            <div class="absolute -bottom-2 -right-2 w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-primary-700 transition-colors" onclick="document.getElementById('profile-pic-url').focus()">
+                                                <i data-feather="edit-2" class="w-4 h-4 text-white"></i>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <input type="url" name="profile_pic_url" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" placeholder="https://example.com/your-photo.jpg" id="profile-pic-url">
+                                            <p class="mt-2 text-sm text-gray-500 flex items-center">
+                                                <i data-feather="info" class="w-4 h-4 mr-1"></i>
+                                                Add a URL to your professional photo
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Name Fields -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">First Name</label>
+                                        <input type="text" name="first_name" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.first_name }}">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Last Name</label>
+                                        <input type="text" name="last_name" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.last_name }}">
+                                    </div>
+                                </div>
+
+                                <!-- Email Information -->
+                                <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <div class="flex items-start space-x-3">
+                                        <i data-feather="info" class="w-5 h-5 text-blue-600 mt-0.5"></i>
+                                        <div>
+                                            <h4 class="text-sm font-semibold text-blue-800 mb-1">Email Address</h4>
+                                            <p class="text-sm text-blue-700 mb-2">Current email: <span class="font-medium">{{ user.email }}</span></p>
+                                            <p class="text-sm text-blue-600">To change your email address, please go to <a href="{{ url_for('account_settings') }}" class="text-blue-800 hover:text-blue-900 underline font-medium">Account Settings</a>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                {% if user.is_coach %}
+                                <!-- Coach-specific fields -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Country</label>
+                                        <input type="text" name="country" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.coach_profile.country or '' }}">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Phone Number</label>
+                                        <input type="tel" name="phone_number" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.coach_profile.phone_number or '' }}">
+                                    </div>
+                                </div>
+
+                                <!-- Hourly Rate -->
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Hourly Rate</label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 text-lg font-medium">$</span>
+                                        </div>
+                                        <input type="number" name="hourly_rate" step="0.01" class="w-full pl-8 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.coach_profile.hourly_rate or 0 }}">
+                                        <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                                            <span class="text-gray-500 text-sm">/ hour</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if user.is_student %}
+                                <!-- Student-specific fields -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Age</label>
+                                        <input type="number" name="age" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.student_profile.age or '' }}">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">Preferred Languages</label>
+                                        <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.student_profile.preferred_languages or '' }}" placeholder="English, Spanish, French">
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Bio -->
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">
+                                        {% if user.is_coach %}Professional Bio{% else %}About You{% endif %}
+                                    </label>
+                                    <textarea name="bio" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-none" rows="4" placeholder="{% if user.is_coach %}Describe your coaching approach, expertise, and what makes you unique as a coach (100-5000 characters){% else %}Tell us about yourself...{% endif %}">{% if user.is_coach %}{{ user.coach_profile.bio or '' }}{% else %}{{ user.student_profile.bio or '' }}{% endif %}</textarea>
+                                    {% if user.is_coach %}
+                                    <p class="text-sm text-gray-500 flex items-center">
+                                        <i data-feather="info" class="w-4 h-4 mr-1"></i>
+                                        Must be 100-5000 characters
+                                    </p>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Save Button -->
+                                <div class="flex justify-end pt-6 border-t border-gray-200">
+                                    <button type="submit" class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <i data-feather="save" class="w-4 h-4 mr-2 inline"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {% if user.is_coach %}
+                <!-- Skills & Bio Section -->
+                <div id="skills" class="profile-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="award" class="w-5 h-5 mr-3"></i>
+                                Skills & Bio
+                            </h2>
+                        </div>
+                        
+                        <div class="p-6">
+                            <form method="POST" class="space-y-6">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Skills</label>
+                                    <input type="text" name="skills" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.coach_profile.skills or '' }}" placeholder="Web Development, JavaScript, React">
+                                    <p class="text-sm text-gray-500 flex items-center">
+                                        <i data-feather="info" class="w-4 h-4 mr-1"></i>
+                                        Separate skills with commas
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Coach Title</label>
+                                    <input type="text" name="coach_title" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" value="{{ user.coach_profile.coach_title or '' }}" placeholder="e.g., Graphic Design Coach, Fluent English Tutor" maxlength="80" required>
+                                    <p class="text-sm text-gray-500">Professional headline (5-80 characters)</p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-semibold text-gray-700">Bio</label>
+                                    <textarea name="bio" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white resize-none" rows="6" placeholder="Describe your coaching approach, expertise, and what makes you unique as a coach..." minlength="100" maxlength="5000" required>{{ user.coach_profile.bio or '' }}</textarea>
+                                    <p class="text-sm text-gray-500">Detailed description of your coaching approach (100-5000 characters)</p>
+                                </div>
+
+                                <div class="flex justify-end pt-6 border-t border-gray-200">
+                                    <button type="submit" class="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-3 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <i data-feather="save" class="w-4 h-4 mr-2 inline"></i>
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Experience Section -->
+                <div id="experience" class="profile-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-bold text-white flex items-center">
+                                    <i data-feather="briefcase" class="w-5 h-5 mr-3"></i>
+                                    Work Experience
+                                </h2>
+                                <a href="{{ url_for('add_experience') }}" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-200 font-medium text-sm">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Experience
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            {% if user.coach_profile.experiences %}
+                            <div class="space-y-6">
+                                {% for exp in user.coach_profile.experiences %}
+                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-200">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-grow">
+                                            <h3 class="font-semibold text-gray-900 text-lg">{{ exp.title }}</h3>
+                                            {% if exp.company %}
+                                            <p class="text-primary-600 font-medium mb-2">{{ exp.company }}</p>
+                                            {% endif %}
+                                            {% if exp.start_date %}
+                                            <p class="text-sm text-gray-500 mb-3 flex items-center">
+                                                <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                                                {{ exp.start_date.strftime('%B %Y') }} - 
+                                                {% if exp.is_current %}Present{% elif exp.end_date %}{{ exp.end_date.strftime('%B %Y') }}{% else %}Present{% endif %}
+                                            </p>
+                                            {% endif %}
+                                            {% if exp.description %}
+                                            <p class="text-gray-600 text-sm leading-relaxed">{{ exp.description }}</p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <a href="{{ url_for('edit_experience', experience_id=exp.id) }}" class="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all duration-200" title="Edit">
+                                                <i data-feather="edit-2" class="w-4 h-4"></i>
+                                            </a>
+                                            <form method="POST" action="{{ url_for('delete_experience', experience_id=exp.id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this experience?')">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" title="Delete">
+                                                    <i data-feather="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <i data-feather="briefcase" class="w-8 h-8 text-green-600"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">No experience added yet</h3>
+                                <p class="text-gray-600 mb-6">Add your work experience to build credibility</p>
+                                <a href="{{ url_for('add_experience') }}" class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Your First Experience
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div id="education" class="profile-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-bold text-white flex items-center">
+                                    <i data-feather="book" class="w-5 h-5 mr-3"></i>
+                                    Education
+                                </h2>
+                                <a href="{{ url_for('add_education') }}" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-200 font-medium text-sm">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Education
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            {% if user.coach_profile.educations %}
+                            <div class="space-y-6">
+                                {% for edu in user.coach_profile.educations %}
+                                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all duration-200">
+                                    <div class="flex justify-between items-start">
+                                        <div class="flex-grow">
+                                            {% if edu.degree %}
+                                            <h3 class="font-semibold text-gray-900 text-lg">{{ edu.degree }}</h3>
+                                            {% endif %}
+                                            {% if edu.field_of_study %}
+                                            <p class="text-blue-600 font-medium mb-2">{{ edu.field_of_study }}</p>
+                                            {% endif %}
+                                            <p class="text-gray-700 font-medium mb-2">{{ edu.institution }}</p>
+                                            {% if edu.start_date %}
+                                            <p class="text-sm text-gray-500 flex items-center">
+                                                <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                                                {{ edu.start_date.strftime('%Y') }} - 
+                                                {% if edu.is_current %}Present{% elif edu.end_date %}{{ edu.end_date.strftime('%Y') }}{% else %}Present{% endif %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex items-center space-x-2 ml-4">
+                                            <a href="{{ url_for('edit_education', education_id=edu.id) }}" class="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200" title="Edit">
+                                                <i data-feather="edit-2" class="w-4 h-4"></i>
+                                            </a>
+                                            <form method="POST" action="{{ url_for('delete_education', education_id=edu.id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this education?')">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" title="Delete">
+                                                    <i data-feather="trash-2" class="w-4 h-4"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <i data-feather="book" class="w-8 h-8 text-blue-600"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">No education added yet</h3>
+                                <p class="text-gray-600 mb-6">Add your educational background</p>
+                                <a href="{{ url_for('add_education') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Your First Education
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Portfolio Section -->
+                <div id="portfolio" class="profile-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-orange-600 to-red-600 px-6 py-4">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-xl font-bold text-white flex items-center">
+                                    <i data-feather="folder" class="w-5 h-5 mr-3"></i>
+                                    Portfolio
+                                </h2>
+                                <a href="{{ url_for('add_portfolio') }}" class="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-all duration-200 font-medium text-sm">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Portfolio Item
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="p-6">
+                            {% if user.coach_profile.portfolio_items %}
+                            <div class="grid gap-6 md:grid-cols-2">
+                                {% for item in user.coach_profile.portfolio_items %}
+                                <div class="bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-200 border border-gray-200">
+                                    {% if item.thumbnail_image %}
+                                    <div class="w-full h-48 bg-gray-200">
+                                        <img src="{{ url_for('static', filename=item.thumbnail_image) }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="p-6">
+                                        {% if item.category %}
+                                        <div class="mb-3">
+                                            <span class="inline-block px-3 py-1 bg-orange-100 text-orange-700 text-xs font-semibold rounded-full uppercase tracking-wide">
+                                                {{ item.category.replace('_', ' ') }}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="flex justify-between items-start mb-3">
+                                            <h4 class="text-lg font-semibold text-gray-900 flex-grow pr-2">{{ item.title }}</h4>
+                                            <div class="flex items-center space-x-1">
+                                                <a href="{{ url_for('edit_portfolio', portfolio_id=item.id) }}" class="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-all duration-200" title="Edit">
+                                                    <i data-feather="edit-2" class="w-4 h-4"></i>
+                                                </a>
+                                                <form method="POST" action="{{ url_for('delete_portfolio', portfolio_id=item.id) }}" class="inline" onsubmit="return confirm('Are you sure you want to delete this portfolio item?')">
+                                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                                    <button type="submit" class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200" title="Delete">
+                                                        <i data-feather="trash-2" class="w-4 h-4"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <p class="text-gray-600 text-sm leading-relaxed mb-4">{{ item.description[:150] }}{% if item.description|length > 150 %}...{% endif %}</p>
+
+                                        {% if item.project_links %}
+                                        <div class="mb-4">
+                                            <p class="text-xs font-semibold text-gray-700 mb-2 flex items-center">
+                                                <i data-feather="link" class="w-3 h-3 mr-1"></i>
+                                                Project Links:
+                                            </p>
+                                            {% for link in item.project_links.split('\n')[:2] if link.strip() %}
+                                            <a href="{{ link.strip() }}" target="_blank" class="block text-orange-600 hover:text-orange-700 text-xs truncate mb-1">
+                                                <i data-feather="external-link" class="w-3 h-3 inline mr-1"></i>
+                                                {{ link.strip() }}
+                                            </a>
+                                            {% endfor %}
+                                            {% if item.project_links.split('\n')|length > 2 %}
+                                            <p class="text-xs text-gray-500">+{{ item.project_links.split('\n')|length - 2 }} more links</p>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+
+                                        {% if item.skills %}
+                                        <div class="flex flex-wrap gap-2 mb-4">
+                                            {% for skill in item.skills.split(',')[:3] %}
+                                            <span class="px-2 py-1 bg-white text-gray-700 rounded-full text-xs font-medium border border-gray-200">{{ skill.strip() }}</span>
+                                            {% endfor %}
+                                            {% if item.skills.split(',')|length > 3 %}
+                                            <span class="px-2 py-1 bg-white text-gray-500 rounded-full text-xs font-medium border border-gray-200">+{{ item.skills.split(',')|length - 3 }}</span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+
+                                        <div class="text-xs text-gray-500 flex items-center">
+                                            <i data-feather="calendar" class="w-3 h-3 mr-1"></i>
+                                            Added {{ item.created_at.strftime('%m/%d/%Y') }}
+                                            {% if item.updated_at != item.created_at %}
+                                            • Updated {{ item.updated_at.strftime('%m/%d/%Y') }}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                    <i data-feather="folder" class="w-8 h-8 text-orange-600"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">No portfolio items yet</h3>
+                                <p class="text-gray-600 mb-6">Showcase your best work to attract more students</p>
+                                <a href="{{ url_for('add_portfolio') }}" class="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                                    Add Your First Portfolio Item
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.profile-nav-link');
+    const sections = document.querySelectorAll('.profile-section-content');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Remove active class from all links
+            navLinks.forEach(l => l.classList.remove('active'));
+
+            // Add active class to clicked link
+            this.classList.add('active');
+
+            // Hide all sections
+            sections.forEach(section => section.classList.add('hidden'));
+
+            // Show target section
+            const targetSection = this.getAttribute('data-section');
+            document.getElementById(targetSection).classList.remove('hidden');
+        });
+    });
+
+    // Profile picture preview
+    const profilePicInput = document.getElementById('profile-pic-url');
+    const profilePreview = document.getElementById('profile-preview');
+
+    if (profilePicInput && profilePreview) {
+        profilePicInput.addEventListener('input', function() {
+            const url = this.value.trim();
+            if (url) {
+                const img = new Image();
+                img.onload = function() {
+                    profilePreview.innerHTML = `<img src="${url}" alt="Profile" class="w-24 h-24 rounded-2xl object-cover">`;
+                };
+                img.onerror = function() {
+                    profilePreview.innerHTML = '<i data-feather="camera" class="w-8 h-8 text-gray-400"></i>';
+                    feather.replace();
+                };
+                img.src = url;
+            } else {
+                profilePreview.innerHTML = '<i data-feather="camera" class="w-8 h-8 text-gray-400"></i>';
+                feather.replace();
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.profile-nav-link {
+    @apply block text-decoration-none;
+}
+
+.profile-nav-link.active .flex {
+    @apply bg-primary-100 border-primary-200;
+}
+
+.profile-nav-link.active .flex .w-8 {
+    @apply bg-primary-200;
+}
+
+.profile-nav-link.active .flex .w-4 {
+    @apply text-primary-700;
+}
+
+.profile-nav-link.active .flex span {
+    @apply text-primary-700 font-semibold;
+}
+
+/* Enhanced hover effects */
+.profile-nav-link:hover .flex {
+    @apply transform scale-105;
+}
+
+/* Smooth transitions */
+.profile-section-content {
+    @apply transition-all duration-300 ease-in-out;
+}
+
+/* Loading animation for buttons */
+button:active {
+    @apply transform scale-95;
+}
+
+/* Enhanced form focus states */
+input:focus, textarea:focus {
+    @apply ring-2 ring-primary-500 border-primary-500 bg-white;
+}
+
+/* Custom scrollbar for textareas */
+textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Profile Edit Sidebar Fixes */
+.profile-edit-sidebar {
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+    min-height: fit-content;
+    max-height: calc(100vh - 2rem);
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-edit-sidebar .nav {
+    flex: 1;
+    overflow: visible;
+    min-height: fit-content;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-edit-sidebar .nav .space-y-2 {
+    display: flex;
+    flex-direction: column;
+    min-height: fit-content;
+    height: auto;
+    flex: 1;
+}
+
+/* Ensure no scrolling on sidebar */
+.profile-edit-sidebar * {
+    overflow: visible;
+}
+
+/* Mobile responsive */
+@media (max-width: 1280px) {
+    .profile-edit-sidebar {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+}
+</style>
+{% endblock %}

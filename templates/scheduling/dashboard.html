@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Scheduling Dashboard{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">Scheduling Dashboard</h1>
+                    <p class="text-gray-600 mt-1">Manage your sessions and availability</p>
+                </div>
+                <div class="flex space-x-3">
+                    {% if current_user.current_role == 'coach' %}
+                    <a href="{{ url_for('coach_scheduling_settings') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        ⚙️ Settings
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('scheduling_dashboard') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                        📅 View Calendar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Upcoming Sessions</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ upcoming_sessions|length }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-green-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Completed Today</p>
+                        <p class="text-2xl font-semibold text-gray-900">
+                            {{ recent_sessions|selectattr('status', 'equalto', 'completed')|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-yellow-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Pending Requests</p>
+                        <p class="text-2xl font-semibold text-gray-900">
+                            {{ upcoming_sessions|selectattr('reschedule_requested', 'equalto', true)|list|length }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-sm p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Sessions</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ (upcoming_sessions|length) + (recent_sessions|length) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Upcoming Sessions -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Upcoming Sessions</h2>
+                    </div>
+                    
+                    {% if upcoming_sessions %}
+                    <div class="divide-y divide-gray-200">
+                        {% for session in upcoming_sessions %}
+                        <div class="p-6 hover:bg-gray-50">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-purple-500 rounded-full flex items-center justify-center">
+                                            <span class="text-white text-sm font-medium">
+                                                {% if current_user.id == session.coach_id %}
+                                                    {{ session.student.first_name[0] }}{{ session.student.last_name[0] }}
+                                                {% else %}
+                                                    {{ session.coach.first_name[0] }}{{ session.coach.last_name[0] }}
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">
+                                            {% if session.is_consultation %}
+                                                Free Consultation
+                                            {% else %}
+                                                Coaching Session
+                                            {% endif %}
+                                        </h3>
+                                        <p class="text-sm text-gray-500">
+                                            {% if current_user.id == session.coach_id %}
+                                                with {{ session.student.first_name }} {{ session.student.last_name }}
+                                            {% else %}
+                                                with {{ session.coach.first_name }} {{ session.coach.last_name }}
+                                            {% endif %}
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ session.scheduled_at.strftime('%A, %B %d at %I:%M %p') }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if session.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                        {% elif session.status == 'confirmed' %}bg-green-100 text-green-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ session.status.title() }}
+                                    </div>
+                                    {% if session.status != 'cancelled' %}
+                                    <a href="{{ url_for('view_scheduled_session', session_id=session.id) }}" 
+                                       class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                        View Details →
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if session.reschedule_requested %}
+                            <div class="mt-3 bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-yellow-800">
+                                            <strong>Reschedule requested</strong> by {{ session.reschedule_requested_by.title() }}
+                                        </p>
+                                        <p class="text-sm text-yellow-700 mt-1">
+                                            {{ session.reschedule_reason }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No upcoming sessions</h3>
+                        <p class="mt-1 text-sm text-gray-500">
+                            {% if current_user.current_role == 'student' %}
+                                Start by browsing coaches and booking a session.
+                            {% else %}
+                                Your upcoming sessions will appear here.
+                            {% endif %}
+                        </p>
+                        {% if current_user.current_role == 'student' %}
+                        <div class="mt-6">
+                            <a href="{{ url_for('browse_coaches') }}" 
+                               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                                Browse Coaches
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    
+                    <div class="space-y-3">
+                        {% if current_user.current_role == 'student' %}
+                        <a href="{{ url_for('browse_coaches') }}" 
+                           class="block w-full text-left px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+                            🔍 Browse Coaches
+                        </a>
+                        {% endif %}
+                        
+                        {% if current_user.current_role == 'coach' %}
+                        <a href="{{ url_for('coach_scheduling_settings') }}" 
+                           class="block w-full text-left px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+                            ⚙️ Manage Availability
+                        </a>
+                        <a href="{{ url_for('coach_availability_exceptions') }}" 
+                           class="block w-full text-left px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+                            📅 Block Time
+                        </a>
+                        {% endif %}
+                        
+                        <a href="#" onclick="exportCalendar()" 
+                           class="block w-full text-left px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md">
+                            📤 Export Calendar
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Recent Sessions -->
+                {% if recent_sessions %}
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Sessions</h3>
+                    
+                    <div class="space-y-3">
+                        {% for session in recent_sessions[:5] %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                    <span class="text-xs text-gray-600">
+                                        {% if current_user.id == session.coach_id %}
+                                            {{ session.student.first_name[0] }}
+                                        {% else %}
+                                            {{ session.coach.first_name[0] }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ session.scheduled_at.strftime('%b %d') }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {% if current_user.id == session.coach_id %}
+                                            {{ session.student.first_name }}
+                                        {% else %}
+                                            {{ session.coach.first_name }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                {% if session.status == 'completed' %}bg-green-100 text-green-800
+                                {% elif session.status == 'cancelled' %}bg-red-100 text-red-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ session.status.title() }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if recent_sessions|length > 5 %}
+                    <div class="mt-4">
+                        <a href="#" class="text-sm text-primary-600 hover:text-primary-700">
+                            View all recent sessions →
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Timezone Info -->
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Timezone</h3>
+                    
+                    <div class="flex items-center space-x-3">
+                        <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ user_timezone }}</p>
+                            <p class="text-xs text-gray-500">All times shown in your timezone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function exportCalendar() {
+    // Create a simple calendar export
+    const sessions = {{ upcoming_sessions | tojson }};
+    
+    if (sessions.length === 0) {
+        alert('No sessions to export');
+        return;
+    }
+    
+    // Create ICS file content
+    let icsContent = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Skileez//Scheduling//EN\n';
+    
+    sessions.forEach(session => {
+        const start = new Date(session.scheduled_at);
+        const end = new Date(start.getTime() + (session.duration_minutes * 60000));
+        
+        icsContent += `BEGIN:VEVENT\n`;
+        icsContent += `UID:${session.id}@skileez.com\n`;
+        icsContent += `DTSTART:${start.toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
+        icsContent += `DTEND:${end.toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`;
+        icsContent += `SUMMARY:${session.is_consultation ? 'Free Consultation' : 'Coaching Session'}\n`;
+        icsContent += `DESCRIPTION:Session with ${session.coach.first_name} ${session.coach.last_name}\n`;
+        icsContent += `END:VEVENT\n`;
+    });
+    
+    icsContent += 'END:VCALENDAR';
+    
+    // Download the file
+    const blob = new Blob([icsContent], { type: 'text/calendar' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'skileez-sessions.ics';
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+</script>
+{% endblock %}

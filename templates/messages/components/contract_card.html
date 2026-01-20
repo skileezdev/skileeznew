@@ -1,0 +1,95 @@
+{% macro render_contract_card(contract_data, user, message) %}
+{% if contract_data %}
+<div class="call-card bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+    <div class="flex items-start justify-between">
+        <!-- Contract Info -->
+        <div class="flex-1">
+            <div class="flex items-center mb-2">
+                <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                    <i data-feather="file-text" class="w-4 h-4 text-primary-600"></i>
+                </div>
+                <h4 class="text-lg font-semibold text-gray-900">Contract Offer</h4>
+            </div>
+            
+            <!-- Contract Details -->
+            <div class="space-y-1 text-sm text-gray-600 mb-3">
+                <div class="flex items-center">
+                    <i data-feather="folder" class="w-4 h-4 mr-2"></i>
+                    <span>{{ contract_data.project }}</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                    <span>Starts {{ contract_data.start_date }}</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="hash" class="w-4 h-4 mr-2"></i>
+                    <span>{{ contract_data.sessions }} sessions</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="clock" class="w-4 h-4 mr-2"></i>
+                    <span>{{ contract_data.duration }} min each</span>
+                </div>
+                <div class="flex items-center">
+                    <i data-feather="dollar-sign" class="w-4 h-4 mr-2"></i>
+                    <span>{{ contract_data.rate }}/session</span>
+                </div>
+                <div class="flex items-center font-medium">
+                    <i data-feather="credit-card" class="w-4 h-4 mr-2"></i>
+                    <span class="text-primary-600">
+                        {% if contract_data.amount == 'N/A' %}
+                            N/A
+                        {% elif contract_data.amount is string and contract_data.amount.startswith('$') %}
+                            {{ contract_data.amount }}
+                        {% else %}
+                            ${{ "%.2f"|format(contract_data.amount|float) }}
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Status Badge -->
+            <div class="mb-3">
+                {% if contract_data.status == 'pending' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <i data-feather="clock" class="w-2 h-2 mr-1"></i>
+                        Pending Review
+                    </span>
+                {% elif contract_data.status == 'accepted' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <i data-feather="check" class="w-2 h-2 mr-1"></i>
+                        Accepted
+                    </span>
+                {% elif contract_data.status == 'rejected' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <i data-feather="x" class="w-2 h-2 mr-1"></i>
+                        Rejected
+                    </span>
+                {% elif contract_data.status == 'completed' %}
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <i data-feather="check-circle" class="w-2 h-2 mr-1"></i>
+                        Completed
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Action Button -->
+        <div class="flex flex-col space-y-2 ml-4">
+            <a href="{{ url_for('view_contract', contract_id=contract_data.contract_id) }}" 
+               class="inline-flex items-center px-4 py-2 bg-primary-600 text-white text-sm font-medium rounded-lg hover:bg-primary-700 transition-colors">
+                <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                View Details
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Fallback if contract data is not available -->
+<div class="call-card bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+    <div class="flex items-center">
+        <i data-feather="file-text" class="w-4 h-4 mr-2 text-gray-600"></i>
+        <span class="text-gray-600">Contract information unavailable</span>
+    </div>
+</div>
+{% endif %}
+{% endmacro %}

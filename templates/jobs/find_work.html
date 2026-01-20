@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+
+{% block title %}Find Work - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Modern Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-primary-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-feather="briefcase" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Find Work</h1>
+                    <p class="text-gray-600 mt-1">Discover learning opportunities that match your skills</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Filters Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sticky top-8">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                        <i data-feather="filter" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Filters
+                    </h3>
+                    
+                    <form method="GET" class="space-y-6">
+                        <!-- Keywords -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Keywords</label>
+                            <input type="text" name="keywords" value="{{ request.args.get('keywords', '') }}" 
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white" 
+                                   placeholder="e.g., Python, Marketing">
+                        </div>
+
+                        <!-- Experience Level -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Experience Level</label>
+                            <select name="experience_level" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white">
+                                <option value="">All Levels</option>
+                                <option value="beginner" {% if request.args.get('experience_level') == 'beginner' %}selected{% endif %}>Beginner</option>
+                                <option value="intermediate" {% if request.args.get('experience_level') == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                                <option value="expert" {% if request.args.get('experience_level') == 'expert' %}selected{% endif %}>Expert</option>
+                            </select>
+                        </div>
+
+                        <!-- Budget Range -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Budget Range</label>
+                            <select name="budget" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 bg-gray-50 hover:bg-white">
+                                <option value="">Any Budget</option>
+                                <option value="0-100">$0 - $100</option>
+                                <option value="100-500">$100 - $500</option>
+                                <option value="500-1000">$500 - $1,000</option>
+                                <option value="1000+">$1,000+</option>
+                            </select>
+                        </div>
+
+                        <!-- Duration -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Project Duration</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="duration" value="short" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Short term (< 1 month)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="duration" value="medium" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Medium term (1-3 months)</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="duration" value="long" class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Long term (3+ months)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-primary-600 to-purple-600 text-white px-4 py-3 rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            Apply Filters
+                        </button>
+
+                        <a href="{{ url_for('find_work') }}" class="w-full block text-center text-gray-600 hover:text-gray-800 text-sm">
+                            Clear all filters
+                        </a>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Job Listings -->
+            <div class="lg:col-span-3">
+                <!-- Sort Options -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-gray-600">Sort by:</span>
+                            <select class="px-4 py-2 border border-gray-300 rounded-xl text-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50 hover:bg-white">
+                                <option>Most Recent</option>
+                                <option>Best Match</option>
+                                <option>Highest Budget</option>
+                                <option>Lowest Budget</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="p-2 text-gray-400 hover:text-gray-600 border border-gray-300 rounded-xl hover:border-gray-400 transition-all duration-200">
+                                <i data-feather="list" class="w-4 h-4"></i>
+                            </button>
+                            <button class="p-2 text-gray-400 hover:text-gray-600 border border-gray-300 rounded-xl hover:border-gray-400 transition-all duration-200">
+                                <i data-feather="grid" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Cards -->
+                {% if learning_requests %}
+                <div class="space-y-6">
+                    {% for request in learning_requests %}
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 cursor-pointer" onclick="window.location.href='{{ url_for('job_details', job_id=request.id) }}'">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex-grow">
+                                    <h3 class="text-xl font-semibold text-gray-900 mb-2 hover:text-primary-600 transition-colors">{{ request.title }}</h3>
+                                    <div class="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                                        <span class="flex items-center">
+                                            <i data-feather="dollar-sign" class="w-4 h-4 mr-1"></i>
+                                            ${{ "%.0f"|format(request.budget or 0) }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i data-feather="clock" class="w-4 h-4 mr-1"></i>
+                                            {{ request.duration }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i data-feather="bar-chart" class="w-4 h-4 mr-1"></i>
+                                            {{ request.experience_level.title() }} Level
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i data-feather="target" class="w-4 h-4 mr-1"></i>
+                                            {{ 'Quick Skill' if request.skill_type == 'short_term' else 'Deep Skill' }}
+                                        </span>
+                                        <span class="flex items-center">
+                                            <i data-feather="calendar" class="w-4 h-4 mr-1"></i>
+                                            Posted {{ request.created_at.strftime('%B %d') }}
+                                        </span>
+                                    </div>
+                                    
+                                    <p class="text-gray-600 mb-4">{{ request.description }}</p>
+                                    
+                                    <div class="flex flex-wrap gap-2 mb-4">
+                                        {% for skill in request.skills_needed.split(',')[:5] %}
+                                        <span class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium border border-gray-200">{{ skill.strip() }}</span>
+                                        {% endfor %}
+                                        {% if request.skills_needed.split(',')|length > 5 %}
+                                        <span class="text-gray-500 text-xs">+{{ request.skills_needed.split(',')|length - 5 }} more</span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                            <span class="flex items-center">
+                                                <i data-feather="users" class="w-4 h-4 mr-1"></i>
+                                                {{ request.proposals|length }} proposals
+                                            </span>
+                                            <span class="flex items-center">
+                                                <i data-feather="eye" class="w-4 h-4 mr-1"></i>
+                                                156 views
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ url_for('job_details', job_id=request.id) }}" 
+                                               class="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-4 py-2 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                               onclick="event.stopPropagation()">
+                                                View Details
+                                            </a>
+                                            <a href="{{ url_for('job_details', job_id=request.id) }}" 
+                                               class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-4 py-2 rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                               onclick="event.stopPropagation()">
+                                                Apply Now
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-2 ml-4">
+                                    <button class="text-gray-400 hover:text-primary-600 transition-colors p-2" 
+                                            onclick="event.stopPropagation(); saveJob({{ request.id }})">
+                                        <i data-feather="bookmark" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mt-8">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-500">
+                            Showing 1-{{ learning_requests|length }} of {{ learning_requests|length }} jobs
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-3 py-2 text-gray-400 border border-gray-300 rounded-xl hover:text-gray-600 hover:border-gray-400 transition-all duration-200">
+                                <i data-feather="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            <button class="px-3 py-2 bg-primary-600 text-white border border-primary-600 rounded-xl">1</button>
+                            <button class="px-3 py-2 text-gray-600 border border-gray-300 rounded-xl hover:text-gray-800 hover:border-gray-400 transition-all duration-200">2</button>
+                            <button class="px-3 py-2 text-gray-600 border border-gray-300 rounded-xl hover:text-gray-800 hover:border-gray-400 transition-all duration-200">3</button>
+                            <button class="px-3 py-2 text-gray-400 border border-gray-300 rounded-xl hover:text-gray-600 hover:border-gray-400 transition-all duration-200">
+                                <i data-feather="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-12 text-center">
+                    <div class="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <i data-feather="search" class="w-8 h-8 text-primary-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No jobs found</h3>
+                    <p class="text-gray-600 mb-6">Try adjusting your filters or check back later for new opportunities.</p>
+                    <a href="{{ url_for('find_work') }}" class="bg-gradient-to-r from-primary-600 to-purple-600 text-white px-8 py-3 rounded-xl hover:from-primary-700 hover:to-purple-700 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                        Clear Filters
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveJob(jobId) {
+    fetch(`/save-job/${jobId}`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update bookmark icon or show notification
+            console.log('Job saved successfully');
+        }
+    })
+    .catch(error => {
+        console.error('Error saving job:', error);
+    });
+}
+</script>
+{% endblock %}

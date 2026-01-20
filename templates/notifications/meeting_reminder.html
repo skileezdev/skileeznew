@@ -1,0 +1,29 @@
+{% extends "email_base.html" %}
+
+{% block content %}
+<h2>⏰ Meeting Reminder</h2>
+<p>Hello {{ user.first_name }},</p>
+
+<p>This is a reminder that your {{ session.session_type }} session starts in {{ reminder_hours }} hour(s).</p>
+
+<div class="session-details">
+    <h3>Session Details:</h3>
+    <ul>
+        <li><strong>Coach:</strong> {{ session.coach.first_name }} {{ session.coach.last_name }}</li>
+        <li><strong>Student:</strong> {{ session.student.first_name }} {{ session.student.last_name }}</li>
+        <li><strong>Date:</strong> {{ session.scheduled_at.strftime('%B %d, %Y at %I:%M %p') }}</li>
+        <li><strong>Duration:</strong> {{ session.duration_minutes }} minutes</li>
+    </ul>
+</div>
+
+{% if session.google_meet_url %}
+<div class="meeting-link">
+    <h3>Join Your Meeting:</h3>
+    <p><a href="{{ session.google_meet_url }}" class="btn btn-primary">🎥 Join Google Meet</a></p>
+    <p><strong>Meeting Link:</strong> <a href="{{ session.google_meet_url }}">{{ session.google_meet_url }}</a></p>
+</div>
+{% endif %}
+
+<p>See you soon!</p>
+<p>Best regards,<br>The Skileez Team</p>
+{% endblock %}

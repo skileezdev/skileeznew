@@ -1,0 +1,792 @@
+{% extends "base.html" %}
+
+{% block title %}Post Learning Request - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Post a Learning Request</h1>
+            <p class="text-gray-600">Tell coaches what you want to learn and find your perfect match</p>
+        </div>
+
+        <!-- Form -->
+        <div class="premium-card p-8">
+            <form method="POST" class="space-y-8">
+                {{ form.hidden_tag() }}
+
+                <!-- Title Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="edit-3" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        What do you want to learn?
+                    </h3>
+                    
+                    <div>
+                        {{ form.title.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.title(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., Learn Python Programming from Scratch") }}
+                        
+                        <div class="flex items-center justify-between mt-2 text-sm">
+                            <div class="text-gray-500">
+                                <span id="title-char-count">0</span> / 50 characters
+                                <span class="text-gray-400">(minimum 10)</span>
+                            </div>
+                            <div id="title-char-status" class="text-red-500 hidden">
+                                <i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                                <span>Job title must be at least 10 characters long</span>
+                            </div>
+                        </div>
+                        
+                        {% if form.title.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.title.errors %}
+                                    <p class="flex items-center">
+                                        <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="file-text" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Describe your project
+                    </h3>
+                    
+                    <div>
+                        {{ form.description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.description(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="6", placeholder="Describe what you want to learn, your current skill level, specific goals, and what kind of help you're looking for...") }}
+                        
+                        <div class="flex items-center justify-between mt-2 text-sm">
+                            <div class="text-gray-500">
+                                <span id="desc-char-count">0</span> / 2000 characters
+                                <span class="text-gray-400">(minimum 50)</span>
+                            </div>
+                            <div id="desc-char-status" class="text-red-500 hidden">
+                                <i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                                <span>Minimum 50 characters required</span>
+                            </div>
+                        </div>
+                        
+                        {% if form.description.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.description.errors %}
+                                    <p class="flex items-center">
+                                        <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Description Tips -->
+                    <div class="tip-card">
+                        <div class="tip-card-header">
+                            <div class="tip-card-icon">
+                                <i data-feather="message-square"></i>
+                            </div>
+                            <div>
+                                <h3 class="tip-card-title">Writing Great Proposals</h3>
+                                <p class="tip-card-subtitle">Stand out from other coaches</p>
+                            </div>
+                        </div>
+                        <div class="tip-card-content">
+                            <div class="bg-gray-50 rounded-2xl p-4">
+                                <div class="space-y-2 text-gray-700 text-sm">
+                                    <p>→ Personalize to student's needs</p>
+                                    <p>→ Explain your teaching approach</p>
+                                    <p>→ Include relevant experience</p>
+                                    <p>→ Be clear about deliverables</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills and Requirements Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="target" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Skills and requirements
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.skills_needed.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.skills_needed(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="Python, Web Development, Machine Learning") }}
+                            <p class="mt-1 text-sm text-gray-500">Separate skills with commas</p>
+                            {% if form.skills_needed.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.skills_needed.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {{ form.experience_level.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.experience_level(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                            {% if form.experience_level.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.experience_level.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Popular Skills -->
+                    <div class="mt-6">
+                        <h4 class="font-semibold text-gray-800 mb-3">Popular skills</h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {% set popular_skills = [
+                                'Python', 'JavaScript', 'React', 'Node.js',
+                                'Data Science', 'Machine Learning', 'Web Design', 'SEO',
+                                'Digital Marketing', 'Photography', 'Writing', 'Business',
+                                'Graphic Design', 'Video Editing', 'Music', 'Languages'
+                            ] %}
+                            {% for skill in popular_skills %}
+                            <button type="button" class="skill-tag text-xs justify-center popular-skill-btn" data-skill="{{ skill }}">
+                                {{ skill }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Click to add to your skills list</p>
+                    </div>
+                </div>
+
+                <!-- Budget and Timeline Section -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="calendar" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Budget and timeline
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            {{ form.budget.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <span class="text-gray-500 sm:text-sm">$</span>
+                                </div>
+                                {{ form.budget(class="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="500", step="1") }}
+                            </div>
+                            
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">Your total budget for this learning project</div>
+                                <div id="budget-status" class="text-red-500 hidden">
+                                    <i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i>
+                                    <span>Budget must be at least $10</span>
+                                </div>
+                            </div>
+                            
+                            {% if form.budget.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.budget.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            {{ form.duration.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.duration(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="4 weeks") }}
+                            <p class="mt-1 text-sm text-gray-500">How long do you expect this to take?</p>
+                            {% if form.duration.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.duration.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Skill Type -->
+                    <div class="mt-6">
+                        {{ form.skill_type.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.skill_type(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                        <div class="mt-2 text-sm text-gray-500">
+                            <p><strong>Quick Skill</strong> – For fast, targeted learning (e.g. "Teach me how to add subtitles like MrBeast").</p>
+                            <p><strong>Deep Skill</strong> – For long-term growth and mastery (e.g. "Help me learn Spanish fluently").</p>
+                        </div>
+                        {% if form.skill_type.errors %}
+                            <div class="mt-2 text-sm text-red-600">
+                                {% for error in form.skill_type.errors %}
+                                    <p class="flex items-center">
+                                        <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                        {{ error }}
+                                    </p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Budget Guide -->
+                    <div class="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-gray-800 mb-3 flex items-center">
+                            <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                            Budget guidelines
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-gray-800">$50 - $200</div>
+                                <div>Basic skills & short projects</div>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-gray-800">$200 - $800</div>
+                                <div>Intermediate skills & projects</div>
+                            </div>
+                            <div class="text-center p-3 bg-white rounded-lg">
+                                <div class="font-medium text-gray-800">$800+</div>
+                                <div>Advanced skills & long-term learning</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screening Questions Section (Optional) -->
+                <div class="form-section">
+                    <h3 class="flex items-center mb-6">
+                        <i data-feather="help-circle" class="w-5 h-5 mr-2 text-primary-600"></i>
+                        Screening Questions (Optional)
+                    </h3>
+                    
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                        <h4 class="font-semibold text-blue-800 mb-2 flex items-center">
+                            <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                            What are screening questions?
+                        </h4>
+                        <ul class="text-sm text-blue-700 space-y-1">
+                            <li>• Help you filter and evaluate coach proposals more effectively</li>
+                            <li>• Coaches must answer all your questions before submitting proposals</li>
+                            <li>• Great for asking about experience, approach, or availability</li>
+                            <li>• You can add up to 5 questions (250 characters each)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="space-y-4" id="screening-questions-container">
+                        <div class="screening-question" id="question-1">
+                            {{ form.screening_question_1.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.screening_question_1(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., How many years of experience do you have with this skill?", maxlength="250") }}
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">
+                                    <span class="char-count">0</span> / 250 characters
+                                </div>
+                            </div>
+                            {% if form.screening_question_1.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.screening_question_1.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="screening-question" id="question-2" style="display: none;">
+                            {{ form.screening_question_2.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.screening_question_2(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., What is your teaching methodology?", maxlength="250") }}
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">
+                                    <span class="char-count">0</span> / 250 characters
+                                </div>
+                            </div>
+                            {% if form.screening_question_2.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.screening_question_2.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="screening-question" id="question-3" style="display: none;">
+                            {{ form.screening_question_3.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.screening_question_3(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., Can you provide examples of similar projects?", maxlength="250") }}
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">
+                                    <span class="char-count">0</span> / 250 characters
+                                </div>
+                            </div>
+                            {% if form.screening_question_3.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.screening_question_3.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="screening-question" id="question-4" style="display: none;">
+                            {{ form.screening_question_4.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.screening_question_4(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., What times are you available for sessions?", maxlength="250") }}
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">
+                                    <span class="char-count">0</span> / 250 characters
+                                </div>
+                            </div>
+                            {% if form.screening_question_4.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.screening_question_4.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="screening-question" id="question-5" style="display: none;">
+                            {{ form.screening_question_5.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.screening_question_5(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="e.g., How do you handle challenging students?", maxlength="250") }}
+                            <div class="flex items-center justify-between mt-2 text-sm">
+                                <div class="text-gray-500">
+                                    <span class="char-count">0</span> / 250 characters
+                                </div>
+                            </div>
+                            {% if form.screening_question_5.errors %}
+                                <div class="mt-2 text-sm text-red-600">
+                                    {% for error in form.screening_question_5.errors %}
+                                        <p class="flex items-center">
+                                            <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                            {{ error }}
+                                        </p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <button type="button" id="add-question-btn" class="inline-flex items-center px-4 py-2 border border-primary-300 rounded-lg text-sm font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 transition-colors">
+                            <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                            Add Another Question
+                        </button>
+                        <p class="text-xs text-gray-500 mt-2">You can add up to 5 screening questions</p>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="border-t border-gray-200 pt-8">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-600">
+                            <p class="mb-2"><strong>What happens next?</strong></p>
+                            <ul class="space-y-1 text-xs">
+                                <li>• Your request will be published immediately</li>
+                                <li>• Coaches will start submitting proposals</li>
+                                <li>• You can review and compare proposals</li>
+                                <li>• Choose the best coach and start learning!</li>
+                            </ul>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <a href="{{ url_for('student_dashboard') }}" class="btn-secondary px-6 py-3 rounded-lg">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn-primary px-8 py-3 rounded-lg text-lg font-semibold opacity-50" id="submit-btn" disabled>
+                                <i data-feather="send" class="w-5 h-5 mr-2" id="submit-icon"></i>
+                                <span id="submit-text">Post Request</span>
+                                <div id="submit-spinner" class="hidden ml-2">
+                                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="premium-card p-6 mt-6" id="preview-section" style="display: none;">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div id="preview-content">
+                    <!-- Preview will be generated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Toast Notification -->
+<div id="success-toast" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+        <div class="flex-shrink-0">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-medium" id="toast-message">✅ Your learning request has been posted.</p>
+        </div>
+        <button onclick="hideToast()" class="text-white/80 hover:text-white">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Error Toast Notification -->
+<div id="error-toast" class="fixed top-4 right-4 z-50 hidden">
+    <div class="bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3">
+        <div class="flex-shrink-0">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div>
+            <p class="font-medium" id="error-toast-message">Please fix the errors below.</p>
+        </div>
+        <button onclick="hideErrorToast()" class="text-white/80 hover:text-white">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const titleInput = document.getElementById('title');
+    const descriptionInput = document.getElementById('description');
+    const skillsInput = document.getElementById('skills_needed');
+    const budgetInput = document.getElementById('budget');
+    const durationInput = document.getElementById('duration');
+    const experienceSelect = document.getElementById('experience_level');
+    
+    const titleCharCount = document.getElementById('title-char-count');
+    const titleCharStatus = document.getElementById('title-char-status');
+    const descCharCount = document.getElementById('desc-char-count');
+    const descCharStatus = document.getElementById('desc-char-status');
+    const budgetStatus = document.getElementById('budget-status');
+    const submitBtn = document.getElementById('submit-btn');
+    const popularSkillBtns = document.querySelectorAll('.popular-skill-btn');
+
+    // Character count for title
+    function updateTitleCount() {
+        const length = titleInput.value.length;
+        titleCharCount.textContent = length;
+        
+        if (length < 10) {
+            titleCharStatus.classList.remove('hidden');
+            titleCharStatus.className = 'text-red-500';
+            titleCharStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Job title must be at least 10 characters long</span>';
+        } else if (length >= 10 && length <= 50) {
+            titleCharStatus.classList.remove('hidden');
+            titleCharStatus.className = 'text-green-500';
+            titleCharStatus.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i><span>Looks good!</span>';
+        } else {
+            titleCharStatus.classList.remove('hidden');
+            titleCharStatus.className = 'text-red-500';
+            titleCharStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Title must be 50 characters or less</span>';
+        }
+        
+        feather.replace();
+        validateForm();
+    }
+
+    // Character count for description
+    function updateDescriptionCount() {
+        const length = descriptionInput.value.length;
+        descCharCount.textContent = length;
+        
+        if (length < 50) {
+            descCharStatus.classList.remove('hidden');
+            descCharStatus.className = 'text-red-500';
+            descCharStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Minimum 50 characters required</span>';
+        } else if (length >= 50 && length <= 2000) {
+            descCharStatus.classList.remove('hidden');
+            descCharStatus.className = 'text-green-500';
+            descCharStatus.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i><span>Looks good!</span>';
+        } else {
+            descCharStatus.classList.remove('hidden');
+            descCharStatus.className = 'text-red-500';
+            descCharStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Description too long</span>';
+        }
+        
+        feather.replace();
+        validateForm();
+    }
+
+    // Budget validation
+    function updateBudgetStatus() {
+        const value = parseFloat(budgetInput.value) || 0;
+        
+        if (budgetInput.value && value < 10) {
+            budgetStatus.classList.remove('hidden');
+            budgetStatus.className = 'text-red-500';
+            budgetStatus.innerHTML = '<i data-feather="alert-circle" class="w-4 h-4 inline mr-1"></i><span>Budget must be at least $10</span>';
+        } else if (budgetInput.value && value >= 10) {
+            budgetStatus.classList.remove('hidden');
+            budgetStatus.className = 'text-green-500';
+            budgetStatus.innerHTML = '<i data-feather="check-circle" class="w-4 h-4 inline mr-1"></i><span>Budget looks good!</span>';
+        } else {
+            budgetStatus.classList.add('hidden');
+        }
+        
+        feather.replace();
+        validateForm();
+    }
+
+    // Add skills from popular skills buttons
+    function addSkill(skill) {
+        const currentSkills = skillsInput.value.split(',').map(s => s.trim()).filter(s => s.length > 0);
+        
+        if (!currentSkills.includes(skill)) {
+            currentSkills.push(skill);
+            skillsInput.value = currentSkills.join(', ');
+            validateForm();
+        }
+    }
+
+    // Form validation
+    function validateForm() {
+        const titleValid = titleInput.value.trim().length >= 10 && titleInput.value.trim().length <= 50;
+        const descriptionValid = descriptionInput.value.trim().length >= 50 && descriptionInput.value.trim().length <= 2000;
+        const skillsValid = skillsInput.value.trim().length > 0;
+        const budgetValid = budgetInput.value && parseFloat(budgetInput.value) >= 10;
+        const durationValid = durationInput.value.trim().length > 0;
+        const experienceValid = experienceSelect.value !== '';
+
+        const isValid = titleValid && descriptionValid && skillsValid && budgetValid && durationValid && experienceValid;
+
+        if (isValid) {
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50');
+        } else {
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50');
+        }
+    }
+
+    // Event listeners
+    titleInput.addEventListener('input', updateTitleCount);
+    descriptionInput.addEventListener('input', updateDescriptionCount);
+    budgetInput.addEventListener('input', updateBudgetStatus);
+    
+    [skillsInput, durationInput].forEach(input => {
+        input.addEventListener('input', validateForm);
+    });
+    
+    experienceSelect.addEventListener('change', validateForm);
+
+    popularSkillBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            addSkill(this.dataset.skill);
+        });
+    });
+
+    // Screening Questions Functionality
+    let visibleQuestions = 1;
+    const maxQuestions = 5;
+    const addQuestionBtn = document.getElementById('add-question-btn');
+    
+    // Character count for screening questions
+    function updateScreeningQuestionCount(input) {
+        const charCount = input.parentElement.querySelector('.char-count');
+        charCount.textContent = input.value.length;
+    }
+    
+    // Add new screening question
+    function addNewQuestion() {
+        if (visibleQuestions < maxQuestions) {
+            visibleQuestions++;
+            const questionDiv = document.getElementById(`question-${visibleQuestions}`);
+            questionDiv.style.display = 'block';
+            
+            // Add event listener for character count
+            const input = questionDiv.querySelector('input[type="text"]');
+            input.addEventListener('input', function() {
+                updateScreeningQuestionCount(this);
+            });
+            
+            if (visibleQuestions >= maxQuestions) {
+                addQuestionBtn.style.display = 'none';
+            }
+        }
+    }
+    
+    // Event listener for add question button
+    addQuestionBtn.addEventListener('click', addNewQuestion);
+    
+    // Add character count listeners for existing visible questions
+    document.querySelectorAll('.screening-question input[type="text"]').forEach(input => {
+        input.addEventListener('input', function() {
+            updateScreeningQuestionCount(this);
+        });
+    });
+
+    // Form submission handler
+    let isSubmitting = false;
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Prevent duplicate submissions
+        if (isSubmitting) {
+            return;
+        }
+        
+        isSubmitting = true;
+        
+        // Update button state to show loading
+        const submitBtn = document.getElementById('submit-btn');
+        const submitIcon = document.getElementById('submit-icon');
+        const submitText = document.getElementById('submit-text');
+        const submitSpinner = document.getElementById('submit-spinner');
+        
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-75');
+        submitIcon.classList.add('hidden');
+        submitText.textContent = 'Posting...';
+        submitSpinner.classList.remove('hidden');
+        
+        try {
+            // Prepare form data
+            const formData = new FormData(form);
+            
+            // Send async request
+            const response = await fetch('/api/post-request', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                // Show success toast
+                showToast(result.message);
+                
+                // Clear form or redirect after delay
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 2000);
+                
+            } else {
+                // Handle validation errors
+                showErrorToast(result.message);
+                
+                // Display field-specific errors
+                if (result.errors) {
+                    displayFormErrors(result.errors);
+                }
+                
+                // Re-enable form
+                resetSubmitButton();
+                isSubmitting = false;
+            }
+            
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            showErrorToast('An error occurred while posting your request. Please try again.');
+            resetSubmitButton();
+            isSubmitting = false;
+        }
+    });
+    
+    function resetSubmitButton() {
+        const submitBtn = document.getElementById('submit-btn');
+        const submitIcon = document.getElementById('submit-icon');
+        const submitText = document.getElementById('submit-text');
+        const submitSpinner = document.getElementById('submit-spinner');
+        
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-75');
+        submitIcon.classList.remove('hidden');
+        submitText.textContent = 'Post Request';
+        submitSpinner.classList.add('hidden');
+    }
+    
+    function displayFormErrors(errors) {
+        // Clear previous error states
+        document.querySelectorAll('.field-error').forEach(el => el.remove());
+        
+        // Display new errors
+        for (const [fieldName, fieldErrors] of Object.entries(errors)) {
+            const field = document.querySelector(`[name="${fieldName}"]`);
+            if (field && fieldErrors.length > 0) {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'mt-2 text-sm text-red-600 field-error';
+                errorDiv.innerHTML = fieldErrors.map(error => 
+                    `<p class="flex items-center">
+                        <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                        ${error}
+                    </p>`
+                ).join('');
+                
+                field.parentNode.appendChild(errorDiv);
+                feather.replace();
+            }
+        }
+    }
+
+    // Initial validation
+    updateTitleCount();
+    updateDescriptionCount();
+    updateBudgetStatus();
+    validateForm();
+});
+
+// Toast notification functions
+function showToast(message) {
+    const toast = document.getElementById('success-toast');
+    const messageEl = document.getElementById('toast-message');
+    messageEl.textContent = message;
+    toast.classList.remove('hidden');
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        hideToast();
+    }, 5000);
+}
+
+function hideToast() {
+    const toast = document.getElementById('success-toast');
+    toast.classList.add('hidden');
+}
+
+function showErrorToast(message) {
+    const toast = document.getElementById('error-toast');
+    const messageEl = document.getElementById('error-toast-message');
+    messageEl.textContent = message;
+    toast.classList.remove('hidden');
+    
+    // Auto-hide after 7 seconds
+    setTimeout(() => {
+        hideErrorToast();
+    }, 7000);
+}
+
+function hideErrorToast() {
+    const toast = document.getElementById('error-toast');
+    toast.classList.add('hidden');
+}
+</script>
+{% endblock %}

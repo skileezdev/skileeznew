@@ -1,0 +1,969 @@
+/* Messaging System Enhancements */
+
+/* Typing Indicator */
+.typing-indicator {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: none;
+}
+
+.typing-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 2px;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #6c757d;
+    animation: typing-bounce 1.4s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(1) {
+    animation-delay: -0.32s;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: -0.16s;
+}
+
+@keyframes typing-bounce {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.typing-text {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+/* Message Status Indicators */
+.message-status {
+    transition: all 0.3s ease;
+}
+
+.message-status.fa-check {
+    opacity: 0.7;
+}
+
+.message-status.fa-check-double {
+    opacity: 0.8;
+}
+
+.message-status.fa-check-double.text-primary {
+    opacity: 1;
+}
+
+/* Loading States */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+}
+
+/* Contract and System Messages */
+.contract-message {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+
+.message-sent .contract-message {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.system-message {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+}
+
+.message-sent .system-message {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contract-message .btn,
+.system-message .btn {
+    transition: all 0.2s ease;
+}
+
+.contract-message .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #6c757d;
+}
+
+/* Retry Dialog */
+.retry-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.retry-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    max-width: 400px;
+    width: 90%;
+}
+
+.retry-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+/* Drag and Drop */
+.message-input-container.drag-over {
+    border: 2px dashed #667eea;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.message-input-container.drag-over .message-form {
+    opacity: 0.5;
+}
+
+/* Enhanced Toast Notifications */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    color: white;
+    font-weight: 500;
+}
+
+.toast-notification.show {
+    transform: translateX(0);
+}
+
+.toast-notification.error {
+    background: #dc3545;
+}
+
+.toast-notification.success {
+    background: #28a745;
+}
+
+.toast-notification.warning {
+    background: #ffc107;
+    color: #333;
+}
+
+/* Message Animations */
+.message {
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-delete {
+    transition: all 0.2s ease;
+}
+
+.message-delete:hover {
+    color: #dc3545 !important;
+    transform: scale(1.1);
+}
+
+/* Enhanced File Display */
+.message-file {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.file-icon {
+    font-size: 1.5rem;
+    opacity: 0.8;
+    margin-right: 0.75rem;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    display: block;
+    font-weight: 500;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 0.25rem;
+    word-break: break-word;
+}
+
+.file-name:hover {
+    text-decoration: underline;
+}
+
+.file-size {
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+/* Search Highlighting */
+mark {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.1rem 0.2rem;
+    border-radius: 2px;
+}
+
+/* Enhanced Conversation List */
+.conversation-item {
+    transition: all 0.2s ease;
+}
+
+.conversation-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.conversation-item.active {
+    background-color: #e3f2fd;
+    border-left: 3px solid #2196f3;
+    transform: translateX(0);
+}
+
+.conversation-item.unread {
+    background-color: #fff3cd;
+    border-left: 3px solid #ffc107;
+}
+
+/* Enhanced Message Input */
+.message-input-container {
+    position: relative;
+}
+
+.message-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.attachment-btn:hover {
+    background: #f8f9fa;
+    color: #495057;
+}
+
+.send-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Character Counter */
+#charCount {
+    transition: color 0.2s ease;
+}
+
+#charCount.text-warning {
+    color: #ffc107;
+}
+
+#charCount.text-danger {
+    color: #dc3545;
+}
+
+/* Enhanced Scrollbars */
+.messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Loading Spinners */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.125em;
+}
+
+/* Enhanced Buttons */
+.btn-link {
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-link:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .typing-indicator {
+        padding: 0.25rem 0.75rem;
+    }
+    
+    .typing-dots span {
+        width: 5px;
+        height: 5px;
+    }
+    
+    .toast-notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        transform: translateY(-100%);
+    }
+    
+    .toast-notification.show {
+        transform: translateY(0);
+    }
+    
+    .retry-content {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .retry-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .message-file {
+        padding: 0.5rem;
+    }
+    
+    .file-icon {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .typing-indicator {
+        background: #2d3748;
+        border-top-color: #4a5568;
+    }
+    
+    .typing-text {
+        color: #a0aec0;
+    }
+    
+    .typing-dots span {
+        background: #a0aec0;
+    }
+    
+    .loading-content,
+    .retry-content {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .toast-notification {
+        background: #2d3748;
+        color: #e2e8f0;
+    }
+    
+    .message-file {
+        background: rgba(255, 255, 255, 0.05);
+    }
+    
+    mark {
+        background: #744210;
+        color: #faf089;
+    }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+    .typing-dots span {
+        animation: none;
+    }
+    
+    .message {
+        animation: none;
+    }
+    
+    .toast-notification {
+        transition: none;
+    }
+    
+    .conversation-item {
+        transition: none;
+    }
+    
+    .message-delete {
+        transition: none;
+    }
+}
+
+/* Focus Indicators */
+.btn:focus,
+.form-control:focus,
+.btn-link:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .typing-indicator {
+        border-top-width: 2px;
+    }
+    
+    .conversation-item.active {
+        border-left-width: 4px;
+    }
+    
+    .message-file {
+        border: 1px solid currentColor;
+    }
+    
+    .toast-notification {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .typing-indicator,
+    .toast-notification,
+    .retry-dialog,
+    .loading-overlay {
+        display: none !important;
+    }
+    
+    .message-input-container {
+        display: none !important;
+    }
+    
+    .messages-container {
+        height: auto !important;
+        overflow: visible !important;
+    }
+}
+
+/* Contract Preview Cards */
+.contract-preview-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 8px 0;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.contract-preview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.contract-preview-card.sent {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+}
+
+.contract-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+}
+
+.contract-icon {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.contract-title h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: white;
+}
+
+.contract-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.contract-status.pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.contract-status.active {
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.contract-status.completed {
+    background: rgba(108, 117, 125, 0.2);
+    color: #6c757d;
+    border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+.contract-status.cancelled {
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.contract-status.sent {
+    background: rgba(23, 162, 184, 0.2);
+    color: #17a2b8;
+    border: 1px solid rgba(23, 162, 184, 0.3);
+}
+
+.contract-details {
+    margin-bottom: 16px;
+}
+
+.contract-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.info-item .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.info-item .value {
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+}
+
+.info-item .value.amount {
+    font-weight: 600;
+    color: #ffd700;
+}
+
+.contract-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.contract-actions .btn {
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.contract-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.view-contract-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.view-contract-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.accept-contract-btn {
+    background: rgba(40, 167, 69, 0.8);
+    color: white;
+}
+
+.accept-contract-btn:hover {
+    background: rgba(40, 167, 69, 1);
+    color: white;
+}
+
+.decline-contract-btn {
+    background: rgba(220, 53, 69, 0.8);
+    color: white;
+}
+
+.decline-contract-btn:hover {
+    background: rgba(220, 53, 69, 1);
+    color: white;
+}
+
+.contract-fallback {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Contract status indicators for message bubbles */
+.contract-accepted {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+}
+
+.contract-declined {
+    background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+}
+
+/* Responsive contract cards */
+@media (max-width: 768px) {
+    .contract-preview-card {
+        padding: 12px;
+        margin: 6px 0;
+    }
+    
+    .contract-header {
+        margin-bottom: 10px;
+        gap: 8px;
+    }
+    
+    .contract-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .contract-title h4 {
+        font-size: 14px;
+    }
+    
+    .contract-info-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .info-item .label {
+        font-size: 10px;
+    }
+    
+    .info-item .value {
+        font-size: 12px;
+    }
+    
+    .contract-actions {
+        gap: 6px;
+    }
+    
+    .contract-actions .btn {
+        font-size: 11px;
+        padding: 5px 10px;
+    }
+}
+
+/* Dark mode support for contract cards */
+@media (prefers-color-scheme: dark) {
+    .contract-preview-card {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .contract-preview-card.sent {
+        background: linear-gradient(135deg, #2b6cb0 0%, #2c5282 100%);
+    }
+    
+    .contract-icon {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .view-contract-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+    
+    .view-contract-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .contract-preview-card {
+        border: 2px solid white;
+    }
+    
+    .contract-status {
+        border-width: 2px;
+    }
+    
+    .contract-actions .btn {
+        border: 2px solid white;
+    }
+}
+
+/* Print styles for contract cards */
+@media print {
+    .contract-preview-card {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+        box-shadow: none;
+    }
+    
+    .contract-icon {
+        background: #f8f9fa !important;
+        color: #495057 !important;
+    }
+    
+    .contract-status {
+        background: #f8f9fa !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    .info-item .value.amount {
+        color: #495057 !important;
+    }
+    
+    .contract-actions {
+        display: none !important;
+    }
+}
+
+/* Consultation and Session Message Cards */
+.consultation-message,
+.session-message {
+    position: relative;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.consultation-message:hover,
+.session-message:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+.consultation-message {
+    border-left: 4px solid #10b981;
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+}
+
+.session-message {
+    border-left: 4px solid #3b82f6;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+
+.consultation-message .feather,
+.session-message .feather {
+    stroke-width: 2;
+}
+
+.consultation-message h4,
+.session-message h4 {
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.consultation-message .space-y-2 > div,
+.session-message .space-y-2 > div {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+}
+
+.consultation-message .space-y-2 > div:first-child,
+.session-message .space-y-2 > div:first-child {
+    padding-top: 0;
+}
+
+.consultation-message .space-y-2 > div:last-child,
+.session-message .space-y-2 > div:last-child {
+    padding-bottom: 0;
+}
+
+/* Ensure proper spacing within message bubbles */
+.message-sent .consultation-message,
+.message-sent .session-message {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.message-received .consultation-message,
+.message-received .session-message {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design for consultation/session cards */
+@media (max-width: 768px) {
+    .consultation-message,
+    .session-message {
+        max-width: 100% !important;
+        margin: 8px 0;
+        padding: 12px;
+    }
+    
+    .consultation-message h4,
+    .session-message h4 {
+        font-size: 14px;
+    }
+    
+    .consultation-message .space-y-2,
+    .session-message .space-y-2 {
+        font-size: 13px;
+    }
+}
+
+/* Dark mode support for consultation/session cards */
+@media (prefers-color-scheme: dark) {
+    .consultation-message {
+        background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+        border-color: #10b981;
+        color: #d1fae5;
+    }
+    
+    .session-message {
+        background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+        border-color: #3b82f6;
+        color: #dbeafe;
+    }
+    
+    .message-sent .consultation-message,
+    .message-sent .session-message {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .message-received .consultation-message,
+    .message-received .session-message {
+        background: rgba(30, 41, 59, 0.95);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .consultation-message,
+    .session-message {
+        border-width: 3px;
+        box-shadow: 0 0 0 1px currentColor;
+    }
+}
+
+/* Print styles for consultation/session cards */
+@media print {
+    .consultation-message,
+    .session-message {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+    }
+}

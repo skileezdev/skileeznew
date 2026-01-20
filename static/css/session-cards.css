@@ -1,0 +1,540 @@
+/* Session Message Cards - Perfect Styling */
+
+/* Base Session Card */
+.session-preview-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 12px 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    max-width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.session-preview-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Sent message styling */
+.session-preview-card.sent {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.session-preview-card.sent:hover {
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* Consultation specific styling */
+.session-preview-card.consultation {
+    border-left: 4px solid #28a745;
+}
+
+.session-preview-card.consultation.sent {
+    border-left: 4px solid #90EE90;
+}
+
+/* Header Section */
+.session-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 12px;
+}
+
+.session-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+}
+
+.session-preview-card.consultation .session-icon {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+/* Meeting Link specific styling */
+.session-preview-card.meeting-link {
+    border-left: 4px solid #ff6b35;
+}
+
+.session-preview-card.meeting-link.sent {
+    border-left: 4px solid #ffb366;
+}
+
+.session-preview-card.meeting-link .session-icon {
+    background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+}
+
+.session-preview-card.sent .session-icon {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
+}
+
+.session-title {
+    flex: 1;
+    min-width: 0;
+}
+
+.session-title h4 {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    line-height: 1.2;
+}
+
+.session-preview-card.sent .session-title h4 {
+    color: white;
+}
+
+.session-type {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+}
+
+.session-type.paid {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #bbdefb;
+}
+
+.session-type.free {
+    background: #e8f5e8;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.session-type.free_consultation {
+    background: #e0f2f1;
+    color: #00695c;
+    border: 1px solid #b2dfdb;
+}
+
+.session-preview-card.sent .session-type.paid {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.session-preview-card.sent .session-type.free {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Details Section */
+.session-details {
+    margin-bottom: 20px;
+}
+
+.session-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.session-preview-card.sent .session-info-grid {
+    border-top-color: rgba(255, 255, 255, 0.2);
+    border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.info-item .label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin: 0;
+}
+
+.session-preview-card.sent .info-item .label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.info-item .value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.session-preview-card.sent .info-item .value {
+    color: white;
+}
+
+.info-item .value.status-scheduled {
+    color: #1976d2;
+    font-weight: 600;
+}
+
+.info-item .value.status-confirmed {
+    color: #2e7d32;
+    font-weight: 600;
+}
+
+.info-item .value.status-completed {
+    color: #666;
+    font-weight: 600;
+}
+
+.info-item .value.status-cancelled {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.session-preview-card.sent .info-item .value.status-scheduled {
+    color: #90caf9;
+}
+
+.session-preview-card.sent .info-item .value.status-confirmed {
+    color: #a5d6a7;
+}
+
+.session-preview-card.sent .info-item .value.status-completed {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.session-preview-card.sent .info-item .value.status-cancelled {
+    color: #ef9a9a;
+}
+
+/* Actions Section */
+.session-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.session-actions .btn {
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border: none;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.session-actions .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    text-decoration: none;
+}
+
+.session-actions .btn:active {
+    transform: translateY(0);
+}
+
+.join-session-btn {
+    background: #28a745;
+    color: white;
+}
+
+.join-session-btn:hover {
+    background: #218838;
+    color: white;
+}
+
+.view-session-btn {
+    background: #007bff;
+    color: white;
+}
+
+.view-session-btn:hover {
+    background: #0056b3;
+    color: white;
+}
+
+.reschedule-btn {
+    background: #ffc107;
+    color: #212529;
+}
+
+.reschedule-btn:hover {
+    background: #e0a800;
+    color: #212529;
+}
+
+.session-preview-card.sent .join-session-btn {
+    background: rgba(40, 167, 69, 0.9);
+    color: white;
+}
+
+.session-preview-card.sent .join-session-btn:hover {
+    background: rgba(40, 167, 69, 1);
+    color: white;
+}
+
+.session-preview-card.sent .view-session-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.session-preview-card.sent .view-session-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.session-preview-card.sent .reschedule-btn {
+    background: rgba(255, 193, 7, 0.9);
+    color: #212529;
+}
+
+.session-preview-card.sent .reschedule-btn:hover {
+    background: rgba(255, 193, 7, 1);
+    color: #212529;
+}
+
+/* Fallback styling for when parsing fails */
+.session-fallback {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+    border: 1px solid #e9ecef;
+}
+
+.session-preview-card.sent .session-fallback {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .session-preview-card {
+        padding: 16px;
+        margin: 8px 0;
+    }
+    
+    .session-header {
+        margin-bottom: 12px;
+        gap: 10px;
+    }
+    
+    .session-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .session-title h4 {
+        font-size: 16px;
+    }
+    
+    .session-info-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 12px 0;
+    }
+    
+    .session-actions {
+        gap: 8px;
+        justify-content: center;
+    }
+    
+    .session-actions .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .session-preview-card {
+        padding: 12px;
+    }
+    
+    .session-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .session-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .session-title h4 {
+        font-size: 15px;
+    }
+    
+    .session-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .session-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .session-preview-card {
+        background: #2d3748;
+        border-color: #4a5568;
+        color: #e2e8f0;
+    }
+    
+    .session-preview-card.sent {
+        background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    }
+    
+    .session-title h4 {
+        color: #e2e8f0;
+    }
+    
+    .info-item .label {
+        color: #a0aec0;
+    }
+    
+    .info-item .value {
+        color: #e2e8f0;
+    }
+    
+    .session-info-grid {
+        border-top-color: #4a5568;
+        border-bottom-color: #4a5568;
+    }
+    
+    .session-fallback {
+        background: #4a5568;
+        color: #a0aec0;
+        border-color: #718096;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .session-preview-card {
+        border: 2px solid #333;
+    }
+    
+    .session-preview-card.consultation {
+        border-left-width: 6px;
+    }
+    
+    .session-type {
+        border-width: 2px;
+    }
+    
+    .session-actions .btn {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .session-preview-card {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #ccc;
+        box-shadow: none;
+        break-inside: avoid;
+    }
+    
+    .session-icon {
+        background: #f8f9fa !important;
+        color: #495057 !important;
+        box-shadow: none !important;
+    }
+    
+    .session-type {
+        background: #f8f9fa !important;
+        color: #495057 !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    .session-actions {
+        display: none !important;
+    }
+    
+    .session-info-grid {
+        border-color: #dee2e6 !important;
+    }
+}
+
+/* Animation for new cards */
+.session-preview-card {
+    animation: sessionCardSlideIn 0.4s ease-out;
+}
+
+@keyframes sessionCardSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Focus states for accessibility */
+.session-actions .btn:focus {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+.session-preview-card.sent .session-actions .btn:focus {
+    outline-color: white;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .session-preview-card {
+        animation: none;
+        transition: none;
+    }
+    
+    .session-actions .btn:hover {
+        transform: none;
+    }
+}

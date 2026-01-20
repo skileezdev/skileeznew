@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job_post.title }} - Skileez{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Job Details Column -->
+        <div class="col-lg-8">
+            <!-- Job Header -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h2 class="mb-2">{{ job_post.title }}</h2>
+                            <div class="d-flex align-items-center text-muted mb-2">
+                                <i class="fas fa-user me-2"></i>
+                                <span>{{ job_post.student.first_name }} {{ job_post.student.last_name[0] }}.</span>
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-clock me-1"></i>
+                                <span>{{ job_post.created_at.strftime('%B %d, %Y') }}</span>
+                            </div>
+                        </div>
+                        <div class="text-end">
+                            <div class="h4 text-success mb-1">${{ "%.2f"|format(job_post.price_per_hour) }}/hr</div>
+                            <small class="text-muted">{{ job_post.number_of_sessions }} sessions</small>
+                        </div>
+                    </div>
+
+                    <!-- Job Stats -->
+                    <div class="row text-center mb-3">
+                        <div class="col-4">
+                            <div class="border-end">
+                                <div class="h5 mb-1">{{ job_post.views_count }}</div>
+                                <small class="text-muted">Views</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border-end">
+                                <div class="h5 mb-1">{{ job_post.applications_count }}</div>
+                                <small class="text-muted">Applications</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h5 mb-1">{{ job_post.timeframe }}</div>
+                            <small class="text-muted">Timeframe</small>
+                        </div>
+                    </div>
+
+                    <!-- Skill Tags -->
+                    {% if skill_tags %}
+                    <div class="mb-3">
+                        <h6 class="mb-2">Required Skills:</h6>
+                        {% for tag in skill_tags %}
+                        <span class="badge bg-primary me-1 mb-1">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Job Description -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>Job Description
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="job-description">
+                        {{ job_post.description|nl2br }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screening Questions -->
+            {% if job_post.screening_questions %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>Screening Questions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ol class="mb-0">
+                        {% for question in job_post.screening_questions %}
+                        <li class="mb-2">{{ question.question_text }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Preferred Learning Times -->
+            {% if job_post.preferred_learning_times %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Preferred Learning Times
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ job_post.preferred_learning_times }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Applications Section (for job owner) -->
+            {% if current_user.id == job_post.student_id %}
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users me-2"></i>Applications ({{ applications|length }})
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if applications %}
+                        {% for application in applications %}
+                        <div class="application-item border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ application.coach.first_name }} {{ application.coach.last_name }}</h6>
+                                    <small class="text-muted">
+                                        Applied {{ application.created_at.strftime('%B %d, %Y') }}
+                                        {% if application.is_invited %}
+                                        <span class="badge bg-info ms-2">Invited</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="text-end">
+                                    <div class="h6 text-success mb-1">${{ "%.2f"|format(application.proposed_price_per_hour) }}/hr</div>
+                                    <small class="text-muted">{{ application.proposed_number_of_sessions }} sessions</small>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>Experience Summary:</strong>
+                                <p class="mb-2">{{ application.experience_summary[:200] }}{% if application.experience_summary|length > 200 %}...{% endif %}</p>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ url_for('conversation', user_id=application.coach_id) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-comment me-1"></i>Message
+                                </a>
+                                <a href="{{ url_for('send_contract', application_id=application.id) }}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-file-contract me-1"></i>Send Contract
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        Status
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'shortlisted')">Shortlist</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'rejected')">Reject</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'pending')">Mark Pending</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center py-3">No applications yet. Share this job to attract coaches!</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Application Form Column -->
+        <div class="col-lg-4">
+            {% if current_user.is_coach and not existing_application %}
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-paper-plane me-2"></i>Apply for this Job
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('apply_job', job_id=job_post.id) }}">
+                        {{ application_form.hidden_tag() }}
+                        
+                        <!-- Cover Letter -->
+                        <div class="mb-3">
+                            <label for="{{ application_form.cover_letter.id }}" class="form-label">
+                                <strong>Cover Letter</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ application_form.cover_letter(class="form-control", rows="4", placeholder="Explain why you're the perfect fit for this job...") }}
+                            {% if application_form.cover_letter.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in application_form.cover_letter.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Experience Summary -->
+                        <div class="mb-3">
+                            <label for="{{ application_form.experience_summary.id }}" class="form-label">
+                                <strong>Experience Summary</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ application_form.experience_summary(class="form-control", rows="3", placeholder="Briefly describe your relevant experience...") }}
+                            {% if application_form.experience_summary.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in application_form.experience_summary.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Proposed Terms -->
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Proposed Terms</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <label for="{{ application_form.proposed_price_per_hour.id }}" class="form-label">Price/hr</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            {{ application_form.proposed_price_per_hour(class="form-control") }}
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="{{ application_form.proposed_number_of_sessions.id }}" class="form-label">Sessions</label>
+                                        {{ application_form.proposed_number_of_sessions(class="form-control") }}
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <label for="{{ application_form.proposed_session_duration.id }}" class="form-label">Duration</label>
+                                    {{ application_form.proposed_session_duration(class="form-select") }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Screening Question Answers -->
+                        {% if job_post.screening_questions %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Screening Questions</h6>
+                            </div>
+                            <div class="card-body">
+                                {% for question in job_post.screening_questions %}
+                                <div class="mb-3">
+                                    <label class="form-label">{{ question.question_text }}</label>
+                                    {% set field_name = 'screening_answer_' + question.id|string %}
+                                    {% if application_form[field_name] %}
+                                        {{ application_form[field_name](class="form-control", rows="2") }}
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Application
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% elif existing_application %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle me-2"></i>Application Submitted
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <h6>You've already applied for this job</h6>
+                    <p class="text-muted">Status: <span class="badge bg-{{ 'success' if existing_application.status == 'shortlisted' else 'warning' if existing_application.status == 'pending' else 'danger' }}">{{ existing_application.status.title() }}</span></p>
+                    <a href="{{ url_for('conversation', user_id=job_post.student_id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-comment me-1"></i>Message Student
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Job Summary Card -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Job Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-dollar-sign text-success me-2"></i>
+                            <strong>Budget:</strong> ${{ "%.2f"|format(job_post.price_per_hour) }}/hour
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-calendar text-primary me-2"></i>
+                            <strong>Sessions:</strong> {{ job_post.number_of_sessions }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-clock text-warning me-2"></i>
+                            <strong>Timeframe:</strong> {{ job_post.timeframe }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-users text-info me-2"></i>
+                            <strong>Applications:</strong> {{ job_post.applications_count }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-eye text-secondary me-2"></i>
+                            <strong>Views:</strong> {{ job_post.views_count }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateStatus(applicationId, status) {
+    if (confirm('Are you sure you want to update this application status?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/application/${applicationId}/status`;
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'status';
+        input.value = status;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Form validation
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,491 @@
+{% extends "base.html" %}
+
+{% block title %}Contract Preview Cards Demo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Contract Preview Cards Demo</h1>
+            <p class="lead">This page demonstrates the new contract preview cards in the messaging system.</p>
+        </div>
+    </div>
+
+    <!-- Debug Information -->
+    {% if test_contract_data %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Debug Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>Test Contract Data:</h6>
+                            <pre>{{ test_contract_data|tojson(indent=2) }}</pre>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>JSON Content:</h6>
+                            <pre>{{ test_content }}</pre>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>Extracted Info:</h6>
+                            <pre>{{ extracted_info|tojson(indent=2) if extracted_info else 'None' }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Test Contract Card with Filter -->
+    {% if test_content %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3>Test Contract Card (Using Filter)</h3>
+            <div class="message-item mb-3 message-received">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="message-avatar-placeholder rounded-circle">
+                            <span class="small text-white">C</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 max-width-70">
+                        <div class="message-bubble received">
+                            <div class="message-content">
+                                {% set contract_info = test_content|extract_contract_info %}
+                                {% if contract_info %}
+                                    <div class="session-preview-card contract-card">
+                                        <div class="session-header">
+                                            <div class="session-icon contract-icon">
+                                                <i class="fas fa-file-contract"></i>
+                                            </div>
+                                            <div class="session-title">
+                                                <h4>Contract Offer</h4>
+                                                <span class="session-type contract-{{ contract_info.status }}">{{ contract_info.status|title }}</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="session-details">
+                                            <div class="session-info-grid">
+                                                <div class="info-item">
+                                                    <span class="label">Project</span>
+                                                    <span class="value">{{ contract_info.project }}</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="label">Start Date</span>
+                                                    <span class="value">{{ contract_info.start_date }}</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="label">Sessions</span>
+                                                    <span class="value">{{ contract_info.sessions }} sessions</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="label">Duration</span>
+                                                    <span class="value">{{ contract_info.duration }} min each</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="label">Rate</span>
+                                                    <span class="value">{{ contract_info.rate }}</span>
+                                                </div>
+                                                <div class="info-item">
+                                                    <span class="label">Total Amount</span>
+                                                    <span class="value amount">{{ contract_info.amount }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="session-actions">
+                                            <a href="#" class="btn view-detailed-contract-btn">
+                                                <i class="fas fa-file-text"></i>
+                                                View Detailed Contract
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="contract-fallback">
+                                        <p>Filter failed to extract contract info from:</p>
+                                        <pre>{{ test_content }}</pre>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="message-time">
+                                <span>Test Time</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Received Contract (Pending)</h3>
+            <div class="message-item mb-3 message-received">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="message-avatar-placeholder rounded-circle">
+                            <span class="small text-white">C</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 max-width-70">
+                        <div class="message-bubble received">
+                            <div class="message-content">
+                                <div class="contract-preview-card">
+                                    <div class="contract-header">
+                                        <div class="contract-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <div class="contract-title">
+                                            <h4>Contract Offer</h4>
+                                            <span class="contract-status pending">Pending Review</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contract-details">
+                                        <div class="contract-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">Python Web Development</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Sessions</span>
+                                                <span class="value">8</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Total Amount</span>
+                                                <span class="value amount">$400</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Start Date</span>
+                                                <span class="value">January 15, 2024</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">60 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Rate</span>
+                                                <span class="value">$50/session</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contract-actions">
+                                        <a href="#" class="btn btn-primary btn-sm view-contract-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Contract
+                                        </a>
+                                        <button class="btn btn-success btn-sm accept-contract-btn">
+                                            <i class="fas fa-check me-1"></i>
+                                            Accept
+                                        </button>
+                                        <button class="btn btn-danger btn-sm decline-contract-btn">
+                                            <i class="fas fa-times me-1"></i>
+                                            Decline
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-time">
+                                <span>2:30 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Sent Contract (Awaiting Response)</h3>
+            <div class="message-item mb-3 message-sent">
+                <div class="d-flex align-items-start justify-content-end">
+                    <div class="flex-grow-1 max-width-70 text-end">
+                        <div class="message-bubble sent">
+                            <div class="message-content">
+                                <div class="contract-preview-card sent">
+                                    <div class="contract-header">
+                                        <div class="contract-icon">
+                                            <i class="fas fa-file-contract"></i>
+                                        </div>
+                                        <div class="contract-title">
+                                            <h4>Contract Sent</h4>
+                                            <span class="contract-status sent">Awaiting Response</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contract-details">
+                                        <div class="contract-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">Data Science Fundamentals</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Sessions</span>
+                                                <span class="value">12</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Total Amount</span>
+                                                <span class="value amount">$600</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Start Date</span>
+                                                <span class="value">February 1, 2024</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Duration</span>
+                                                <span class="value">90 min</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Rate</span>
+                                                <span class="value">$50/session</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contract-actions">
+                                        <a href="#" class="btn btn-light btn-sm view-contract-btn">
+                                            <i class="fas fa-eye me-1"></i>
+                                            View Contract
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-time">
+                                <span>1:45 PM</span>
+                                <i class="fas fa-check-double text-white-50 ms-1"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <h3>Accepted Contract</h3>
+            <div class="message-item mb-3 message-received">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="message-avatar-placeholder rounded-circle">
+                            <span class="small text-white">S</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 max-width-70">
+                        <div class="message-bubble received contract-accepted">
+                            <div class="message-content">
+                                <div class="contract-preview-card">
+                                    <div class="contract-header">
+                                        <div class="contract-icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="contract-title">
+                                            <h4>Contract Accepted</h4>
+                                            <span class="contract-status active">Active</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="contract-details">
+                                        <div class="contract-info-grid">
+                                            <div class="info-item">
+                                                <span class="label">Project</span>
+                                                <span class="value">JavaScript Mastery</span>
+                                            </div>
+                                            <div class="info-item">
+                                                <span class="label">Status</span>
+                                                <span class="value">Active</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-time">
+                                <span>11:20 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <h3>Declined Contract</h3>
+            <div class="message-item mb-3 message-received">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-2">
+                        <div class="message-avatar-placeholder rounded-circle">
+                            <span class="small text-white">S</span>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 max-width-70">
+                        <div class="message-bubble received contract-declined">
+                            <div class="message-content">
+                                <div class="contract-preview-card">
+                                    <div class="contract-header">
+                                        <div class="contract-icon">
+                                            <i class="fas fa-times-circle"></i>
+                                        </div>
+                                        <div class="contract-title">
+                                            <h4>Contract Declined</h4>
+                                            <span class="contract-status cancelled">Cancelled</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="message-time">
+                                <span>10:15 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Features</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Enhanced Contract Parsing</h5>
+                            <ul>
+                                <li>JSON-structured contract data for better parsing</li>
+                                <li>Fallback regex patterns for legacy messages</li>
+                                <li>Error handling for malformed messages</li>
+                                <li>Support for multiple contract formats</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Professional UI</h5>
+                            <ul>
+                                <li>Modern gradient backgrounds</li>
+                                <li>Responsive design for mobile</li>
+                                <li>Status indicators with color coding</li>
+                                <li>Action buttons for contract management</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <h5>Contract Actions</h5>
+                            <ul>
+                                <li>View contract details</li>
+                                <li>Accept contracts directly from chat</li>
+                                <li>Decline contracts with confirmation</li>
+                                <li>Real-time status updates</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Accessibility</h5>
+                            <ul>
+                                <li>Dark mode support</li>
+                                <li>High contrast mode</li>
+                                <li>Screen reader friendly</li>
+                                <li>Keyboard navigation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Test Contract Message Formats</h4>
+                </div>
+                <div class="card-body">
+                    <p>Here are examples of different contract message formats that the system can parse:</p>
+                    
+                    <h6>JSON Format (Recommended)</h6>
+                    <pre class="bg-light p-3 rounded"><code>{
+  "project": "Python Web Development",
+  "sessions": 8,
+  "amount": 400,
+  "start_date": "January 15, 2024",
+  "contract_id": 123,
+  "status": "pending",
+  "duration": 60,
+  "rate": "$50/session"
+}</code></pre>
+
+                    <h6>Markdown Format (Legacy)</h6>
+                    <pre class="bg-light p-3 rounded"><code>📋 **New Contract Created**
+
+**Project:** Python Web Development
+**Sessions:** 8
+**Total Amount:** $400
+**Start Date:** January 15, 2024
+
+Please review and accept or decline this contract.</code></pre>
+
+                    <h6>Simple Format</h6>
+                    <pre class="bg-light p-3 rounded"><code>Project: Python Web Development
+Sessions: 8
+Total Amount: $400
+Start Date: January 15, 2024</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Demo-specific styles */
+.message-received .message-bubble {
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message-sent .message-bubble {
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border-bottom-right-radius: 6px;
+}
+
+.message-avatar-placeholder {
+    width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.max-width-70 {
+    max-width: 70%;
+}
+
+.message-time {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+.message-received .message-time {
+    color: #666;
+    text-align: left;
+}
+
+.message-sent .message-time {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}My Contracts{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">My Contracts</h1>
+                    <p class="text-gray-600">Manage your learning agreements</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('sessions_list') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                        View Sessions
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if contracts %}
+            <!-- Contract Requests Section -->
+            {% set pending_contracts = contracts|selectattr('status', 'equalto', 'awaiting_response')|list %}
+            {% if pending_contracts %}
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Contract Requests</h2>
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {% for contract in pending_contracts %}
+                    <div class="bg-white shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+                        <div class="p-6">
+                            <!-- Contract Header -->
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                                        {{ contract.proposal.learning_request.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        Contract #{{ contract.contract_number }}
+                                    </p>
+                                </div>
+                                <div class="ml-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                        Pending Review
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Contract Details -->
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Partner:</span>
+                                    <span class="font-medium">
+                                        {% if user.current_role == 'student' %}
+                                            {{ contract.coach.first_name }} {{ contract.coach.last_name }}
+                                        {% else %}
+                                            {{ contract.student.first_name }} {{ contract.student.last_name }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Sessions:</span>
+                                    <span class="font-medium">{{ contract.completed_sessions }}/{{ contract.total_sessions }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Total Amount:</span>
+                                    <span class="font-medium">${{ "%.2f"|format(contract.total_amount) }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Start Date:</span>
+                                    <span class="font-medium">{{ contract.start_date|format_datetime('date_only') }}</span>
+                                </div>
+                                {% if contract.end_date %}
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">End Date:</span>
+                                    <span class="font-medium">{{ contract.end_date|format_datetime('date_only') }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ url_for('view_contract', contract_id=contract.id) }}" 
+                                   class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                                    <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                    View Details
+                                </a>
+                                
+                                {% if user.current_role == 'coach' %}
+                                <form method="POST" action="{{ url_for('accept_contract', contract_id=contract.id) }}" class="flex-1">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" 
+                                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                                        <i data-feather="check" class="w-4 h-4 mr-2"></i>
+                                        Accept
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ url_for('decline_contract', contract_id=contract.id) }}" class="flex-1">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    <button type="submit" 
+                                            class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+                                            onclick="return confirm('Are you sure you want to decline this contract?')">
+                                        <i data-feather="x" class="w-4 h-4 mr-2"></i>
+                                        Decline
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Active Contracts Section -->
+            {% set active_contracts = contracts|selectattr('status', 'in', ['accepted', 'active'])|list %}
+            {% if active_contracts %}
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Active Contracts</h2>
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {% for contract in active_contracts %}
+                    <div class="bg-white shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+                        <div class="p-6">
+                            <!-- Contract Header -->
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                                        {{ contract.proposal.learning_request.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        Contract #{{ contract.contract_number }}
+                                    </p>
+                                </div>
+                                <div class="ml-4">
+                                    {% if contract.status == 'accepted' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Payment Required
+                                        </span>
+                                    {% elif contract.status == 'active' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            Active
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Contract Details -->
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Partner:</span>
+                                    <span class="font-medium">
+                                        {% if user.current_role == 'student' %}
+                                            {{ contract.coach.first_name }} {{ contract.coach.last_name }}
+                                        {% else %}
+                                            {{ contract.student.first_name }} {{ contract.student.last_name }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Sessions:</span>
+                                    <span class="font-medium">{{ contract.completed_sessions }}/{{ contract.total_sessions }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Total Amount:</span>
+                                    <span class="font-medium">${{ "%.2f"|format(contract.total_amount) }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Start Date:</span>
+                                    <span class="font-medium">{{ contract.start_date.strftime('%B %d, %Y') }}</span>
+                                </div>
+                                {% if contract.end_date %}
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">End Date:</span>
+                                    <span class="font-medium">{{ contract.end_date.strftime('%B %d, %Y') }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Progress Bar -->
+                            {% if contract.status == 'active' %}
+                            <div class="mb-4">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                    <span>Progress</span>
+                                    <span>{{ "%.0f"|format(contract.get_progress_percentage()) }}%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-primary-600 h-2 rounded-full" style="width: {{ contract.get_progress_percentage() }}%"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ url_for('view_contract', contract_id=contract.id) }}" 
+                                   class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                                    <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                    View Details
+                                </a>
+                                
+                                {% if contract.status == 'accepted' and user.current_role == 'student' %}
+                                <a href="{{ url_for('contract_payment', contract_id=contract.id) }}" 
+                                   class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">
+                                    <i data-feather="credit-card" class="w-4 h-4 mr-2"></i>
+                                    Pay Now
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Other Contracts Section (Completed, Declined, etc.) -->
+            {% set other_contracts = contracts|rejectattr('status', 'in', ['awaiting_response', 'accepted', 'active'])|list %}
+            {% if other_contracts %}
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-900 mb-4">Other Contracts</h2>
+                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {% for contract in other_contracts %}
+                    <div class="bg-white shadow-sm rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200">
+                        <div class="p-6">
+                            <!-- Contract Header -->
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-1">
+                                        {{ contract.proposal.learning_request.title }}
+                                    </h3>
+                                    <p class="text-sm text-gray-600">
+                                        Contract #{{ contract.contract_number }}
+                                    </p>
+                                </div>
+                                <div class="ml-4">
+                                    {% if contract.status == 'completed' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            Completed
+                                        </span>
+                                    {% elif contract.status == 'declined' %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                            Declined
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                            {{ contract.status|title }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Contract Details -->
+                            <div class="space-y-3 mb-6">
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Partner:</span>
+                                    <span class="font-medium">
+                                        {% if user.current_role == 'student' %}
+                                            {{ contract.coach.first_name }} {{ contract.coach.last_name }}
+                                        {% else %}
+                                            {{ contract.student.first_name }} {{ contract.student.last_name }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Sessions:</span>
+                                    <span class="font-medium">{{ contract.completed_sessions }}/{{ contract.total_sessions }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Total Amount:</span>
+                                    <span class="font-medium">${{ "%.2f"|format(contract.total_amount) }}</span>
+                                </div>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">Start Date:</span>
+                                    <span class="font-medium">{{ contract.start_date.strftime('%B %d, %Y') }}</span>
+                                </div>
+                                {% if contract.end_date %}
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-gray-600">End Date:</span>
+                                    <span class="font-medium">{{ contract.end_date.strftime('%B %d, %Y') }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ url_for('view_contract', contract_id=contract.id) }}" 
+                                   class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                                    <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-feather="file-text" class="w-12 h-12 text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No contracts yet</h3>
+                <p class="text-gray-600 mb-6">
+                    {% if user.current_role == 'student' %}
+                        Start by posting a learning request and accepting a proposal from a coach.
+                    {% else %}
+                        Students will send you contract offers when they accept your proposals.
+                    {% endif %}
+                </p>
+                {% if user.current_role == 'student' %}
+                <a href="{{ url_for('post_request') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                    <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                    Post Learning Request
+                </a>
+                {% else %}
+                <a href="{{ url_for('find_work') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                    <i data-feather="search" class="w-4 h-4 mr-2"></i>
+                    Browse Learning Requests
+                </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

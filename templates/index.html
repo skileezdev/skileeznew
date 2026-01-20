@@ -1,0 +1,509 @@
+{% extends "base.html" %}
+{% set is_homepage = true %}
+
+{% block content %}
+<!-- Hero Section with Embedded Navigation -->
+<section class="relative min-h-[600px] h-[70vh] sm:h-[80vh] md:h-screen max-h-[800px] md:max-h-[900px] flex items-center overflow-hidden" style="background: linear-gradient(180deg, #F0F4FF 0%, #E0EAFF 50%, #D1DFFF 100%); box-sizing: border-box; position: relative;">
+    
+    <!-- Navigation embedded in hero -->
+    <div class="absolute top-0 left-0 right-0 z-20 h-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-primary-600 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
+                            <span class="text-white font-bold text-xl">S</span>
+                        </div>
+                        <span class="text-2xl font-bold text-gray-900">Skileez</span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    {% if get_current_user() %}
+                        {% set user = get_current_user() %}
+                        {% if user.is_coach %}
+                            <a href="{{ url_for('coach_dashboard') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Dashboard</a>
+                            <a href="{{ url_for('find_work') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Find Work</a>
+                            <a href="{{ url_for('inbox') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Messages</a>
+                        {% elif user.is_student %}
+                            <a href="{{ url_for('student_dashboard') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Dashboard</a>
+                            <a href="{{ url_for('post_request') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Post Request</a>
+                            <a href="{{ url_for('inbox') }}" class="text-gray-700 hover:text-primary-600 transition-colors font-medium">Messages</a>
+                        {% endif %}
+                        
+                        <div class="relative group">
+                            <button class="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors font-medium">
+                                <span>{{ user.first_name }}</span>
+                                <i data-feather="chevron-down" class="w-4 h-4"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-md rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                <div class="py-2">
+                                    <a href="{{ url_for('edit_profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Edit Profile</a>
+                                    <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <a href="{{ url_for('about') }}" class="text-gray-600 hover:text-gray-900 transition-colors font-medium">About</a>
+                        <a href="{{ url_for('login') }}" class="text-gray-600 hover:text-gray-900 transition-colors font-medium">Login</a>
+                        <button id="get-started-btn" class="btn-primary">Get Started</button>
+                    {% endif %}
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="text-gray-700 hover:text-primary-600 p-2 rounded-lg">
+                        <i data-feather="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-4 py-4 space-y-2">
+                {% if get_current_user() %}
+                    {% set user = get_current_user() %}
+                    {% if user.is_coach %}
+                        <a href="{{ url_for('coach_dashboard') }}" class="block py-2 text-gray-700 hover:text-primary-600">Dashboard</a>
+                        <a href="{{ url_for('find_work') }}" class="block py-2 text-gray-700 hover:text-primary-600">Find Work</a>
+                        <a href="{{ url_for('inbox') }}" class="block py-2 text-gray-700 hover:text-primary-600">Messages</a>
+                    {% elif user.is_student %}
+                        <a href="{{ url_for('student_dashboard') }}" class="block py-2 text-gray-700 hover:text-primary-600">Dashboard</a>
+                        <a href="{{ url_for('post_request') }}" class="block py-2 text-gray-700 hover:text-primary-600">Post Request</a>
+                        <a href="{{ url_for('inbox') }}" class="block py-2 text-gray-700 hover:text-primary-600">Messages</a>
+                    {% endif %}
+                    {% if user.is_coach %}
+                        <a href="{{ url_for('edit_profile_inline') }}" class="block py-2 text-gray-700 hover:text-primary-600">Edit Profile</a>
+                        <a href="{{ url_for('edit_profile') }}" class="block py-2 text-gray-500 hover:text-primary-600 text-sm ml-4">Advanced Edit</a>
+                    {% else %}
+                        <a href="{{ url_for('edit_profile') }}" class="block py-2 text-gray-700 hover:text-primary-600">Edit Profile</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="block py-2 text-gray-700 hover:text-primary-600">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('about') }}" class="block py-2 text-gray-700 hover:text-primary-600">About</a>
+                    <a href="{{ url_for('login') }}" class="block py-2 text-gray-700 hover:text-primary-600">Login</a>
+                    <button id="mobile-get-started-btn" class="btn-primary w-full">Get Started</button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Content -->
+    <div class="max-w-[1200px] mx-auto px-5 sm:px-8 lg:px-20 relative z-10 w-full">
+        <div class="text-center flex flex-col justify-center h-full py-16 md:py-20">
+            <!-- Trust Badge -->
+            <div class="inline-flex items-center bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-full px-3 py-1.5 md:px-4 md:py-2 mb-4 md:mb-6 shadow-sm mx-auto">
+                <div class="w-2 h-2 bg-success rounded-full mr-2"></div>
+                <span class="text-xs md:text-sm font-medium text-gray-700">Best Learning Platform</span>
+            </div>
+
+            <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-gray-900 mb-4 md:mb-6 leading-tight tracking-tight max-w-[800px] mx-auto px-2">
+                Skileez make sure you<br>
+                <span class="text-primary-600">never start from</span><br>
+                <span class="text-primary-600">scratch</span>
+            </h1>
+            
+            <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 mb-6 md:mb-8 max-w-[800px] mx-auto leading-relaxed px-4">
+                Unlock the library of 10K+ expert coaches and<br class="hidden sm:block">
+                mentors. Learn any skill for your next project.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-sm sm:max-w-lg mx-auto px-4">
+                <button id="become-coach-btn" class="bg-primary-600 text-white px-10 py-4 rounded-xl text-lg font-semibold hover:bg-primary-700 transition-all duration-200 min-w-[180px] text-center">
+                    Become a Coach
+                </button>
+                <a href="{{ url_for('signup_student') }}" class="bg-white/90 backdrop-blur-sm text-gray-800 px-10 py-4 rounded-xl text-lg font-semibold border border-gray-200 hover:bg-white hover:border-gray-300 transition-all duration-200 min-w-[180px] text-center">
+                    Start Learning
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Floating Skills Icons with Scroll Animations -->
+    <div class="hero-icon absolute top-24 left-[8%] group hidden lg:block" data-speed="0.3">
+        <div class="w-20 h-20 xl:w-24 xl:h-24 bg-gradient-to-br from-purple-500 to-purple-700 rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(139, 69, 193, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="edit" class="w-10 h-10 xl:w-12 xl:h-12 text-white"></i>
+        </div>
+    </div>
+
+    <div class="hero-icon absolute top-40 right-[12%] group hidden lg:block" data-speed="0.6">
+        <div class="w-24 h-24 xl:w-28 xl:h-28 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl flex items-center justify-center transform -rotate-6 group-hover:rotate-0 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(59, 130, 246, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="trending-up" class="w-12 h-12 xl:w-14 xl:h-14 text-white"></i>
+        </div>
+        <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+    </div>
+
+    <div class="hero-icon absolute bottom-28 left-[15%] group hidden lg:block" data-speed="1.2">
+        <div class="w-18 h-18 xl:w-20 xl:h-20 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-3xl flex items-center justify-center transform rotate-45 group-hover:rotate-12 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="dollar-sign" class="w-8 h-8 xl:w-10 xl:h-10 text-white"></i>
+        </div>
+    </div>
+
+    <div class="hero-icon absolute bottom-48 right-[8%] group hidden lg:block" data-speed="0.4">
+        <div class="w-20 h-20 xl:w-22 xl:h-22 bg-gradient-to-br from-orange-500 to-orange-700 rounded-3xl flex items-center justify-center transform -rotate-12 group-hover:rotate-6 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(251, 146, 60, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="code" class="w-10 h-10 xl:w-12 xl:h-12 text-white"></i>
+        </div>
+    </div>
+
+    <div class="hero-icon absolute bottom-36 right-[20%] group hidden lg:block" data-speed="0.8">
+        <div class="w-20 h-20 xl:w-24 xl:h-24 bg-gradient-to-br from-pink-500 to-pink-700 rounded-3xl flex items-center justify-center transform rotate-6 group-hover:-rotate-6 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(236, 72, 153, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="music" class="w-10 h-10 xl:w-12 xl:h-12 text-white"></i>
+        </div>
+    </div>
+
+    <div class="hero-icon absolute bottom-72 left-[4%] group hidden lg:block" data-speed="1.5">
+        <div class="w-20 h-20 xl:w-22 xl:h-22 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(251, 191, 36, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="camera" class="w-10 h-10 xl:w-11 xl:h-11 text-white"></i>
+        </div>
+    </div>
+
+    <!-- Enhanced Background Decorative Elements -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <!-- Layered gradient orbs for depth -->
+        <div class="absolute -top-32 -right-24 w-80 h-80 bg-gradient-to-br from-blue-300/20 to-indigo-400/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-32 -left-24 w-80 h-80 bg-gradient-to-br from-indigo-300/20 to-purple-400/20 rounded-full blur-3xl"></div>
+        <div class="absolute top-20 right-10 w-60 h-60 bg-gradient-to-br from-blue-200/15 to-cyan-300/15 rounded-full blur-2xl"></div>
+        
+        <!-- Subtle geometric patterns -->
+        <div class="absolute top-1/4 left-1/4 w-2 h-2 bg-white/20 rounded-full"></div>
+        <div class="absolute top-1/3 right-1/3 w-1 h-1 bg-white/30 rounded-full"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-1.5 h-1.5 bg-white/25 rounded-full"></div>
+        <div class="absolute bottom-1/3 right-1/4 w-1 h-1 bg-white/20 rounded-full"></div>
+        
+        <!-- Subtle noise texture overlay -->
+        <div class="absolute inset-0 opacity-[0.02]" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%270 0 400 400%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cfilter id=%27noiseFilter%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%274%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%27100%25%27 height=%27100%25%27 filter=%27url(%23noiseFilter)%27/%3E%3C/svg%3E');"></div>
+        
+        <!-- Curved background shapes -->
+        <div class="absolute top-0 right-0 w-full h-1/2" style="background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);"></div>
+        <div class="absolute bottom-0 left-0 w-full h-1/2" style="background: linear-gradient(45deg, transparent 0%, rgba(255,255,255,0.02) 50%, transparent 100%);"></div>
+    </div>
+    
+    <!-- Soft edge fade -->
+    <div class="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent via-white/20 to-white/90 pointer-events-none"></div>
+    
+</section>
+
+<!-- Role Selection Modal -->
+<div id="role-selection-modal" class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full mx-4 transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
+        <div class="p-8">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i data-feather="users" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-black text-gray-900 mb-2">Join Skileez</h2>
+                <p class="text-gray-600">Are you joining as a Coach or a Student?</p>
+            </div>
+
+            <!-- Role Options -->
+            <div class="space-y-4 mb-8">
+                <!-- Coach Option -->
+                <button id="coach-option" class="w-full p-6 bg-gradient-to-br from-primary-50 to-purple-50 border-2 border-transparent hover:border-primary-200 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <i data-feather="award" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">I'm a Coach</h3>
+                            <p class="text-sm text-gray-600">Share your expertise and earn by teaching</p>
+                        </div>
+                    </div>
+                </button>
+
+                <!-- Student Option -->
+                <button id="student-option" class="w-full p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-transparent hover:border-green-200 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg group">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <i data-feather="book-open" class="w-6 h-6 text-white"></i>
+                        </div>
+                        <div class="text-left">
+                            <h3 class="text-lg font-bold text-gray-900 group-hover:text-green-600 transition-colors">I'm a Student</h3>
+                            <p class="text-sm text-gray-600">Learn new skills from expert coaches</p>
+                        </div>
+                    </div>
+                </button>
+            </div>
+
+            <!-- Close Button -->
+            <button id="close-modal" class="w-full py-3 text-gray-500 hover:text-gray-700 font-medium transition-colors">
+                Maybe later
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<!-- How It Works -->
+<section class="py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">How It Works</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Simple steps to start your learning journey</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <!-- Step 1 -->
+            <div class="text-center group">
+                <div class="relative mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-110">
+                        <i data-feather="user-plus" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">1</div>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Create Profile</h3>
+                <p class="text-gray-600 leading-relaxed">Join as a student or coach. Set up your profile in minutes and start connecting.</p>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="text-center group">
+                <div class="relative mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-110">
+                        <i data-feather="search" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Find Your Match</h3>
+                <p class="text-gray-600 leading-relaxed">Browse expert coaches or post learning requests. Smart matching finds your perfect fit.</p>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="text-center group">
+                <div class="relative mb-8">
+                    <div class="w-20 h-20 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 transform group-hover:scale-110">
+                        <i data-feather="zap" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <div class="absolute -top-2 -right-2 w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Start Learning</h3>
+                <p class="text-gray-600 leading-relaxed">Book sessions, track progress, and achieve your goals with personalized coaching.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-24 bg-gradient-to-br from-gray-50 to-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-5xl font-black text-gray-900 mb-6">Why Choose Skileez?</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">Premium features designed for effective learning and teaching</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="shield" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Verified Coaches</h3>
+                <p class="text-gray-600 leading-relaxed">All coaches go through a thorough verification process to ensure quality and expertise.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="message-circle" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Direct Messaging</h3>
+                <p class="text-gray-600 leading-relaxed">Communicate directly with coaches through our secure messaging platform.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="calendar" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Flexible Scheduling</h3>
+                <p class="text-gray-600 leading-relaxed">Book sessions that fit your schedule with easy-to-use scheduling tools.</p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="trending-up" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Progress Tracking</h3>
+                <p class="text-gray-600 leading-relaxed">Monitor your learning progress with detailed session tracking and milestone achievements.</p>
+            </div>
+            
+            <!-- Feature 5 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-pink-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="dollar-sign" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Secure Payments</h3>
+                <p class="text-gray-600 leading-relaxed">Safe and secure payment processing with milestone-based payments for peace of mind.</p>
+            </div>
+            
+            <!-- Feature 6 -->
+            <div class="bg-white rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100">
+                <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                    <i data-feather="globe" class="w-8 h-8 text-white"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Global Community</h3>
+                <p class="text-gray-600 leading-relaxed">Connect with learners and coaches from around the world in our diverse community.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Exclusive Community Card -->
+<section class="py-16 bg-gradient-to-br from-primary-50 via-white to-purple-50 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Main Community Card -->
+        <div class="relative bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <!-- Background Pattern -->
+            <div class="absolute inset-0 opacity-5">
+                <div class="absolute top-0 left-0 w-full h-full" style="background-image: url('data:image/svg+xml;charset=utf-8,%3Csvg viewBox=%270 0 100 100%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cdefs%3E%3Cpattern id=%27grain%27 width=%27100%27 height=%27100%27 patternUnits=%27userSpaceOnUse%27%3E%3Ccircle cx=%2725%27 cy=%2725%27 r=%271%27 fill=%27%23000%27/%3E%3Ccircle cx=%2775%27 cy=%2775%27 r=%271%27 fill=%27%23000%27/%3E%3Ccircle cx=%2750%27 cy=%2750%27 r=%270.5%27 fill=%27%23000%27/%3E%3C/pattern%3E%3C/defs%3E%3Crect width=%27100%25%27 height=%27100%25%27 fill=%27url(%23grain)%27/%3E%3C/svg%3E');"></div>
+        </div>
+            
+            <!-- Content -->
+            <div class="relative z-10 p-6 md:p-8 lg:p-10">
+                <div class="text-center">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center bg-gradient-to-r from-primary-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-lg">
+                        <i data-feather="star" class="w-4 h-4 mr-2"></i>
+                        EXCLUSIVE COMMUNITY
+                    </div>
+                    
+                    <!-- Main Heading -->
+                    <h2 class="text-2xl md:text-3xl lg:text-4xl font-black text-gray-900 mb-4 leading-tight">
+                        Join Our <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Exclusive</span> Community
+                    </h2>
+                    
+                    <!-- Subtitle -->
+                    <p class="text-base md:text-lg text-gray-600 mb-6 max-w-4xl mx-auto leading-relaxed">
+                        Connect with top-tier coaches and ambitious learners in our private community. 
+                        Get exclusive access to premium content, networking events, and mentorship opportunities.
+                    </p>
+                    
+                    <!-- Limited Spots Alert -->
+                    <div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-2xl p-4 mb-6 max-w-lg mx-auto">
+                        <div class="flex items-center justify-center mb-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-3"></div>
+                            <span class="text-red-700 font-bold text-base">Only 500 Spots Available</span>
+                        </div>
+                        <div class="text-red-600 text-sm">
+                            <span class="font-semibold">347</span> spots already taken • <span class="font-semibold">153</span> remaining
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="mt-2 bg-red-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-red-500 to-orange-500 h-2 rounded-full transition-all duration-1000" style="width: 69.4%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Benefits List -->
+                    <div class="flex flex-wrap justify-center gap-4 md:gap-8 mb-8">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                <i data-feather="check" class="w-3 h-3 text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium text-sm">Premium Content</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                <i data-feather="check" class="w-3 h-3 text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium text-sm">Networking Events</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                                <i data-feather="check" class="w-3 h-3 text-green-600"></i>
+                            </div>
+                            <span class="text-gray-700 font-medium text-sm">Mentorship Access</span>
+                        </div>
+                    </div>
+                    
+                    <!-- CTA Button -->
+                    <div class="space-y-3">
+                        <button class="group relative bg-gradient-to-r from-primary-600 to-purple-600 text-white px-10 py-4 rounded-2xl text-lg font-bold hover:from-primary-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-2xl hover:shadow-3xl">
+                            <span class="relative z-10 flex items-center justify-center">
+                                <i data-feather="users" class="w-5 h-5 mr-2"></i>
+                                Join Community Now
+                                <i data-feather="arrow-right" class="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                            <!-- Shine effect -->
+                            <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                        </button>
+                        
+                        <!-- Secondary Info -->
+                        <p class="text-xs text-gray-500">
+                            <i data-feather="lock" class="w-3 h-3 inline mr-1"></i>
+                            Free to join • No credit card required
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Decorative Elements -->
+            <div class="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-primary-100 to-purple-100 rounded-full opacity-50"></div>
+            <div class="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full opacity-50"></div>
+        </div>
+        
+        <!-- Floating Elements -->
+        <div class="absolute top-10 left-10 w-6 h-6 bg-primary-200 rounded-full animate-bounce hidden lg:block"></div>
+        <div class="absolute top-20 right-20 w-4 h-4 bg-purple-200 rounded-full animate-pulse hidden lg:block"></div>
+        <div class="absolute bottom-20 left-20 w-5 h-5 bg-pink-200 rounded-full animate-bounce hidden lg:block" style="animation-delay: 0.5s;"></div>
+    </div>
+</section>
+
+<!-- CTA Section - Stacker-style -->
+<section class="relative py-32 bg-gradient-to-br from-primary-50 via-white to-purple-50 overflow-hidden">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+        <h2 class="text-4xl md:text-6xl font-black text-gray-900 mb-8 leading-tight">
+            Where your <span class="text-primary-600">skills</span> turn<br>
+            into <span class="text-purple-600">success</span> with a click
+        </h2>
+        <p class="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Build custom learning paths, connect with expert coaches, and transform your career effortlessly. From concept to mastery in minutes, not months.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-6 justify-center mb-16">
+            <div class="bg-black text-white px-10 py-5 rounded-2xl text-lg font-bold hover:bg-gray-800 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl cursor-pointer flex items-center">
+                <i data-feather="play" class="w-5 h-5 mr-3"></i>
+                Watch Demo
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Demo Icons - Hero Style -->
+    <div class="absolute top-20 left-[8%] group hidden lg:block">
+        <div class="w-20 h-20 xl:w-24 xl:h-24 bg-gradient-to-br from-green-500 to-emerald-700 rounded-3xl flex items-center justify-center transform rotate-12 group-hover:rotate-0 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(16, 185, 129, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="play" class="w-10 h-10 xl:w-12 xl:h-12 text-white"></i>
+        </div>
+    </div>
+
+    <div class="absolute top-32 right-[12%] group hidden lg:block">
+        <div class="w-24 h-24 xl:w-28 xl:h-28 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl flex items-center justify-center transform -rotate-6 group-hover:rotate-0 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(59, 130, 246, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="award" class="w-12 h-12 xl:w-14 xl:h-14 text-white"></i>
+        </div>
+        <div class="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full animate-pulse"></div>
+    </div>
+
+    <div class="absolute bottom-24 left-[15%] group hidden lg:block">
+        <div class="w-18 h-18 xl:w-20 xl:h-20 bg-gradient-to-br from-purple-500 to-purple-700 rounded-3xl flex items-center justify-center transform rotate-45 group-hover:rotate-12 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(139, 69, 193, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="target" class="w-8 h-8 xl:w-10 xl:h-10 text-white"></i>
+        </div>
+    </div>
+
+    <div class="absolute bottom-32 right-[20%] group hidden lg:block">
+        <div class="w-20 h-20 xl:w-22 xl:h-22 bg-gradient-to-br from-orange-500 to-orange-700 rounded-3xl flex items-center justify-center transform -rotate-12 group-hover:rotate-6 transition-all duration-500 shadow-2xl" style="box-shadow: 0 30px 60px -15px rgba(251, 146, 60, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);">
+            <i data-feather="zap" class="w-10 h-10 xl:w-12 xl:h-12 text-white"></i>
+        </div>
+    </div>
+
+    <!-- Gradient Background like Stacker -->
+    <div class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-blue-400/20 via-purple-400/10 to-transparent rounded-t-[100px]"></div>
+    
+    <!-- Collaboration Text -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+        <div class="text-gray-500 font-medium text-sm">
+            Collaboration with <span class="font-bold">Expert Coaches®</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

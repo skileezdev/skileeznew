@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-primary-50 to-white py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-xl">
+                <i data-feather="briefcase" class="w-10 h-10 text-white"></i>
+            </div>
+            <h1 class="text-4xl font-black text-gray-900 mb-4">Become a Coach</h1>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Share your expertise and earn money by teaching students worldwide. Join our community of professional coaches.
+            </p>
+        </div>
+
+        <!-- Benefits Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="dollar-sign" class="w-6 h-6 text-green-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Earn Money</h3>
+                <p class="text-gray-600">Set your own rates and earn $20-$500+ per hour teaching what you love.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="users" class="w-6 h-6 text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Global Reach</h3>
+                <p class="text-gray-600">Teach students from around the world and build your reputation.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="clock" class="w-6 h-6 text-purple-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Flexible Schedule</h3>
+                <p class="text-gray-600">Work when you want, how you want. Complete control over your time.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="shield" class="w-6 h-6 text-orange-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Secure Payments</h3>
+                <p class="text-gray-600">Get paid safely with our milestone-based payment protection system.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="trending-up" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Career Growth</h3>
+                <p class="text-gray-600">Build your personal brand and grow your coaching business.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <div class="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-4">
+                    <i data-feather="heart" class="w-6 h-6 text-indigo-600"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Make Impact</h3>
+                <p class="text-gray-600">Change lives by sharing your knowledge and helping others succeed.</p>
+            </div>
+        </div>
+
+        <!-- Upgrade Form -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">Ready to Start Teaching?</h2>
+
+            <form method="POST" action="{{ url_for('upgrade_to_coach') }}">
+                {{ form.hidden_tag() }}
+
+                <div class="space-y-6">
+                    <!-- Terms Acceptance -->
+                    <div class="flex items-start">
+                        {{ form.terms_accepted(class="mt-1 mr-3") }}
+                        <label for="{{ form.terms_accepted.id }}" class="text-sm text-gray-700">
+                            {{ form.terms_accepted.label.text }} and 
+                            <a href="#" class="text-primary-600 hover:text-primary-700 underline">Coach Terms of Service</a>
+                        </label>
+                    </div>
+                    {% if form.terms_accepted.errors %}
+                        <div class="text-red-500 text-sm">{{ form.terms_accepted.errors[0] }}</div>
+                    {% endif %}
+
+                    <div class="flex items-start">
+                        {{ form.ready_to_teach(class="mt-1 mr-3") }}
+                        <label for="{{ form.ready_to_teach.id }}" class="text-sm text-gray-700">
+                            {{ form.ready_to_teach.label.text }}
+                        </label>
+                    </div>
+                    {% if form.ready_to_teach.errors %}
+                        <div class="text-red-500 text-sm">{{ form.ready_to_teach.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-4 mt-8">
+                    <button type="submit" 
+                            class="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-green-700 hover:to-green-800 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                        <i data-feather="arrow-right" class="w-5 h-5 inline mr-2"></i>
+                        Start Coach Onboarding
+                    </button>
+
+                    <a href="{{ url_for('student_dashboard') if user.current_role == 'student' else url_for('index') }}" 
+                       class="flex-1 bg-gray-100 text-gray-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-gray-200 transition-all duration-200 text-center">
+                        Maybe Later
+                    </a>
+                </div>
+
+                <!-- Info Note -->
+                <div class="tip-card">
+                    <div class="tip-icon">
+                        <i data-feather="info"></i>
+                    </div>
+                    <h3>What Happens Next?</h3>
+                    <p>Complete onboarding, profile setup, approval review (24-48 hours), then start coaching</p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

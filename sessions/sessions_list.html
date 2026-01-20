@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+
+{% block title %}My Learning Journeys{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">My Learning Journeys</h1>
+                    <p class="text-gray-600">Track your progress across all active learning contracts</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ url_for('contracts_list') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-feather="file-text" class="w-4 h-4 mr-2"></i>
+                        View All Contracts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if contract_data %}
+            <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {% for data in contract_data %}
+                <div class="bg-white shadow-sm rounded-lg learning-journey-card overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="p-6 border-b border-gray-100">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-1 line-clamp-2">
+                                    {{ data.learning_request_title }}
+                                </h3>
+                                <p class="text-sm text-gray-600">
+                                    with {{ data.partner_name }}
+                                </p>
+                            </div>
+                            <div class="ml-3">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Active
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Section -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                <span>Progress</span>
+                                <span>{{ data.completed_sessions }}/{{ data.total_sessions }} sessions</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="progress-bar-gradient h-2 rounded-full" 
+                                     style="width: {{ data.progress_percentage }}%"></div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">{{ "%.1f"|format(data.progress_percentage) }}% complete</p>
+                        </div>
+                    </div>
+
+                    <!-- Session Summary -->
+                    <div class="p-6">
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600">{{ data.completed_sessions }}</div>
+                                <div class="text-xs text-gray-500">Completed</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-purple-600">{{ data.total_sessions - data.completed_sessions }}</div>
+                                <div class="text-xs text-gray-500">Remaining</div>
+                            </div>
+                        </div>
+
+                        <!-- Next Session Info -->
+                        {% if data.next_session %}
+                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                            <div class="flex items-center">
+                                <i data-feather="calendar" class="w-4 h-4 text-blue-600 mr-2"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm font-medium text-blue-900">Next Session</p>
+                                    <p class="text-xs text-blue-700">
+                                        {{ data.next_session.scheduled_at|format_datetime('full') if data.next_session.scheduled_at else 'TBD' }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Recent Sessions -->
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-900 mb-2">Recent Sessions</h4>
+                            <div class="space-y-2">
+                                {% for session in data.sessions[:3] %}
+                                <div class="flex items-center justify-between text-xs">
+                                    <span class="text-gray-600">Session #{{ session.session_number }}</span>
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium
+                                        {% if session.status == 'completed' %}bg-green-100 text-green-800
+                                        {% elif session.status == 'scheduled' %}bg-blue-100 text-blue-800
+                                        {% elif session.status == 'cancelled' %}bg-red-100 text-red-800
+                                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                        {{ session.status.title() }}
+                                    </span>
+                                </div>
+                                {% endfor %}
+                                {% if data.sessions|length > 3 %}
+                                <p class="text-xs text-gray-500 text-center">+{{ data.sessions|length - 3 }} more sessions</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col space-y-2">
+                            {% if data.next_session %}
+                                {% if data.next_session.status == 'scheduled' %}
+                                <a href="#" 
+                                   class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                                   onclick="alert('Video functionality has been removed from this application.')">
+                                    <i data-feather="video" class="w-4 h-4 mr-2"></i>
+                                    Video Session (Unavailable)
+                                </a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ url_for('manage_sessions', contract_id=data.contract.id) }}" 
+                                   class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
+                                    <i data-feather="calendar" class="w-4 h-4 mr-2"></i>
+                                    Schedule Session
+                                </a>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('view_contract', contract_id=data.contract.id) }}" 
+                               class="w-full inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                                <i data-feather="eye" class="w-4 h-4 mr-2"></i>
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-12">
+                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-feather="book-open" class="w-12 h-12 text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No active learning journeys</h3>
+                <p class="text-gray-600 mb-6">
+                    {% if user.current_role == 'student' %}
+                        Start your learning journey by finding a coach and creating your first contract.
+                    {% else %}
+                        Your active learning contracts will appear here once students start working with you.
+                    {% endif %}
+                </p>
+                <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                    {% if user.current_role == 'student' %}
+                    <a href="{{ url_for('find_work') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700">
+                        <i data-feather="search" class="w-4 h-4 mr-2"></i>
+                        Find a Coach
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('contracts_list') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <i data-feather="file-text" class="w-4 h-4 mr-2"></i>
+                        View All Contracts
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.learning-journey-card {
+    transition: all 0.3s ease;
+    border: 1px solid #e5e7eb;
+}
+
+.learning-journey-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-color: #d1d5db;
+}
+
+.progress-bar-gradient {
+    background: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 100%);
+    transition: width 0.5s ease;
+}
+
+.status-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.status-completed { background-color: #dcfce7; color: #166534; }
+.status-scheduled { background-color: #dbeafe; color: #1e40af; }
+.status-cancelled { background-color: #fee2e2; color: #991b1b; }
+.status-missed { background-color: #fef3c7; color: #92400e; }
+
+@media (max-width: 640px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .learning-journey-card {
+        margin-bottom: 1rem;
+    }
+    
+    .card-header {
+        padding: 1rem;
+    }
+    
+    .card-content {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+}
+</style>
+{% endblock %}

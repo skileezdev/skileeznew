@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Test Interactive Contract Card{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Interactive Contract Card Test</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Test Contract Data -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Test Contract Data</h2>
+                <pre class="bg-gray-100 p-4 rounded text-sm overflow-auto">{{ test_contract_data|tojson(indent=2) }}</pre>
+            </div>
+            
+            <!-- Rendered Contract Card -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Rendered Contract Card</h2>
+                <div class="border border-gray-200 rounded-lg p-4">
+                    {% from 'messages/components/contract_card.html' import render_contract_card %}
+                    {{ render_contract_card(test_contract_data, current_user, None) }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Different Contract Statuses -->
+        <div class="mt-12">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Different Contract Statuses</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Pending Contract -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Pending Contract</h3>
+                    {% set pending_contract = {
+                        'project': 'Learn Python Programming',
+                        'sessions': 6,
+                        'amount': 300.0,
+                        'start_date': 'September 15, 2025',
+                        'contract_id': 12,
+                        'status': 'pending',
+                        'duration': 90,
+                        'rate': '$50.00'
+                    } %}
+                    {{ render_contract_card(pending_contract, current_user, None) }}
+                </div>
+                
+                <!-- Accepted Contract -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Accepted Contract</h3>
+                    {% set accepted_contract = {
+                        'project': 'Web Development Bootcamp',
+                        'sessions': 8,
+                        'amount': 800.0,
+                        'start_date': 'October 1, 2025',
+                        'contract_id': 13,
+                        'status': 'accepted',
+                        'duration': 120,
+                        'rate': '$100.00'
+                    } %}
+                    {{ render_contract_card(accepted_contract, current_user, None) }}
+                </div>
+                
+                <!-- Rejected Contract -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Rejected Contract</h3>
+                    {% set rejected_contract = {
+                        'project': 'Data Science Fundamentals',
+                        'sessions': 4,
+                        'amount': 200.0,
+                        'start_date': 'August 30, 2025',
+                        'contract_id': 14,
+                        'status': 'rejected',
+                        'duration': 60,
+                        'rate': '$50.00'
+                    } %}
+                    {{ render_contract_card(rejected_contract, current_user, None) }}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Instructions -->
+        <div class="mt-12 bg-blue-50 rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-blue-900 mb-4">How to Test</h2>
+            <div class="text-blue-800 space-y-2">
+                <p><strong>1.</strong> The contract cards above show different states and actions available.</p>
+                <p><strong>2.</strong> For pending contracts, coaches can Accept or Reject, students can Cancel.</p>
+                <p><strong>3.</strong> For accepted contracts, users can View Contract or Schedule Session.</p>
+                <p><strong>4.</strong> Click the action buttons to see the confirmation modals.</p>
+                <p><strong>5.</strong> The cards are fully interactive with hover effects and animations.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Onboarding - Step 6 - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {{ step }} of 9</span>
+                <span>{{ ((step-1)/8*100)|round|int }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((step-1)/8*100)|round|int }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Step Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            {% for i in range(1, 10) %}
+            <div class="flex items-center">
+                <a href="{{ url_for('coach_onboarding', step=i) }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 {% if i == step %}bg-primary-600 text-white cursor-default{% elif i < step %}bg-green-500 text-white hover:bg-green-600 cursor-pointer{% else %}bg-gray-200 text-gray-500 cursor-not-allowed{% endif %}" {% if i > step %}onclick="return false;"{% endif %}>
+                    {% if i < step %}
+                        <i data-feather="check" class="w-4 h-4"></i>
+                    {% else %}
+                        {{ i }}
+                    {% endif %}
+                </a>
+                {% if i < 9 %}
+                <div class="w-8 h-1 bg-gray-200 mx-2">
+                    <div class="h-1 {% if i < step %}bg-green-500{% else %}bg-gray-200{% endif %} transition-all duration-300"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Main Content -->
+        <div class="premium-card p-8">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-feather="globe" class="w-8 h-8 text-primary-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-gray-900 mb-2">Add languages</h2>
+                <p class="text-gray-600">Tell us what languages you speak. This helps students from different regions find you.</p>
+            </div>
+            
+            <!-- Current Languages Display -->
+            <div id="languages-list" class="mb-6">
+                {% if coach_profile.languages %}
+                <div class="space-y-3">
+                    <h4 class="font-semibold text-gray-800 flex items-center">
+                        <i data-feather="check-circle" class="w-4 h-4 mr-2 text-green-600"></i>
+                        Your Languages
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {% for language in coach_profile.languages %}
+                        <div class="language-item bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                            <div>
+                                <span class="font-medium text-green-800">{{ language.language }}</span>
+                                <span class="text-sm text-green-600 ml-2">({{ language.proficiency|title }})</span>
+                            </div>
+                            <button type="button" class="remove-language text-red-500 hover:text-red-700 transition-colors" data-language-id="{{ language.id }}">
+                                <i data-feather="x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <form class="space-y-6" id="language-form">
+                {{ form.hidden_tag() }}
+                
+                <!-- Add New Language Form -->
+                <div class="space-y-4">
+                    <h4 class="font-semibold text-gray-800 flex items-center">
+                        <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
+                        Add Language
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            {{ form.language.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.language(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                            <div id="language-error" class="mt-1 text-sm text-red-600 hidden">
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    <span id="language-error-text"></span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            {{ form.proficiency.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.proficiency(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                            <div id="proficiency-error" class="mt-1 text-sm text-red-600 hidden">
+                                <p class="flex items-center">
+                                    <i data-feather="alert-circle" class="w-4 h-4 mr-1"></i>
+                                    <span id="proficiency-error-text"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-secondary px-4 py-2 rounded-lg transition-all duration-200 flex items-center opacity-50" id="add-language-btn" disabled>
+                        <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                        Add Language
+                    </button>
+                </div>
+            </form>
+                
+                <!-- Proficiency Guide -->
+                <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-primary-800 mb-3 flex items-center">
+                        <i data-feather="help-circle" class="w-4 h-4 mr-2"></i>
+                        Proficiency levels guide
+                    </h4>
+                    <div class="space-y-2 text-sm text-primary-700">
+                        <div class="flex items-start">
+                            <span class="font-medium w-28">Basic:</span>
+                            <span>Can understand and use basic phrases and expressions</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-medium w-28">Conversational:</span>
+                            <span>Can communicate on familiar topics and handle most situations</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-medium w-28">Fluent:</span>
+                            <span>Can express ideas fluently and spontaneously without much searching</span>
+                        </div>
+                        <div class="flex items-start">
+                            <span class="font-medium w-28">Native:</span>
+                            <span>Native speaker or equivalent proficiency</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Important Note -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p class="text-sm text-yellow-800 flex items-start">
+                        <i data-feather="alert-triangle" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
+                        <span><strong>This step is required.</strong> You must add at least one language to continue. You can add more languages later in your profile.</span>
+                    </p>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex justify-between pt-8 border-t border-gray-200">
+                    <a href="{{ url_for('coach_onboarding', step=5) }}" class="btn-secondary px-6 py-3 rounded-lg transition-all duration-200">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back
+                    </a>
+                    
+                    <form method="POST" style="display: inline;">
+                        {{ form.hidden_tag() }}
+                        <input type="hidden" name="action" value="continue">
+                        <button type="submit" class="btn-primary px-6 py-3 rounded-lg transition-all duration-200 {% if not coach_profile.languages %}opacity-50{% endif %}" id="continue-btn" {% if not coach_profile.languages %}disabled{% endif %}>
+                            Next Step
+                            <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+                        </button>
+                    </form>
+                </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const languageSelect = document.getElementById('language');
+    const proficiencySelect = document.getElementById('proficiency');
+    const addLanguageBtn = document.getElementById('add-language-btn');
+    const continueBtn = document.getElementById('continue-btn');
+    const languageForm = document.getElementById('language-form');
+    const languagesList = document.getElementById('languages-list');
+    
+    function validateAddForm() {
+        const hasLanguage = languageSelect.value !== '';
+        const hasProficiency = proficiencySelect.value !== '';
+        
+        if (hasLanguage && hasProficiency) {
+            addLanguageBtn.disabled = false;
+            addLanguageBtn.classList.remove('opacity-50');
+        } else {
+            addLanguageBtn.disabled = true;
+            addLanguageBtn.classList.add('opacity-50');
+        }
+    }
+    
+    function updateContinueButton() {
+        const hasLanguages = document.querySelectorAll('.language-item').length > 0;
+        if (hasLanguages) {
+            continueBtn.disabled = false;
+            continueBtn.classList.remove('opacity-50');
+        } else {
+            continueBtn.disabled = true;
+            continueBtn.classList.add('opacity-50');
+        }
+    }
+    
+    function clearErrors() {
+        document.getElementById('language-error').classList.add('hidden');
+        document.getElementById('proficiency-error').classList.add('hidden');
+    }
+    
+    function showError(field, message) {
+        const errorDiv = document.getElementById(field + '-error');
+        const errorText = document.getElementById(field + '-error-text');
+        errorText.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+    
+    function addLanguageToList(languageData) {
+        // Create the language item HTML
+        const languageItem = document.createElement('div');
+        languageItem.className = 'language-item bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between';
+        languageItem.innerHTML = `
+            <div>
+                <span class="font-medium text-green-800">${languageData.language}</span>
+                <span class="text-sm text-green-600 ml-2">(${languageData.proficiency.charAt(0).toUpperCase() + languageData.proficiency.slice(1)})</span>
+            </div>
+            <button type="button" class="remove-language text-red-500 hover:text-red-700 transition-colors" data-language-id="${languageData.id}">
+                <i data-feather="x" class="w-4 h-4"></i>
+            </button>
+        `;
+        
+        // Check if this is the first language
+        const existingLanguages = languagesList.querySelector('.space-y-3');
+        if (!existingLanguages) {
+            // Create the languages container
+            const container = document.createElement('div');
+            container.className = 'space-y-3';
+            container.innerHTML = `
+                <h4 class="font-semibold text-gray-800 flex items-center">
+                    <i data-feather="check-circle" class="w-4 h-4 mr-2 text-green-600"></i>
+                    Your Languages
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            `;
+            languagesList.appendChild(container);
+        }
+        
+        // Add the language item to the grid
+        const grid = languagesList.querySelector('.grid');
+        grid.appendChild(languageItem);
+        
+        // Reinitialize feather icons for the new element
+        if (typeof feather !== 'undefined') {
+            feather.replace();
+        }
+        
+        // Update continue button state
+        updateContinueButton();
+    }
+    
+    function removeLanguageFromList(languageId) {
+        const languageItem = document.querySelector(`[data-language-id="${languageId}"]`).closest('.language-item');
+        if (languageItem) {
+            languageItem.remove();
+            
+            // Check if there are no more languages
+            const remainingLanguages = document.querySelectorAll('.language-item');
+            if (remainingLanguages.length === 0) {
+                const container = languagesList.querySelector('.space-y-3');
+                if (container) {
+                    container.remove();
+                }
+            }
+            
+            // Update continue button state
+            updateContinueButton();
+        }
+    }
+    
+    // Handle language addition
+    addLanguageBtn.addEventListener('click', function() {
+        clearErrors();
+        
+        const language = languageSelect.value;
+        const proficiency = proficiencySelect.value;
+        const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+        
+        if (!language || !proficiency) {
+            return;
+        }
+        
+        // Disable button during request
+        addLanguageBtn.disabled = true;
+        addLanguageBtn.classList.add('opacity-50');
+        
+        // Send AJAX request
+        fetch('{{ url_for("coach_onboarding", step=6) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=add_language&language=${encodeURIComponent(language)}&proficiency=${encodeURIComponent(proficiency)}&csrf_token=${encodeURIComponent(csrfToken)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add language to the list
+                addLanguageToList(data.language);
+                
+                // Clear form
+                languageSelect.value = '';
+                proficiencySelect.value = '';
+                validateAddForm();
+                
+                // Show success message (optional)
+                if (data.message) {
+                    // You could add a toast notification here
+                    console.log(data.message);
+                }
+            } else {
+                // Show errors
+                if (data.errors) {
+                    if (data.errors.language) {
+                        showError('language', data.errors.language[0]);
+                    }
+                    if (data.errors.proficiency) {
+                        showError('proficiency', data.errors.proficiency[0]);
+                    }
+                }
+                if (data.message) {
+                    // Show general error message
+                    console.error(data.message);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error adding language:', error);
+        })
+        .finally(() => {
+            // Re-enable button
+            addLanguageBtn.disabled = false;
+            addLanguageBtn.classList.remove('opacity-50');
+        });
+    });
+    
+    // Handle language removal
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.remove-language')) {
+            const languageId = e.target.closest('.remove-language').getAttribute('data-language-id');
+            const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+            
+            // Send request to remove language
+            fetch('{{ url_for("coach_onboarding", step=6) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=remove_language&language_id=' + languageId + '&csrf_token=' + encodeURIComponent(csrfToken)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    removeLanguageFromList(languageId);
+                } else {
+                    console.error('Error removing language:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error removing language:', error);
+            });
+        }
+    });
+    
+    languageSelect.addEventListener('change', validateAddForm);
+    proficiencySelect.addEventListener('change', validateAddForm);
+    
+    // Initial validation
+    validateAddForm();
+    updateContinueButton();
+});
+</script>
+{% endblock %}

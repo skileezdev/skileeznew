@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Language - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Edit Language</h1>
+                <p class="text-gray-600 mt-2">Update your language proficiency level</p>
+            </div>
+            <a href="{{ url_for('student_languages') }}" class="btn-secondary px-4 py-2 rounded-lg">
+                <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                Back to Languages
+            </a>
+        </div>
+
+        <!-- Edit Form -->
+        <div class="premium-card p-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+                <i data-feather="edit-2" class="w-5 h-5 mr-2 text-primary-600"></i>
+                Edit {{ language.language }}
+            </h2>
+            
+            <form method="POST" class="space-y-6">
+                {{ form.hidden_tag() }}
+                
+                <div>
+                    {{ form.language.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.language(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    {% if form.language.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.language.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    {{ form.proficiency.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ form.proficiency(class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                    {% if form.proficiency.errors %}
+                        <div class="mt-1 text-sm text-red-600">
+                            {% for error in form.proficiency.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Proficiency Guide -->
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-2 flex items-center text-sm">
+                        <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                        Proficiency Levels
+                    </h4>
+                    <div class="text-xs text-gray-600 space-y-1">
+                        <div><span class="font-medium">Basic:</span> Can understand and use basic phrases</div>
+                        <div><span class="font-medium">Conversational:</span> Can handle everyday conversations</div>
+                        <div><span class="font-medium">Fluent:</span> Can express complex ideas clearly</div>
+                        <div><span class="font-medium">Native:</span> Native speaker level</div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4 pt-6 border-t border-gray-200">
+                    <button type="submit" class="flex-1 btn-primary px-6 py-3 rounded-lg font-semibold transition-all duration-200">
+                        <i data-feather="save" class="w-4 h-4 mr-2"></i>
+                        Save Changes
+                    </button>
+                    <a href="{{ url_for('student_languages') }}" class="flex-1 btn-secondary px-6 py-3 rounded-lg font-semibold text-center transition-all duration-200">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    feather.replace();
+});
+</script>
+{% endblock %}

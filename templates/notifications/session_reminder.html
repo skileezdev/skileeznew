@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Reminder</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .session-info {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .session-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .session-details {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .time-until {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .time-until strong {
+            color: #856404;
+            font-size: 18px;
+        }
+        .action-buttons {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #667eea;
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        .tips {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .tips h3 {
+            color: #0066cc;
+            margin-top: 0;
+        }
+        .tips ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .tips li {
+            margin-bottom: 5px;
+        }
+        @media (max-width: 600px) {
+            .container {
+                margin: 0;
+                box-shadow: none;
+            }
+            .content {
+                padding: 20px 15px;
+            }
+            .header {
+                padding: 20px 15px;
+            }
+            .btn {
+                display: block;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 Session Reminder</h1>
+            <p>Your session is coming up soon!</p>
+        </div>
+        
+        <div class="content">
+            <div class="time-until">
+                <strong>⏰ Your session starts in {{ time_until }}</strong>
+            </div>
+            
+            <div class="session-info">
+                <div class="session-title">{{ session_title }}</div>
+                <div class="session-details">
+                    <strong>📅 Date & Time:</strong> {{ session_time }}
+                </div>
+                <div class="session-details">
+                    <strong>⏱️ Duration:</strong> {{ session_duration }} minutes
+                </div>
+            </div>
+            
+            <div class="tips">
+                <h3>💡 Before your session:</h3>
+                <ul>
+                    <li>Test your microphone and camera</li>
+                    <li>Find a quiet, well-lit space</li>
+                    <li>Have your questions ready</li>
+                    <li>Join 5 minutes early to ensure everything works</li>
+                </ul>
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ join_url }}" class="btn btn-primary">
+                    🚀 Join Session
+                </a>
+                <a href="{{ reschedule_url }}" class="btn btn-secondary">
+                    📝 Reschedule
+                </a>
+            </div>
+            
+            <p style="text-align: center; color: #666; margin-top: 30px;">
+                Need help? Contact our support team for assistance.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <p>This is an automated reminder from your booking system.</p>
+            <p>© 2024 Skileez. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

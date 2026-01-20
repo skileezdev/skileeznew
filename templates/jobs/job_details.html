@@ -1,0 +1,770 @@
+{% extends "base.html" %}
+
+{% block title %}{{ learning_request.title }} - Job Details - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="{{ url_for('find_work') }}" class="inline-flex items-center text-gray-600 hover:text-gray-800 transition-colors">
+                <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                Back to job search
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Job Header -->
+                <div class="premium-card p-6 mb-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex-grow">
+                            <h1 class="text-2xl font-bold text-gray-900 mb-3">{{ learning_request.title }}</h1>
+                            <div class="flex items-center space-x-4 text-gray-600 mb-4">
+                                <span class="flex items-center">
+                                    <i data-feather="dollar-sign" class="w-4 h-4 mr-1"></i>
+                                    ${{ "%.0f"|format(learning_request.budget or 0) }}
+                                </span>
+                                <span class="flex items-center">
+                                    <i data-feather="clock" class="w-4 h-4 mr-1"></i>
+                                    {{ learning_request.duration }}
+                                </span>
+                                <span class="flex items-center">
+                                    <i data-feather="bar-chart" class="w-4 h-4 mr-1"></i>
+                                    {{ learning_request.experience_level.title() }} Level
+                                </span>
+                                <span class="flex items-center">
+                                    <i data-feather="target" class="w-4 h-4 mr-1"></i>
+                                    {{ 'Quick Skill' if learning_request.skill_type == 'short_term' else 'Deep Skill' }}
+                                </span>
+                                <span class="flex items-center">
+                                    <i data-feather="calendar" class="w-4 h-4 mr-1"></i>
+                                    Posted {{ learning_request.created_at.strftime('%B %d, %Y') }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 ml-6">
+                            {% if not is_saved %}
+                            <a href="{{ url_for('save_job', job_id=learning_request.id) }}" 
+                               class="text-gray-400 hover:text-primary-600 transition-colors p-2">
+                                <i data-feather="bookmark" class="w-5 h-5"></i>
+                            </a>
+                            {% else %}
+                            <span class="text-primary-600 p-2">
+                                <i data-feather="bookmark" class="w-5 h-5 fill-current"></i>
+                            </span>
+                            {% endif %}
+                            <button class="text-gray-400 hover:text-primary-600 transition-colors p-2">
+                                <i data-feather="share-2" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Status Badge -->
+                    {% if learning_request.is_active %}
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
+                        <i data-feather="circle" class="w-3 h-3 mr-1 fill-current"></i>
+                        Accepting Proposals
+                    </div>
+                    {% else %}
+                    <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800 mb-4">
+                        Closed
+                    </div>
+                    {% endif %}
+
+                    <!-- Skills -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-3">Required Skills</h3>
+                        <div class="flex flex-wrap gap-2">
+                            {% for skill in learning_request.skills_needed.split(',') %}
+                            <span class="skill-badge">{{ skill.strip() }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Description -->
+                <div class="premium-card p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Project Description</h2>
+                    <div class="prose prose-gray max-w-none">
+                        <p class="text-gray-600 leading-relaxed whitespace-pre-line">{{ learning_request.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Screening Questions (if any) -->
+                {% if learning_request.screening_questions %}
+                <div class="premium-card p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Screening Questions</h2>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center text-yellow-800">
+                            <i data-feather="alert-triangle" class="w-4 h-4 mr-2"></i>
+                            <span class="text-sm font-medium">To apply for this job, you must answer all screening questions below.</span>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        {% for question in learning_request.screening_questions|sort(attribute='order_index') %}
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+                                    <span class="text-sm font-medium text-primary-600">{{ loop.index }}</span>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-gray-800 font-medium">{{ question.question_text }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Student Profile (Limited Info) -->
+                <div class="premium-card p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">Student Information</h2>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0">
+                            {% if learning_request.student.student_profile and learning_request.student.student_profile.profile_picture %}
+                            <img src="{{ learning_request.student.student_profile.profile_picture }}" alt="Student" class="w-16 h-16 rounded-full object-cover">
+                            {% else %}
+                            <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center">
+                                <i data-feather="user" class="w-8 h-8 text-primary-600"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">
+                                {{ learning_request.student.first_name }} {{ learning_request.student.last_name }}
+                            </h3>
+                            {% if learning_request.student.student_profile and learning_request.student.student_profile.country %}
+                            <div class="text-sm text-gray-600 mb-3">
+                                <i data-feather="map-pin" class="w-4 h-4 inline mr-1"></i>
+                                {{ learning_request.student.student_profile.country }}
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Check if current user is hired (has accepted proposal) -->
+                            {% set is_hired = false %}
+                            {% if get_current_user() and get_current_user().is_coach %}
+                                {% for proposal in proposals %}
+                                    {% if proposal.coach_id == get_current_user().id and proposal.status == 'accepted' %}
+                                        {% set is_hired = true %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if is_hired %}
+                                <!-- Show full profile access for hired coaches -->
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+                                    <div class="flex items-center text-green-700 mb-2">
+                                        <i data-feather="check-circle" class="w-4 h-4 mr-2"></i>
+                                        <span class="text-sm font-medium">You have access to this student's full profile</span>
+                                    </div>
+                                    <a href="{{ url_for('student_profile', student_id=learning_request.student.id) }}" 
+                                       class="text-sm text-green-600 hover:text-green-800 underline">
+                                        View complete student profile
+                                    </a>
+                                </div>
+                            {% else %}
+                                <!-- Privacy notice for non-hired coaches -->
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                    <div class="flex items-start text-gray-600">
+                                        <i data-feather="lock" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
+                                        <div class="text-sm">
+                                            <p class="font-medium mb-1">Student Profile Privacy</p>
+                                            <p>Full student profiles are only available to hired coaches. Submit a proposal to potentially gain access.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proposals Section -->
+                {% if proposals %}
+                <div class="premium-card p-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">
+                        {% if get_current_user() and get_current_user().current_role == 'student' and learning_request.student_id == get_current_user().id %}
+                            Received Proposals ({{ proposals|length }})
+                        {% else %}
+                            Other Proposals ({{ proposals|length }})
+                        {% endif %}
+                    </h2>
+                    <div class="space-y-4">
+                        {% for proposal in proposals[:3] %}
+                        <div class="border border-gray-200 rounded-lg p-4 proposal-item" 
+                             data-proposal-id="{{ proposal.id }}" 
+                             data-coach-id="{{ proposal.coach.id }}">
+                            <div class="flex items-start space-x-3">
+                                <div class="flex-shrink-0">
+                                    {% if proposal.coach.coach_profile.profile_picture %}
+                                    <img src="{{ proposal.coach.coach_profile.profile_picture }}" alt="Coach" class="w-10 h-10 rounded-full object-cover">
+                                    {% else %}
+                                    <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                                        <i data-feather="user" class="w-5 h-5 text-primary-600"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">
+                                                {{ proposal.coach.first_name }} {{ proposal.coach.last_name }}
+                                            </h4>
+                                            <div class="text-sm text-gray-600 mb-2">
+                                                ${{ "%.0f"|format(proposal.price_per_session) }}/session • 
+                                                {{ proposal.session_count }} sessions • 
+                                                {{ proposal.session_duration }} min each
+                                            </div>
+                                            {% if proposal.status != 'pending' %}
+                                            <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium 
+                                                {% if proposal.status == 'accepted' %}bg-green-100 text-green-800{% elif proposal.status == 'rejected' %}bg-red-100 text-red-800{% endif %}">
+                                                {{ proposal.status.title() }}
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="text-lg font-bold text-gray-900">
+                                                ${{ "%.0f"|format(proposal.total_price) }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">Total</div>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mb-3">{{ proposal.cover_letter[:150] }}...</p>
+                                    
+                                    <!-- Action buttons for students - COMPLETE WORKING VERSION -->
+                                    {% if get_current_user() and get_current_user().current_role == 'student' and learning_request.student_id == get_current_user().id and proposal.status == 'pending' %}
+
+                                    <div class="flex space-x-3" id="proposal-actions-{{ proposal.id }}">
+                                        <!-- Accept Button -->
+                                        <form method="POST" action="{{ url_for('accept_proposal', proposal_id=proposal.id) }}" 
+                                              class="flex-1" onsubmit="return handleProposalSubmit(event, 'accept', {{ proposal.id }})">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 proposal-btn"
+                                                    data-proposal-id="{{ proposal.id }}" data-action="accept">
+                                                <span class="btn-text">Accept Proposal</span>
+                                                <span class="btn-loading hidden">
+                                                    <svg class="animate-spin h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Accepting...
+                                                </span>
+                                            </button>
+                                        </form>
+                                        
+                                        <!-- Reject Button -->
+                                        <form method="POST" action="{{ url_for('reject_proposal', proposal_id=proposal.id) }}" 
+                                              class="flex-1" onsubmit="return handleProposalSubmit(event, 'reject', {{ proposal.id }})">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 proposal-btn"
+                                                    data-proposal-id="{{ proposal.id }}" data-action="reject">
+                                                <span class="btn-text">Reject</span>
+                                                <span class="btn-loading hidden">
+                                                    <svg class="animate-spin h-4 w-4 mr-2 inline" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                    Rejecting...
+                                                </span>
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    {% elif get_current_user() and get_current_user().current_role == 'student' and learning_request.student_id == get_current_user().id and proposal.status == 'accepted' %}
+                                    <!-- Accepted State -->
+                                    <div class="flex items-center space-x-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                            <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
+                                            Accepted
+                                        </span>
+                                        <a href="{{ url_for('coach_profile', coach_id=proposal.coach.id) }}" 
+                                           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            View Coach Profile
+                                        </a>
+                                        <a href="{{ url_for('conversation', user_id=proposal.coach.id) }}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                            Message Coach
+                                        </a>
+                                    </div>
+
+                                    {% elif get_current_user() and get_current_user().current_role == 'student' and learning_request.student_id == get_current_user().id and proposal.status == 'rejected' %}
+                                    <!-- Rejected State -->
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i data-feather="x-circle" class="w-4 h-4 mr-1"></i>
+                                        Rejected
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% if proposals|length > 3 %}
+                        <div class="text-center">
+                            <button class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                View all {{ proposals|length }} proposals
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Apply Section -->
+                {% if get_current_user() and get_current_user().is_coach %}
+                <div class="premium-card p-6 mb-6">
+                    {% if existing_proposal %}
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Your Proposal</h3>
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center text-green-700 mb-2">
+                            <i data-feather="check-circle" class="w-5 h-5 mr-2"></i>
+                            <span class="font-medium">Proposal Submitted</span>
+                        </div>
+                        <p class="text-sm text-green-600">
+                            You submitted a proposal on {{ existing_proposal.created_at.strftime('%B %d, %Y') }}
+                        </p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Your Rate:</span>
+                            <span class="font-medium">${{ "%.0f"|format(existing_proposal.price_per_session) }}/session</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Sessions:</span>
+                            <span class="font-medium">{{ existing_proposal.session_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-600">Total:</span>
+                            <span class="font-medium text-lg">${{ "%.0f"|format(existing_proposal.total_price) }}</span>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 btn-secondary px-4 py-3 rounded-lg">
+                        Edit Proposal
+                    </button>
+                    {% else %}
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Apply for this job</h3>
+                    <form method="POST" action="{{ url_for('submit_proposal', job_id=learning_request.id) }}" class="space-y-4">
+                        {{ proposal_form.hidden_tag() }}
+                        
+                        <!-- Screening Questions Answers (if any) -->
+                        {% if learning_request.screening_questions %}
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <h4 class="font-semibold text-blue-800 mb-3 flex items-center">
+                                <i data-feather="help-circle" class="w-4 h-4 mr-2"></i>
+                                Required Screening Questions
+                            </h4>
+                            <p class="text-sm text-blue-700 mb-4">Please answer all questions below to submit your proposal.</p>
+                            
+                            <div class="space-y-4">
+                                {% for question in learning_request.screening_questions|sort(attribute='order_index') %}
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <span class="inline-flex items-center">
+                                            <span class="w-5 h-5 bg-primary-100 rounded-full flex items-center justify-center mr-2 text-xs font-medium text-primary-600">{{ loop.index }}</span>
+                                            {{ question.question_text }}
+                                        </span>
+                                    </label>
+                                    {% set field_name = 'screening_answer_' + question.id|string %}
+                                    {% if proposal_form[field_name] %}
+                                        {{ proposal_form[field_name](class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="3") }}
+                                        {% if proposal_form[field_name].errors %}
+                                            {% for error in proposal_form[field_name].errors %}
+                                                <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Cover Letter</label>
+                            {{ proposal_form.cover_letter(class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none", rows="4", placeholder="Explain why you're the perfect fit for this project...") }}
+                            {% if proposal_form.cover_letter.errors %}
+                                {% for error in proposal_form.cover_letter.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Number of Sessions</label>
+                            {{ proposal_form.session_count(class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="5") }}
+                            {% if proposal_form.session_count.errors %}
+                                {% for error in proposal_form.session_count.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Price per Session ($)</label>
+                            {{ proposal_form.price_per_session(class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors", placeholder="50.00", step="0.01") }}
+                            {% if proposal_form.price_per_session.errors %}
+                                {% for error in proposal_form.price_per_session.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Session Duration (minutes)</label>
+                            {{ proposal_form.session_duration(class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors") }}
+                            {% if proposal_form.session_duration.errors %}
+                                {% for error in proposal_form.session_duration.errors %}
+                                    <p class="text-red-500 text-xs mt-1">{{ error }}</p>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4">
+                            <div class="text-center">
+                                <div class="text-sm text-gray-600 mb-1">Total Project Value</div>
+                                <div class="text-2xl font-bold text-gray-900" id="total-price">$0</div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full btn-primary px-4 py-3 rounded-lg">
+                            Submit Proposal
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="premium-card p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Apply for this job</h3>
+                    <div class="text-center py-6">
+                        <i data-feather="user-check" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                        <p class="text-gray-600 mb-4">You need to be a coach to apply for this job.</p>
+                        <a href="{{ url_for('signup') }}" class="btn-primary px-6 py-3 rounded-lg">
+                            Become a Coach
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Job Stats -->
+                <div class="premium-card p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Job Activity</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Proposals</span>
+                            <span class="font-medium">{{ learning_request.proposals|length }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Views</span>
+                            <span class="font-medium">156</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Saved</span>
+                            <span class="font-medium">23</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Interviewing</span>
+                            <span class="font-medium">2</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Similar Jobs -->
+                <div class="premium-card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Similar Jobs</h3>
+                    <div class="space-y-4">
+                        <!-- Sample similar jobs -->
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <h4 class="font-medium text-gray-900 text-sm mb-1">
+                                <a href="#" class="hover:text-primary-600">Learn JavaScript Fundamentals</a>
+                            </h4>
+                            <div class="text-xs text-gray-500 mb-2">$300 • 2 weeks</div>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-badge text-xs">JavaScript</span>
+                                <span class="skill-badge text-xs">HTML</span>
+                            </div>
+                        </div>
+                        
+                        <div class="border border-gray-200 rounded-lg p-3">
+                            <h4 class="font-medium text-gray-900 text-sm mb-1">
+                                <a href="#" class="hover:text-primary-600">Master React Development</a>
+                            </h4>
+                            <div class="text-xs text-gray-500 mb-2">$800 • 1 month</div>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="skill-badge text-xs">React</span>
+                                <span class="skill-badge text-xs">JavaScript</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="{{ url_for('find_work') }}" class="block text-center text-primary-600 hover:text-primary-700 text-sm font-medium mt-4">
+                        View more similar jobs →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Global variable to prevent double submissions
+let submittingProposals = new Set();
+
+function handleProposalSubmit(event, action, proposalId) {
+    event.preventDefault();
+    
+    // Prevent double submissions
+    if (submittingProposals.has(proposalId)) {
+        console.log('Already processing proposal', proposalId);
+        return false;
+    }
+    
+    const form = event.target;
+    const button = form.querySelector('button');
+    
+    // Show confirmation
+    const actionText = action === 'accept' ? 'accept' : 'reject';
+    const confirmMessage = action === 'accept' 
+        ? 'Are you sure you want to accept this proposal? This will automatically reject all other proposals for this job.'
+        : 'Are you sure you want to reject this proposal?';
+    
+    if (!confirm(confirmMessage)) {
+        return false;
+    }
+    
+    // Add to processing set
+    submittingProposals.add(proposalId);
+    
+    // Show loading state
+    setButtonLoading(button, action === 'accept' ? 'Accepting...' : 'Rejecting...');
+    
+    // Disable all proposal buttons for this job
+    disableAllProposalButtons();
+    
+    // Get form data
+    const formData = new FormData(form);
+    
+    // Submit using fetch for better error handling
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        // Check if response is JSON or HTML
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json();
+        } else {
+            // If HTML response, it might be a redirect or error page
+            // For now, assume success and reload
+            window.location.reload();
+            return { success: true };
+        }
+    })
+    .then(data => {
+        submittingProposals.delete(proposalId);
+        
+        if (data.success || !data.hasOwnProperty('success')) {
+            // Success - show notification and update UI
+            showNotification(
+                action === 'accept' 
+                    ? 'Proposal accepted successfully! You can now communicate with your coach.' 
+                    : 'Proposal rejected.',
+                action === 'accept' ? 'success' : 'info'
+            );
+            
+            // Update the UI
+            updateProposalStatus(proposalId, action === 'accept' ? 'accepted' : 'rejected', data.coach_id);
+            
+            // For accepted proposals, reload page to show all updates
+            if (action === 'accept') {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+            
+        } else {
+            throw new Error(data.error || `Failed to ${actionText} proposal`);
+        }
+    })
+    .catch(error => {
+        submittingProposals.delete(proposalId);
+        console.error(`Error ${actionText}ing proposal:`, error);
+        
+        // Reset button state
+        resetButtonState(button, action === 'accept' ? 'Accept Proposal' : 'Reject');
+        enableAllProposalButtons();
+        
+        // Show error notification
+        showNotification(
+            `Failed to ${actionText} proposal: ${error.message}`, 
+            'error'
+        );
+    });
+    
+    return false;
+}
+
+function setButtonLoading(button, loadingText) {
+    const btnText = button.querySelector('.btn-text');
+    const btnLoading = button.querySelector('.btn-loading');
+    
+    if (btnText && btnLoading) {
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden');
+    }
+    
+    button.disabled = true;
+    button.classList.add('opacity-75', 'cursor-not-allowed');
+}
+
+function resetButtonState(button, originalText) {
+    const btnText = button.querySelector('.btn-text');
+    const btnLoading = button.querySelector('.btn-loading');
+    
+    if (btnText && btnLoading) {
+        btnText.classList.remove('hidden');
+        btnLoading.classList.add('hidden');
+        btnText.textContent = originalText;
+    }
+    
+    button.disabled = false;
+    button.classList.remove('opacity-75', 'cursor-not-allowed');
+}
+
+function disableAllProposalButtons() {
+    document.querySelectorAll('.proposal-btn').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+    });
+}
+
+function enableAllProposalButtons() {
+    document.querySelectorAll('.proposal-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('opacity-50');
+    });
+}
+
+function updateProposalStatus(proposalId, status, coachId = null) {
+    const actionsDiv = document.getElementById(`proposal-actions-${proposalId}`);
+    if (!actionsDiv) return;
+    
+    // Create status display
+    let statusHTML = '';
+    
+    if (status === 'accepted') {
+        statusHTML = `
+            <div class="flex items-center space-x-2">
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                    <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
+                    Accepted
+                </span>
+                ${coachId ? `
+                <a href="/coach/${coachId}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    View Coach Profile
+                </a>
+                <a href="/messages/${coachId}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Message Coach
+                </a>
+                ` : ''}
+            </div>
+        `;
+    } else if (status === 'rejected') {
+        statusHTML = `
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                <i data-feather="x-circle" class="w-4 h-4 mr-1"></i>
+                Rejected
+            </span>
+        `;
+    }
+    
+    actionsDiv.innerHTML = statusHTML;
+    
+    // Re-initialize feather icons
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = 'notification fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transform transition-all duration-300';
+    
+    // Set colors based on type
+    const colors = {
+        success: 'bg-green-500 text-white',
+        error: 'bg-red-500 text-white',
+        info: 'bg-blue-500 text-white',
+        warning: 'bg-yellow-500 text-black'
+    };
+    
+    notification.className += ` ${colors[type] || colors.info}`;
+    
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <span class="flex-1">${message}</span>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-2 hover:opacity-75">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Proposal management system initialized');
+    
+    // Clear any stuck submissions on page load
+    submittingProposals.clear();
+    
+    // Price calculation functionality
+    const sessionCountInput = document.querySelector('input[name="session_count"]');
+    const pricePerSessionInput = document.querySelector('input[name="price_per_session"]');
+    const totalPriceElement = document.getElementById('total-price');
+
+    function updateTotalPrice() {
+        const sessionCount = parseFloat(sessionCountInput?.value || 0);
+        const pricePerSession = parseFloat(pricePerSessionInput?.value || 0);
+        const totalPrice = sessionCount * pricePerSession;
+        
+        if (totalPriceElement) {
+            totalPriceElement.textContent = '$' + totalPrice.toFixed(0);
+        }
+    }
+
+    sessionCountInput?.addEventListener('input', updateTotalPrice);
+    pricePerSessionInput?.addEventListener('input', updateTotalPrice);
+
+    // Initial calculation
+    updateTotalPrice();
+});
+</script>
+{% endblock %}

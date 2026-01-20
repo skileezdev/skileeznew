@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Job Post - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ learning_request.title }}</h1>
+                    <p class="mt-2 text-gray-600">Manage your job post and review proposals</p>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ url_for('edit_job', job_id=learning_request.id) }}" class="btn-secondary px-4 py-2 rounded-lg">
+                        <i data-feather="edit" class="w-4 h-4 mr-2"></i>
+                        Edit Post
+                    </a>
+                    <a href="{{ url_for('student_dashboard') }}" class="btn-secondary px-4 py-2 rounded-lg">
+                        <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Job Details -->
+            <div class="lg:col-span-2">
+                <!-- Job Information -->
+                <div class="premium-card p-6 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-900">Job Details</h2>
+                        {% if learning_request.is_active %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <i data-feather="circle" class="w-3 h-3 mr-1 fill-current"></i>
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                            Closed
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="font-semibold text-gray-900 mb-2">Description</h3>
+                            <p class="text-gray-600">{{ learning_request.description }}</p>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-1">Budget</h4>
+                                <p class="text-gray-600">${{ "%.0f"|format(learning_request.budget or 0) }}</p>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-1">Duration</h4>
+                                <p class="text-gray-600">{{ learning_request.duration }}</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-2">Skills Needed</h4>
+                            <div class="flex flex-wrap gap-2">
+                                {% for skill in learning_request.skills_needed.split(',')[:6] %}
+                                <span class="skill-badge">{{ skill.strip() }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {% if learning_request.screening_questions %}
+                        <div>
+                            <h4 class="font-medium text-gray-900 mb-2">Screening Questions</h4>
+                            <div class="space-y-2">
+                                {% for question in learning_request.screening_questions %}
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-sm text-gray-700">{{ loop.index }}. {{ question.question_text }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Proposals Section -->
+                <div class="premium-card p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">
+                            Proposals ({{ proposals|length }})
+                        </h2>
+                    </div>
+
+                    {% if proposals %}
+                        <div class="space-y-6">
+                            {% for proposal in proposals %}
+                            <div class="border border-gray-200 rounded-lg p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center space-x-4">
+                                        {% if proposal.coach.coach_profile.profile_picture %}
+                                        <img src="{{ proposal.coach.coach_profile.profile_picture }}" alt="Coach" class="w-12 h-12 rounded-full object-cover">
+                                        {% else %}
+                                        <div class="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
+                                            <i data-feather="user" class="w-6 h-6 text-primary-600"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <h3 class="font-semibold text-gray-900">
+                                                <a href="{{ url_for('coach_profile', coach_id=proposal.coach.id) }}" class="hover:text-primary-600">
+                                                    {{ proposal.coach.first_name }} {{ proposal.coach.last_name }}
+                                                </a>
+                                            </h3>
+                                            <p class="text-sm text-gray-600">{{ proposal.coach.coach_profile.coach_title or 'Professional Coach' }}</p>
+                                            {% if proposal.coach.coach_profile.rating > 0 %}
+                                            <div class="flex items-center mt-1">
+                                                <div class="flex items-center">
+                                                    {% for i in range(5) %}
+                                                        {% if i < proposal.coach.coach_profile.rating %}
+                                                        <i data-feather="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
+                                                        {% else %}
+                                                        <i data-feather="star" class="w-4 h-4 text-gray-300"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <span class="ml-1 text-sm text-gray-600">{{ "%.1f"|format(proposal.coach.coach_profile.rating) }}</span>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-lg font-semibold text-gray-900">
+                                            ${{ "%.0f"|format(proposal.price_per_session) }}/session
+                                        </div>
+                                        <div class="text-sm text-gray-600">
+                                            {{ proposal.session_count }} sessions • Total: ${{ "%.0f"|format(proposal.total_price) }}
+                                        </div>
+                                        {% if proposal.status == 'pending' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
+                                            Pending
+                                        </span>
+                                        {% elif proposal.status == 'accepted' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mt-2">
+                                            Accepted
+                                        </span>
+                                        {% elif proposal.status == 'rejected' %}
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mt-2">
+                                            Rejected
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-900 mb-2">Cover Letter</h4>
+                                    <p class="text-gray-600 text-sm">{{ proposal.cover_letter }}</p>
+                                </div>
+
+                                {% if proposal.screening_answers %}
+                                <div class="mb-4">
+                                    <h4 class="font-medium text-gray-900 mb-2">Screening Answers</h4>
+                                    <div class="space-y-3">
+                                        {% for answer in proposal.screening_answers %}
+                                        <div class="bg-gray-50 p-3 rounded-lg">
+                                            <p class="text-sm font-medium text-gray-900 mb-1">{{ answer.screening_question.question_text }}</p>
+                                            <p class="text-sm text-gray-600">{{ answer.answer_text }}</p>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if proposal.status == 'pending' %}
+                                <div class="flex items-center space-x-3 pt-4 border-t border-gray-200">
+                                    <!-- Accept Form -->
+                                    <form method="POST" action="{{ url_for('accept_proposal', proposal_id=proposal.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" 
+                                                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                                                onclick="return confirm('Are you sure you want to accept this proposal? This will reject all other proposals for this job.')">
+                                            <i data-feather="check" class="w-4 h-4 mr-1"></i>
+                                            Accept Proposal
+                                        </button>
+                                    </form>
+
+                                    <!-- Reject Form -->
+                                    <form method="POST" action="{{ url_for('reject_proposal', proposal_id=proposal.id) }}" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                        <button type="submit" 
+                                                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium inline-flex items-center transition-colors"
+                                                onclick="return confirm('Are you sure you want to reject this proposal?')">
+                                            <i data-feather="x" class="w-4 h-4 mr-1"></i>
+                                            Reject
+                                        </button>
+                                    </form>
+
+                                    <a href="{{ url_for('coach_profile', coach_id=proposal.coach.id) }}" 
+                                       class="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center">
+                                        <i data-feather="user" class="w-4 h-4 mr-1"></i>
+                                        View Profile
+                                    </a>
+                                </div>
+                                {% elif proposal.status == 'accepted' %}
+                                <div class="pt-4 border-t border-gray-200">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                        <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
+                                        Accepted
+                                    </span>
+                                </div>
+                                {% elif proposal.status == 'rejected' %}
+                                <div class="pt-4 border-t border-gray-200">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                                        <i data-feather="x-circle" class="w-4 h-4 mr-1"></i>
+                                        Rejected
+                                    </span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12">
+                            <i data-feather="inbox" class="w-16 h-16 text-gray-400 mx-auto mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-900 mb-2">No proposals yet</h3>
+                            <p class="text-gray-600 mb-6">Your job post is live. Coaches will start submitting proposals soon.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Job Statistics -->
+                <div class="premium-card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistics</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Total Proposals</span>
+                            <span class="font-semibold text-gray-900">{{ proposals|length }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Pending</span>
+                            <span class="font-semibold text-yellow-600">{{ proposals|selectattr('status', 'equalto', 'pending')|list|length }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Accepted</span>
+                            <span class="font-semibold text-green-600">{{ proposals|selectattr('status', 'equalto', 'accepted')|list|length }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-600">Posted</span>
+                            <span class="font-semibold text-gray-900">{{ learning_request.created_at.strftime('%B %d, %Y') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="premium-card p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                    <div class="space-y-3">
+                        <a href="{{ url_for('edit_job', job_id=learning_request.id) }}" class="w-full btn-primary px-4 py-3 rounded-lg text-center flex items-center justify-center">
+                            <i data-feather="edit" class="w-4 h-4 mr-2"></i>
+                            Edit Job Post
+                        </a>
+                        {% if learning_request.is_active %}
+                        <button onclick="toggleJobStatus({{ learning_request.id }}, false)" class="w-full border-2 border-gray-300 text-gray-600 px-4 py-3 rounded-lg font-semibold hover:border-gray-400 transition-all duration-200 text-center flex items-center justify-center">
+                            <i data-feather="pause" class="w-4 h-4 mr-2"></i>
+                            Pause Job
+                        </button>
+                        {% else %}
+                        <button onclick="toggleJobStatus({{ learning_request.id }}, true)" class="w-full border-2 border-green-300 text-green-600 px-4 py-3 rounded-lg font-semibold hover:border-green-400 transition-all duration-200 text-center flex items-center justify-center">
+                            <i data-feather="play" class="w-4 h-4 mr-2"></i>
+                            Reactivate Job
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('inbox') }}" class="w-full border-2 border-gray-300 text-gray-600 px-4 py-3 rounded-lg font-semibold hover:border-gray-400 transition-all duration-200 text-center flex items-center justify-center">
+                            <i data-feather="message-circle" class="w-4 h-4 mr-2"></i>
+                            Messages
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleJobStatus(jobId, activate) {
+    const action = activate ? 'activate' : 'deactivate';
+    const message = activate ? 'reactivate this job post' : 'pause this job post';
+    
+    if (confirm(`Are you sure you want to ${message}?`)) {
+        // You can implement this functionality later
+        alert('This feature will be implemented soon.');
+    }
+}
+</script>
+{% endblock %}

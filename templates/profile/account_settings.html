@@ -1,0 +1,576 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings - Skileez{% endblock %}
+
+{% block head %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Modern Header -->
+        <div class="mb-8">
+            <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-r from-gray-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
+                    <i data-feather="settings" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Account Settings</h1>
+                    <p class="text-gray-600 mt-1">Manage your account security and preferences</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <!-- Settings Navigation -->
+            <div class="w-full lg:w-80 flex-shrink-0">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 lg:sticky lg:top-8 max-h-[calc(100vh-40px)] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                        <i data-feather="shield" class="w-5 h-5 mr-2 text-gray-600"></i>
+                        Settings
+                    </h3>
+
+                    <nav class="space-y-2">
+                        <a href="#email" class="settings-nav-link active group" data-section="email">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-gray-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                                    <i data-feather="mail" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <span class="font-medium">Email Address</span>
+                            </div>
+                        </a>
+
+                        <a href="#password-change" class="settings-nav-link group" data-section="password-change">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-gray-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-200 transition-colors">
+                                    <i data-feather="lock" class="w-4 h-4 text-green-600"></i>
+                                </div>
+                                <span class="font-medium">Change Password</span>
+                            </div>
+                        </a>
+
+                        <a href="#timezone" class="settings-nav-link group" data-section="timezone">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-gray-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-blue-200 transition-colors">
+                                    <i data-feather="clock" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <span class="font-medium">Timezone</span>
+                            </div>
+                        </a>
+
+                        <a href="#account" class="settings-nav-link group" data-section="account">
+                            <div class="flex items-center p-3 rounded-xl transition-all duration-200 group-hover:bg-gray-50 group-hover:shadow-sm">
+                                <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3 group-hover:bg-red-200 transition-colors">
+                                    <i data-feather="alert-triangle" class="w-4 h-4 text-red-600"></i>
+                                </div>
+                                <span class="font-medium">Account Actions</span>
+                            </div>
+                        </a>
+                    </nav>
+
+                    <!-- Account Info Card -->
+                    <div class="mt-8 p-4 bg-gradient-to-r from-primary-50 to-purple-50 border border-primary-200 rounded-xl">
+                        <h4 class="font-semibold text-primary-800 mb-3 flex items-center">
+                            <i data-feather="user" class="w-4 h-4 mr-2"></i>
+                            Account Info
+                        </h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between items-start">
+                                <span class="text-gray-600 flex-shrink-0 mr-2">Name:</span>
+                                <span class="font-medium text-right break-words">{{ user.first_name }} {{ user.last_name }}</span>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-gray-600 flex-shrink-0 mr-2">Email:</span>
+                                <span class="font-medium text-right break-all">{{ user.email }}</span>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-gray-600 flex-shrink-0 mr-2">Member since:</span>
+                                <span class="font-medium text-right">{{ user.created_at|format_datetime('date_only') if user.created_at else 'N/A' }}</span>
+                            </div>
+                            <div class="flex justify-between items-start">
+                                <span class="text-gray-600 flex-shrink-0 mr-2">Timezone:</span>
+                                <span class="font-medium text-right">{{ user.timezone or 'UTC' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Content -->
+            <div class="flex-1 space-y-6">
+                <!-- Email Settings -->
+                <div id="email" class="settings-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="mail" class="w-5 h-5 mr-3"></i>
+                                Change Email Address
+                            </h2>
+                        </div>
+
+                        <div class="p-6">
+                            <!-- Email Status Information -->
+                            {% if user.new_email and user.email_change_token %}
+                            <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                                <div class="flex items-start space-x-3">
+                                    <i data-feather="clock" class="w-5 h-5 text-yellow-600 mt-0.5"></i>
+                                    <div>
+                                        <h4 class="text-sm font-semibold text-yellow-800 mb-1">Pending Email Change</h4>
+                                        <p class="text-sm text-yellow-700 mb-2">You have a pending email change to: <span class="font-medium">{{ user.new_email }}</span></p>
+                                        <p class="text-sm text-yellow-600">Please check your email and click the verification link to complete the change. The link will expire in 24 hours.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <form method="POST" class="space-y-6">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="hidden" name="action" value="change_email"/>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Current Email</label>
+                                        <div class="px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-600">
+                                            {{ user.email }}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label for="new_email" class="block text-sm font-semibold text-gray-700 mb-2">New Email Address</label>
+                                        <input type="email" id="new_email" name="new_email" required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                               placeholder="Enter your new email address"
+                                               {% if user.new_email and user.email_change_token %}disabled{% endif %}>
+                                        {% if user.new_email and user.email_change_token %}
+                                        <p class="text-sm text-gray-500 mt-1">Please complete your pending email change first.</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div>
+                                        <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                                        <input type="password" id="password" name="password" required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                               placeholder="Enter your current password"
+                                               {% if user.new_email and user.email_change_token %}disabled{% endif %}>
+                                    </div>
+                                </div>
+
+                                <button type="submit" 
+                                        class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 {% if user.new_email and user.email_change_token %}opacity-50 cursor-not-allowed{% endif %}"
+                                        {% if user.new_email and user.email_change_token %}disabled{% endif %}>
+                                    <i data-feather="save" class="w-4 h-4 mr-2 inline"></i>
+                                    {% if user.new_email and user.email_change_token %}
+                                    Email Change Pending
+                                    {% else %}
+                                    Request Email Change
+                                    {% endif %}
+                                </button>
+                            </form>
+
+                            <!-- Email Change Process Information -->
+                            <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                <h4 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                                    <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                                    How Email Changes Work
+                                </h4>
+                                <div class="text-sm text-blue-700 space-y-1">
+                                    <p>• Enter your new email address and current password</p>
+                                    <p>• A verification email will be sent to your new email address</p>
+                                    <p>• Click the verification link in the email to complete the change</p>
+                                    <p>• Your email will be updated only after verification</p>
+                                    <p>• Verification links expire after 24 hours</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Password Settings -->
+                <div id="password-change" class="settings-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="lock" class="w-5 h-5 mr-3"></i>
+                                Change Password
+                            </h2>
+                        </div>
+
+                        <div class="p-6">
+                            <form method="POST" class="space-y-6">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                <input type="hidden" name="action" value="change_password"/>
+
+                                <div class="space-y-4">
+                                    <div>
+                                        <label for="current_password" class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                                        <input type="password" id="current_password" name="current_password" required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                               placeholder="Enter your current password">
+                                    </div>
+
+                                    <div>
+                                        <label for="new_password" class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                                        <input type="password" id="new_password" name="new_password" required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                               placeholder="Enter your new password">
+                                    </div>
+
+                                    <div>
+                                        <label for="confirm_password" class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+                                        <input type="password" id="confirm_password" name="confirm_password" required
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-gray-50 hover:bg-white"
+                                               placeholder="Confirm your new password">
+                                    </div>
+                                </div>
+
+                                <button type="submit" 
+                                        class="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl hover:from-green-700 hover:to-green-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                    <i data-feather="save" class="w-4 h-4 mr-2 inline"></i>
+                                    Change Password
+                                </button>
+                            </form>
+
+                            <!-- Password Change Information -->
+                            <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                                <h4 class="text-sm font-semibold text-green-800 mb-2 flex items-center">
+                                    <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                                    Password Requirements
+                                </h4>
+                                <div class="text-sm text-green-700 space-y-1">
+                                    <p>• Password must be at least 8 characters long</p>
+                                    <p>• Include a mix of uppercase and lowercase letters</p>
+                                    <p>• Include at least one number</p>
+                                    <p>• Include at least one special character</p>
+                                    <p>• Your new password must be different from your current password</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timezone Settings -->
+                <div id="timezone" class="settings-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="clock" class="w-5 h-5 mr-3"></i>
+                                Timezone Settings
+                            </h2>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="space-y-6">
+                                <!-- Current Timezone -->
+                                <div class="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <h3 class="text-lg font-semibold text-blue-800 mb-2 flex items-center">
+                                        <i data-feather="map-pin" class="w-5 h-5 mr-2"></i>
+                                        Current Timezone
+                                    </h3>
+                                    <p class="text-blue-700 text-sm mb-4">
+                                        Your current timezone: <strong>{{ user.timezone or 'UTC' }}</strong>
+                                    </p>
+                                    <p class="text-blue-700 text-sm">
+                                        All times will be displayed in your local timezone.
+                                    </p>
+                                </div>
+
+                                <!-- Update Timezone -->
+                                <form method="POST" action="{{ url_for('update_timezone') }}" class="space-y-6">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                    
+                                    <div>
+                                        <label for="timezone-select" class="block text-sm font-semibold text-gray-700 mb-2">Select Your Timezone</label>
+                                        <select id="timezone-select" name="timezone" required
+                                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-gray-50 hover:bg-white">
+                                            {% for tz_code, tz_name in get_available_timezones() %}
+                                                <option value="{{ tz_code }}" {% if tz_code == user.timezone %}selected{% endif %}>
+                                                    {{ tz_name }} ({{ tz_code }})
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                        
+                                        <!-- Timezone Detection Message -->
+                                        <div id="timezone-detection-message" class="hidden mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                            <div class="flex items-center">
+                                                <i data-feather="check-circle" class="w-5 h-5 text-green-600 mr-2"></i>
+                                                <span class="text-green-800 text-sm">
+                                                    Auto-detected timezone: <strong id="detected-timezone-name"></strong>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Manual Selection Button -->
+                                        <button type="button" id="manual-timezone-btn" class="hidden mt-2 text-sm text-blue-600 hover:text-blue-800 underline">
+                                            Choose different timezone
+                                        </button>
+                                    </div>
+
+                                    <button type="submit" 
+                                            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                                        <i data-feather="save" class="w-4 h-4 mr-2 inline"></i>
+                                        Update Timezone
+                                    </button>
+                                </form>
+
+                                <!-- Timezone Information -->
+                                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <h4 class="text-sm font-semibold text-blue-800 mb-2 flex items-center">
+                                        <i data-feather="info" class="w-4 h-4 mr-2"></i>
+                                        About Timezone Settings
+                                    </h4>
+                                    <div class="text-sm text-blue-700 space-y-1">
+                                        <p>• All times will be displayed in your local timezone</p>
+                                        <p>• Session times, message timestamps, and notifications will be converted automatically</p>
+                                        <p>• You can change your timezone at any time</p>
+                                        <p>• Daylight saving time is handled automatically</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div id="account" class="settings-section-content hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-red-600 to-red-700 px-6 py-4">
+                            <h2 class="text-xl font-bold text-white flex items-center">
+                                <i data-feather="alert-triangle" class="w-5 h-5 mr-3"></i>
+                                Account Actions
+                            </h2>
+                        </div>
+
+                        <div class="p-6">
+                            <div class="space-y-6">
+                                <!-- Deactivate Account -->
+                                <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                                    <h3 class="text-lg font-semibold text-yellow-800 mb-2 flex items-center">
+                                        <i data-feather="pause-circle" class="w-5 h-5 mr-2"></i>
+                                        Deactivate Account
+                                    </h3>
+                                    <p class="text-yellow-700 text-sm mb-4">
+                                        Temporarily disable your account. You can reactivate it later by logging in.
+                                    </p>
+                                    <button class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors font-medium">
+                                        Deactivate Account
+                                    </button>
+                                </div>
+
+                                <!-- Delete Account -->
+                                <div class="p-4 bg-red-50 border border-red-200 rounded-xl">
+                                    <h3 class="text-lg font-semibold text-red-800 mb-2 flex items-center">
+                                        <i data-feather="trash-2" class="w-5 h-5 mr-2"></i>
+                                        Delete Account
+                                    </h3>
+                                    <p class="text-red-700 text-sm mb-4">
+                                        Permanently delete your account and all associated data. This action cannot be undone.
+                                    </p>
+
+                                    <button onclick="showDeleteModal()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                                        Delete Account
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4">
+        <div class="p-6">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                    <i data-feather="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900">Delete Account</h3>
+                    <p class="text-gray-600 text-sm">This action cannot be undone</p>
+                </div>
+            </div>
+
+            <p class="text-gray-700 mb-6">
+                Are you sure you want to permanently delete your account? All your data, including profile information, messages, and activity history will be permanently removed.
+            </p>
+
+            <form method="POST" class="space-y-4">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="action" value="delete_account"/>
+
+                <div>
+                    <label for="delete_password" class="block text-sm font-semibold text-gray-700 mb-2">Enter your password to confirm</label>
+                    <input type="password" id="delete_password" name="delete_password" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200"
+                           placeholder="Enter your password">
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="button" onclick="hideDeleteModal()" 
+                            class="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors font-medium">
+                        Delete Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+/* CSS Override to ensure hidden sections can be shown */
+.settings-section-content.hidden {
+    display: none !important;
+}
+
+.settings-section-content:not(.hidden) {
+    display: block !important;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🔧 Account settings page loaded - VERSION 2.0');
+    
+    const navLinks = document.querySelectorAll('.settings-nav-link');
+    const sections = document.querySelectorAll('.settings-section-content');
+    
+    console.log(`📊 Found ${navLinks.length} nav links`);
+    console.log(`📊 Found ${sections.length} sections`);
+
+    // Debug: Log all sections
+    sections.forEach(section => {
+        console.log(`🔍 Section: ${section.id}, Hidden: ${section.classList.contains('hidden')}`);
+    });
+
+    // Debug: Log all nav links and their data-sections
+    navLinks.forEach(link => {
+        const section = link.getAttribute('data-section');
+        console.log(`🔗 Nav link: ${link.textContent.trim()} -> data-section="${section}"`);
+    });
+
+    // Show email section by default
+    const emailSection = document.getElementById('email');
+    if (emailSection) {
+        emailSection.classList.remove('hidden');
+        console.log('✅ Email section unhidden');
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const sectionName = this.getAttribute('data-section');
+            console.log(`🖱️ Nav link clicked: ${sectionName}`);
+
+            // Remove active class from all links
+            navLinks.forEach(l => l.classList.remove('active'));
+
+            // Add active class to clicked link
+            this.classList.add('active');
+
+            // Hide all sections
+            sections.forEach(section => {
+                section.classList.add('hidden');
+                console.log(`🙈 Hiding section: ${section.id}`);
+            });
+
+            // Show target section
+            const targetElement = document.getElementById(sectionName);
+            
+            if (targetElement) {
+                targetElement.classList.remove('hidden');
+                console.log(`✅ Showing section: ${sectionName}`);
+                console.log(`🔍 Section ${sectionName} hidden class: ${targetElement.classList.contains('hidden')}`);
+                
+                // Force display if still hidden
+                if (targetElement.classList.contains('hidden')) {
+                    targetElement.style.display = 'block';
+                    console.log(`🚨 Force displayed section: ${sectionName}`);
+                }
+            } else {
+                console.error(`❌ ERROR: Target section not found: ${sectionName}`);
+            }
+        });
+    });
+    
+    // Initialize first tab as active
+    const firstLink = document.querySelector('.settings-nav-link');
+    if (firstLink) {
+        firstLink.classList.add('active');
+        console.log('✅ First link set as active');
+    }
+    
+    // Initialize timezone detection
+    const timezoneDetector = new TimezoneDetector({
+        selectId: 'timezone-select',
+        messageId: 'timezone-detection-message',
+        detectedNameId: 'detected-timezone-name',
+        manualBtnId: 'manual-timezone-btn',
+        showCurrentTime: true,
+        autoHide: true
+    });
+
+    // Listen for timezone detection events
+    document.addEventListener('timezoneDetector:timezoneDetected', function(e) {
+        console.log('Timezone detected in settings:', e.detail);
+    });
+
+    document.addEventListener('timezoneDetector:manualOverride', function(e) {
+        console.log('User chose manual timezone selection in settings');
+    });
+
+    // Handle timezone form submission
+    const timezoneForm = document.querySelector('form[action="{{ url_for("update_timezone") }}"]');
+    if (timezoneForm) {
+        timezoneForm.addEventListener('submit', function(e) {
+            const submitBtn = timezoneForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            // Show loading state
+            submitBtn.innerHTML = '<i data-feather="loader" class="w-4 h-4 mr-2 inline animate-spin"></i>Updating...';
+            submitBtn.disabled = true;
+            
+            // Re-initialize feather icons for the loading spinner
+            if (typeof feather !== 'undefined') {
+                feather.replace();
+            }
+        });
+    }
+});
+
+function showDeleteModal() {
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function hideDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteModal = document.getElementById('deleteModal');
+    if (deleteModal) {
+        deleteModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideDeleteModal();
+            }
+        });
+    }
+});
+
+
+</script>
+
+<!-- Timezone Detection Script -->
+<script src="{{ url_for('static', filename='js/timezone-detection.js') }}"></script>
+
+{% endblock %} 

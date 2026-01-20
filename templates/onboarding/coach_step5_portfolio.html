@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+
+{% block title %}Coach Onboarding - Step 5 - Skileez{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Progress Bar -->
+        <div class="mb-8">
+            <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
+                <span>Step {{ step }} of 9</span>
+                <span>{{ ((step-1)/8*100)|round|int }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ ((step-1)/8*100)|round|int }}%"></div>
+            </div>
+        </div>
+        
+        <!-- Step Navigation -->
+        <div class="flex items-center justify-between mb-8">
+            {% for i in range(1, 10) %}
+            <div class="flex items-center">
+                <a href="{{ url_for('coach_onboarding', step=i) }}" class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-200 {% if i == step %}bg-primary-600 text-white cursor-default{% elif i < step %}bg-green-500 text-white hover:bg-green-600 cursor-pointer{% else %}bg-gray-200 text-gray-500 cursor-not-allowed{% endif %}" {% if i > step %}onclick="return false;"{% endif %}>
+                    {% if i < step %}
+                        <i data-feather="check" class="w-4 h-4"></i>
+                    {% else %}
+                        {{ i }}
+                    {% endif %}
+                </a>
+                {% if i < 9 %}
+                <div class="w-8 h-1 bg-gray-200 mx-2">
+                    <div class="h-1 {% if i < step %}bg-green-500{% else %}bg-gray-200{% endif %} transition-all duration-300"></div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+<div class="max-w-2xl mx-auto">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Showcase Your Work</h1>
+        <p class="text-gray-600">Add portfolio items to highlight your expertise. This step is optional and you can skip it.</p>
+    </div>
+
+    <!-- Add Portfolio Item Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Add Portfolio Item</h2>
+        <form method="POST" class="space-y-4" enctype="multipart/form-data">
+            <input type="hidden" name="action" value="add_portfolio">
+            {{ form.hidden_tag() }}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Portfolio Category
+                </label>
+                <select name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="work_sample">Work Sample</option>
+                    <option value="case_study">Case Study</option>
+                    <option value="introduction">Introduction Video</option>
+                    <option value="tutorial">Tutorial/Demo</option>
+                    <option value="testimonial">Client Testimonial</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div>
+                <label for="{{ form.title.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Portfolio Item Title *
+                </label>
+                {{ form.title(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent") }}
+                {% if form.title.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.title.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Description
+                </label>
+                {{ form.description(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows="3", placeholder="Describe this portfolio item, what you accomplished, technologies used, etc.") }}
+                {% if form.description.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.description.errors[0] }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.skills.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Skills Used
+                </label>
+                {{ form.skills(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", placeholder="e.g., JavaScript, React, Node.js, Design, Marketing") }}
+                {% if form.skills.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.skills.errors[0] }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-1">Separate skills with commas</p>
+            </div>
+
+            <div>
+                <label for="{{ form.project_links.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Project Links
+                </label>
+                {{ form.project_links(class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent", rows="3", placeholder="https://youtube.com/watch?v=...\nhttps://drive.google.com/...\nhttps://github.com/...") }}
+                {% if form.project_links.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.project_links.errors[0] }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-1">Optional: Enter one link per line. Supported: YouTube, Google Drive, Dropbox, OneDrive, GitHub, GitLab, Vimeo, Loom</p>
+            </div>
+
+            <div>
+                <label for="{{ form.thumbnail_image.id }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    Thumbnail/Cover Image
+                </label>
+                
+                <!-- Image Preview Container -->
+                <div id="image-preview-container" class="mb-4 hidden">
+                    <div class="relative inline-block">
+                        <img id="image-preview" src="" alt="Preview" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200">
+                        <button type="button" id="remove-image" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600 transition-colors">
+                            <i data-feather="x" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-green-600 mt-2 flex items-center">
+                        <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
+                        Image uploaded successfully! You can review it above.
+                    </p>
+                </div>
+                
+                <div id="upload-area" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
+                    <div class="space-y-1 text-center">
+                        <div class="mx-auto h-12 w-12 text-gray-400">
+                            <i data-feather="image" class="w-12 h-12"></i>
+                        </div>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="{{ form.thumbnail_image.id }}" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                <span>Upload a file</span>
+                                {{ form.thumbnail_image(class="sr-only", accept=".jpg,.jpeg,.png,.gif") }}
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                    </div>
+                </div>
+                
+                {% if form.thumbnail_image.errors %}
+                    <p class="text-red-600 text-sm mt-1">{{ form.thumbnail_image.errors[0] }}</p>
+                {% endif %}
+                <p class="text-sm text-gray-500 mt-1">Optional: Upload a cover image to make your portfolio item more visual (JPG, PNG, GIF)</p>
+            </div>
+
+            <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <i data-feather="plus" class="w-4 h-4 inline mr-2"></i>
+                Add Portfolio Item
+            </button>
+        </form>
+    </div>
+
+    <!-- Existing Portfolio Items -->
+    {% if coach_profile.portfolio_items %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-xl font-semibold mb-4">Your Portfolio Items</h2>
+        <div class="space-y-4">
+            {% for item in coach_profile.portfolio_items %}
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <!-- Thumbnail if available -->
+                {% if item.thumbnail_image %}
+                <div class="w-full h-32 bg-gray-200">
+                    <img src="{{ url_for('static', filename=item.thumbnail_image) }}" alt="{{ item.title }}" class="w-full h-full object-cover">
+                </div>
+                {% endif %}
+                
+                <div class="p-4">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <!-- Category Badge -->
+                            {% if item.category %}
+                            <div class="mb-2">
+                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full uppercase tracking-wide">
+                                    {{ item.category.replace('_', ' ') }}
+                                </span>
+                            </div>
+                            {% endif %}
+                            
+                            <h3 class="font-semibold text-lg">{{ item.title }}</h3>
+                            {% if item.description %}
+                            <p class="text-gray-600 mt-2">{{ item.description[:100] }}{% if item.description|length > 100 %}...{% endif %}</p>
+                            {% endif %}
+                            {% if item.skills %}
+                            <div class="mt-2">
+                                <span class="text-sm font-medium text-gray-700">Skills: </span>
+                                {% for skill in item.skills.split(',')[:3] %}
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mr-1">{{ skill.strip() }}</span>
+                                {% endfor %}
+                                {% if item.skills.split(',')|length > 3 %}
+                                <span class="text-xs text-gray-500">+{{ item.skills.split(',')|length - 3 }} more</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if item.project_links %}
+                            <div class="mt-3">
+                                <p class="text-sm font-medium text-gray-700 mb-2">Project Links:</p>
+                                {% for link in item.project_links.split('\n')[:2] if link.strip() %}
+                                <div class="mb-1">
+                                    <a href="{{ link.strip() }}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm break-all">
+                                        <i data-feather="external-link" class="w-4 h-4 inline mr-1"></i>
+                                        {{ link.strip() }}
+                                    </a>
+                                </div>
+                                {% endfor %}
+                                {% if item.project_links.split('\n')|length > 2 %}
+                                <p class="text-xs text-gray-500">+{{ item.project_links.split('\n')|length - 2 }} more links</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <form method="POST" class="ml-4">
+                            {{ form.hidden_tag() }}
+                            <input type="hidden" name="action" value="remove_portfolio">
+                            <input type="hidden" name="portfolio_id" value="{{ item.id }}">
+                            <button type="submit" class="text-red-600 hover:text-red-800" onclick="return confirm('Are you sure you want to remove this portfolio item?')">
+                                <i data-feather="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Important Note -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <p class="text-sm text-blue-800 flex items-start">
+            <i data-feather="info" class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0"></i>
+            <span><strong>This step is optional.</strong> You can skip this step and add portfolio items later from your profile settings.</span>
+        </p>
+    </div>
+    
+    <!-- Navigation Buttons -->
+    <div class="flex justify-between pt-8 border-t border-gray-200">
+        <a href="{{ url_for('coach_onboarding', step=4) }}" class="btn-secondary px-6 py-3 rounded-lg transition-all duration-200 flex items-center">
+            <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+            Back
+        </a>
+        
+        <form method="POST" style="display: inline;">
+            {{ form.hidden_tag() }}
+            <input type="hidden" name="action" value="continue">
+            <button type="submit" class="btn-primary px-6 py-3 rounded-lg transition-all duration-200 flex items-center">
+                {% if coach_profile.portfolio_items %}
+                Continue with {{ coach_profile.portfolio_items|length }} Portfolio Item{{ 's' if coach_profile.portfolio_items|length != 1 else '' }}
+                {% else %}
+                Skip Portfolio
+                {% endif %}
+                <i data-feather="arrow-right" class="w-4 h-4 ml-2"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Initialize Feather Icons -->
+<script>
+    if (typeof feather !== 'undefined') {
+        feather.replace();
+    }
+    
+    // Image preview functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const uploadArea = document.getElementById('upload-area');
+        const removeImageBtn = document.getElementById('remove-image');
+        
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validate file type
+                    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Please select a valid image file (JPG, PNG, or GIF)');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Validate file size (10MB)
+                    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+                    if (file.size > maxSize) {
+                        alert('File size must be less than 10MB');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    // Create preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        imagePreviewContainer.classList.remove('hidden');
+                        uploadArea.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Remove image functionality
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                imagePreview.src = '';
+                imagePreviewContainer.classList.add('hidden');
+                uploadArea.classList.remove('hidden');
+            });
+        }
+        
+        // Drag and drop functionality
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+            });
+            
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('border-blue-400', 'bg-blue-50');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    fileInput.dispatchEvent(new Event('change'));
+                }
+            });
+        }
+    });
+</script>
+    </div>
+</div>
+{% endblock %}
