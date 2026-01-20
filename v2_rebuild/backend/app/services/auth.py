@@ -10,7 +10,14 @@ from ..core.security import get_password_hash, verify_password, create_access_to
 async def get_user_by_email(db: AsyncSession, email: str):
     result = await db.execute(
         select(User)
-        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
+        .options(
+            selectinload(User.student_profile),
+            selectinload(User.coach_profile).options(
+                selectinload(CoachProfile.experience),
+                selectinload(CoachProfile.education),
+                selectinload(CoachProfile.portfolio_items)
+            )
+        )
         .where(User.email == email)
     )
     return result.scalars().first()
