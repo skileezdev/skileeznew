@@ -9,10 +9,12 @@ load_dotenv()
 # Uses DATABASE_URL (for Postgres) if available, otherwise falls back to local SQLite
 SQLALCHEMY_DATABASE_URL = os.environ.get("DATABASE_URL")
 
-if SQLALCHEMY_DATABASE_URL and SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
-    # Fix for Heroku/Railway Postgres URLs (replace postgres:// with postgresql+asyncpg://)
-    SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
-elif not SQLALCHEMY_DATABASE_URL:
+if SQLALCHEMY_DATABASE_URL:
+    if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+        SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
+else:
     SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./skileez_v2.db"
 
 engine = create_async_engine(
