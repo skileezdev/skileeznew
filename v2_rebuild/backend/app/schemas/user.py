@@ -60,8 +60,8 @@ class StudentProfileOut(BaseModel):
     bio: Optional[str] = None
     profile_picture: Optional[str] = None
     country: Optional[str] = None
-    learning_goals: Optional[List[str]] = None
-    interests: Optional[List[str]] = None
+    learning_goals: Optional[List[str]] = []
+    interests: Optional[List[str]] = []
     class Config:
         from_attributes = True
 
@@ -72,9 +72,9 @@ class CoachProfileOut(BaseModel):
     hourly_rate: Optional[float] = None
     is_approved: bool
     rating: float
-    is_stripe_enabled: bool
-    tier: str
-    total_earnings: Decimal
+    is_stripe_enabled: bool = False
+    tier: str = "standard"
+    total_earnings: Decimal = Decimal("0.00")
     experience: List[ExperienceOut] = []
     education: List[EducationOut] = []
     portfolio_items: List[PortfolioItemOut] = []
@@ -88,8 +88,8 @@ class UserOut(UserBase):
     current_role: Optional[str]
     created_at: datetime
     role_switch_count: int
-    onboarding_completed: bool
-    profile_completion_percentage: int
+    onboarding_completed: bool = False
+    profile_completion_percentage: int = 0
     
     student_profile: Optional[StudentProfileOut] = None
     coach_profile: Optional[CoachProfileOut] = None

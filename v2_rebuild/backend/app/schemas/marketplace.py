@@ -124,7 +124,7 @@ class CoachProfileOut(BaseModel):
     bio: Optional[str] = None
     hourly_rate: Optional[float] = None
     rating: float
-    tier: str
+    tier: str = "standard"
     is_approved: bool
     user: Optional[UserOut] = None
     experience: List[ExperienceOut] = []

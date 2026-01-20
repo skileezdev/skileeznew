@@ -22,10 +22,7 @@ class User(Base):
     role_switch_count = Column(Integer, default=0)
     preferred_default_role = Column(String(20))
     stripe_customer_id = Column(String(255))
-    onboarding_completed = Column(Boolean, default=False)
     last_role_switch = Column(DateTime(timezone=True))
-    account_status = Column(String(20), default='active') # active, suspended, pending_deletion
-    profile_completion_percentage = Column(Integer, default=0)
     
     # Relationships
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False)
@@ -40,8 +37,6 @@ class StudentProfile(Base):
     bio = Column(Text)
     profile_picture = Column(Text)
     country = Column(String(100))
-    learning_goals = Column(JSON) # Mirroring V1 flexibility
-    interests = Column(JSON)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
     user = relationship("User", back_populates="student_profile")
@@ -58,11 +53,9 @@ class CoachProfile(Base):
     rating = Column(Float, default=0.0)
     
     # Mirroring 1:1 V1 Coach Fields
-    is_stripe_enabled = Column(Boolean, default=False)
-    stripe_connect_id = Column(String(255))
+    stripe_account_id = Column(String(255))
     onboarding_step = Column(Integer, default=1)
     total_earnings = Column(Numeric(12, 2), default=0.00)
-    tier = Column(String(20), default='standard') # standard, pro, expert
     
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
 
