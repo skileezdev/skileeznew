@@ -16,7 +16,6 @@ class User(Base):
     current_role = Column(String(20), default=None)  # 'student' or 'coach'
     timezone = Column(String(50), default='UTC')
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     email_verified = Column(Boolean, default=False)
     
     # Mirroring 1:1 V1 Fields
