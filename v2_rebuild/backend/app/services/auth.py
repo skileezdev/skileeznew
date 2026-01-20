@@ -38,14 +38,17 @@ async def create_user(db: AsyncSession, user_in: UserCreate, initial_role: str =
     elif initial_role == "coach":
         db.add(CoachProfile(user_id=new_user.id))
         
-    await db.commit()
+    # Capture ID before commit expires the object
+    new_user_id = new_user.id
+        
     await db.commit()
     
     # Re-fetch with eager loading to avoid MissingGreenlet error
+    # Use the captured ID instead of accessing the expired object
     result = await db.execute(
         select(User)
         .options(selectinload(User.student_profile), selectinload(User.coach_profile))
-        .where(User.id == new_user.id)
+        .where(User.id == new_user_id)
     )
     return result.scalars().first()
 
@@ -84,13 +87,15 @@ async def switch_user_role(db: AsyncSession, user: User, target_role: str):
     )
     db.add(log)
     
-    await db.commit()
+    # Capture ID before commit
+    user_id = user.id
+    
     await db.commit()
     
     # Re-fetch with eager loading
     result = await db.execute(
         select(User)
         .options(selectinload(User.student_profile), selectinload(User.coach_profile))
-        .where(User.id == user.id)
+        .where(User.id == user_id)
     )
     return result.scalars().first()
