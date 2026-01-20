@@ -8,6 +8,8 @@ from .models.user import User, StudentProfile, CoachProfile
 from .models.marketplace import LearningRequest, Proposal, Contract, Session
 from .models.messaging import Message, Notification
 
+from contextlib import asynccontextmanager
+from .models.database import engine, Base
 from .core.database_fixes import apply_database_fixes
 
 @asynccontextmanager
