@@ -39,7 +39,7 @@ export default function SignupPage() {
         setLoading(true);
 
         try {
-            await api.post("/auth/register", {
+            await api.post("/auth/signup", {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
@@ -92,8 +92,8 @@ export default function SignupPage() {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, is_student: !formData.is_student })}
                                     className={`p-4 rounded-xl border-2 transition-all ${formData.is_student
-                                            ? "border-primary bg-primary/5 shadow-md"
-                                            : "border-gray-200 hover:border-gray-300"
+                                        ? "border-primary bg-primary/5 shadow-md"
+                                        : "border-gray-200 hover:border-gray-300"
                                         }`}
                                 >
                                     <BookOpen className={`w-8 h-8 mx-auto mb-2 ${formData.is_student ? "text-primary" : "text-gray-400"}`} />
@@ -105,8 +105,8 @@ export default function SignupPage() {
                                     type="button"
                                     onClick={() => setFormData({ ...formData, is_coach: !formData.is_coach })}
                                     className={`p-4 rounded-xl border-2 transition-all ${formData.is_coach
-                                            ? "border-purple-600 bg-purple-50 shadow-md"
-                                            : "border-gray-200 hover:border-gray-300"
+                                        ? "border-purple-600 bg-purple-50 shadow-md"
+                                        : "border-gray-200 hover:border-gray-300"
                                         }`}
                                 >
                                     <Briefcase className={`w-8 h-8 mx-auto mb-2 ${formData.is_coach ? "text-purple-600" : "text-gray-400"}`} />
