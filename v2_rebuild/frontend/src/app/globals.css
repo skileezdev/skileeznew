@@ -88,7 +88,11 @@
 
 @layer base {
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background-image:
       radial-gradient(at 0% 0%, hsla(238, 77%, 59%, 0.03) 0, transparent 50%),
       radial-gradient(at 100% 0%, hsla(262, 83%, 58%, 0.03) 0, transparent 50%);
@@ -101,17 +105,24 @@
 
   /* Premium Glassmorphism */
   .glass-panel {
-    @apply bg-white/70 border border-white/30 backdrop-blur-xl shadow-xl;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   }
 
   /* One-to-One V1 Card Refinement */
   .premium-card {
-    @apply bg-white rounded-[24px] border border-gray-100 p-6 shadow-lg transition-all duration-300;
+    background-color: white;
+    border-radius: 24px;
+    border: 1px solid rgb(243, 244, 246);
+    padding: 1.5rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
   }
 
   .premium-card:hover {
-    @apply -translate-y-2 shadow-2xl scale-[1.01];
+    transform: translateY(-0.5rem) scale(1.01);
     box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
   }
 
@@ -134,12 +145,35 @@
 
   /* Success/Error Toasts from V1 */
   .toast-v1 {
-    @apply fixed top-4 right-4 z-50 p-4 rounded-xl shadow-2xl backdrop-blur-md animate-in slide-in-from-right-full;
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 50;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(8px);
+    animation: slide-in-from-right-full 0.5s ease-out forwards;
   }
 }
 
 .btn-primary {
-  @apply bg-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200;
+  background-color: hsl(var(--primary));
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.2);
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: hsl(var(--primary) / 0.9);
+  transform: scale(1.02);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
 }
 
 /* Hero Animations */
