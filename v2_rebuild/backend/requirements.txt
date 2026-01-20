@@ -6,7 +6,8 @@ alembic
 pydantic[email]
 pydantic-settings
 python-jose[cryptography]
-passlib[bcrypt]
+bcrypt
+Werkzeug
 python-multipart
 psycopg2-binary
 asyncpg
