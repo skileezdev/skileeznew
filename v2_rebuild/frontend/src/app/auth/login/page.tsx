@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import api from "@/lib/api";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,8 +23,8 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await login(email, password);
-            router.push("/dashboard");
+            const response = await api.post("/auth/login", { email, password });
+            await login(response.data.access_token);
         } catch (err: any) {
             setError(err.response?.data?.detail || "Invalid email or password");
         } finally {
