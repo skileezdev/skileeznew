@@ -6,6 +6,7 @@ from .api.contracts import router as contracts_router
 from .api.profiles import router as profiles_router
 from .models.user import User, StudentProfile, CoachProfile
 from .models.marketplace import LearningRequest, Proposal, Contract, Session
+from .models.messaging import Message, Notification
 
 from contextlib import asynccontextmanager
 from .models.database import engine, Base
@@ -33,10 +34,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from .api.messaging import router as messaging_router
+
 app.include_router(auth_router)
 app.include_router(marketplace_router)
 app.include_router(contracts_router)
 app.include_router(profiles_router)
+app.include_router(messaging_router)
 
 @app.get("/")
 async def root():

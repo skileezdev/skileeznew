@@ -1,89 +1,87 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.orm import selectinload
-from typing import List
+from pydantic import BaseModel
+from typing import Optional
 
 from ..models.database import get_db
-from ..models.user import User, StudentProfile, CoachProfile, Experience, Education, PortfolioItem
-from ..schemas.user import UserOut # Assuming this exists or we can use a generic one
+from ..models.user import User, CoachProfile, StudentProfile
 from .deps import get_current_user
 
 router = APIRouter(prefix="/profiles", tags=["Profiles"])
 
-@router.get("/me", response_model=None) # We'll return a rich object
+class ProfileUpdate(BaseModel):
+    bio: Optional[str] = None
+    coach_title: Optional[str] = None
+    skills: Optional[str] = None
+    hourly_rate: Optional[float] = None
+    country: Optional[str] = None
+
+@router.get("/me")
 async def get_my_profile(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get the full rich profile for the current user (1:1 Mirror)"""
-    result = await db.execute(
-        select(User)
-        .where(User.id == current_user.id)
-        .options(
-            selectinload(User.student_profile),
-            selectinload(User.coach_profile).selectinload(CoachProfile.experience),
-            selectinload(User.coach_profile).selectinload(CoachProfile.education),
-            selectinload(User.coach_profile).selectinload(CoachProfile.portfolio_items)
-        )
-    )
-    user = result.scalars().first()
-    return user
-
-@router.post("/update")
-async def update_profile(
-    data: dict,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    """Update profile fields (V1 Parity)"""
-    # Logic to update user, student_profile, or coach_profile
-    if "first_name" in data: current_user.first_name = data["first_name"]
-    if "last_name" in data: current_user.last_name = data["last_name"]
+    """Get current user's profile"""
+    profile_data = {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "email": current_user.email,
+        "current_role": current_user.current_role
+    }
     
-    if current_user.current_role == 'student' and current_user.student_profile:
-        if "bio" in data: current_user.student_profile.bio = data["bio"]
-        if "interests" in data: current_user.student_profile.interests = data["interests"]
-        
-    elif current_user.current_role == 'coach' and current_user.coach_profile:
-        if "coach_title" in data: current_user.coach_profile.coach_title = data["coach_title"]
-        if "bio" in data: current_user.coach_profile.bio = data["bio"]
-        if "hourly_rate" in data: current_user.coach_profile.hourly_rate = data["hourly_rate"]
-        
-    await db.commit()
-    return {"message": "Profile updated"}
+    if current_user.current_role == "coach" and current_user.coach_profile:
+        profile_data.update({
+            "coach_title": current_user.coach_profile.coach_title,
+            "bio": current_user.coach_profile.bio,
+            "skills": current_user.coach_profile.skills,
+            "hourly_rate": current_user.coach_profile.hourly_rate,
+            "country": current_user.coach_profile.country,
+            "rating": current_user.coach_profile.rating,
+            "profile_picture": current_user.coach_profile.profile_picture
+        })
+    elif current_user.current_role == "student" and current_user.student_profile:
+        profile_data.update({
+            "bio": current_user.student_profile.bio,
+            "country": current_user.student_profile.country,
+            "profile_picture": current_user.student_profile.profile_picture
+        })
+    
+    return profile_data
 
-@router.post("/experience")
-async def add_experience(
-    exp_in: dict,
+@router.patch("/me")
+async def update_my_profile(
+    updates: ProfileUpdate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
-    if not current_user.coach_profile:
-        raise HTTPException(status_code=400, detail="Coach profile required")
+    """Update current user's profile"""
+    if current_user.current_role == "coach":
+        if not current_user.coach_profile:
+            raise HTTPException(status_code=404, detail="Coach profile not found")
         
-    new_exp = Experience(
-        coach_profile_id=current_user.coach_profile.id,
-        title=exp_in["title"],
-        company=exp_in["company"],
-        start_date=exp_in["start_date"], # Should handle date parsing in real app
-        end_date=exp_in.get("end_date"),
-        is_current=exp_in.get("is_current", False),
-        description=exp_in.get("description")
-    )
-    db.add(new_exp)
+        profile = current_user.coach_profile
+        if updates.bio is not None:
+            profile.bio = updates.bio
+        if updates.coach_title is not None:
+            profile.coach_title = updates.coach_title
+        if updates.skills is not None:
+            profile.skills = updates.skills
+        if updates.hourly_rate is not None:
+            profile.hourly_rate = updates.hourly_rate
+        if updates.country is not None:
+            profile.country = updates.country
+            
+    elif current_user.current_role == "student":
+        if not current_user.student_profile:
+            raise HTTPException(status_code=404, detail="Student profile not found")
+        
+        profile = current_user.student_profile
+        if updates.bio is not None:
+            profile.bio = updates.bio
+        if updates.country is not None:
+            profile.country = updates.country
+    
     await db.commit()
-    return {"message": "Experience added"}
-
-@router.delete("/experience/{exp_id}")
-async def delete_experience(
-    exp_id: int,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
-    result = await db.execute(select(Experience).where(Experience.id == exp_id))
-    exp = result.scalars().first()
-    if exp and exp.coach_profile_id == current_user.coach_profile.id:
-        await db.delete(exp)
-        await db.commit()
-    return {"message": "Experience deleted"}
+    return {"message": "Profile updated successfully"}

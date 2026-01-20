@@ -13,6 +13,20 @@ from .deps import get_current_user
 
 router = APIRouter(prefix="/contracts", tags=["Contracts"])
 
+@router.get("/sessions/all", response_model=List[SessionOut])
+async def get_all_my_sessions(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all sessions for the current user across all contracts"""
+    result = await db.execute(
+        select(Session)
+        .join(Contract)
+        .where((Contract.student_id == current_user.id) | (Contract.coach_id == current_user.id))
+        .order_by(Session.scheduled_at.asc())
+    )
+    return result.scalars().all()
+
 @router.get("", response_model=List[ContractOut])
 async def get_my_contracts(
     current_user: User = Depends(get_current_user),

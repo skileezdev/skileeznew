@@ -106,3 +106,28 @@ class SessionOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ExperienceOut(BaseModel):
+    id: int
+    title: str
+    company: str
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    description: Optional[str] = None
+    class Config:
+        from_attributes = True
+
+class CoachProfileOut(BaseModel):
+    id: int
+    user_id: int
+    coach_title: Optional[str] = None
+    bio: Optional[str] = None
+    hourly_rate: Optional[float] = None
+    rating: float
+    tier: str
+    is_approved: bool
+    user: Optional[UserOut] = None
+    experience: List[ExperienceOut] = []
+    
+    class Config:
+        from_attributes = True

@@ -7,18 +7,61 @@ from datetime import datetime, timezone
 
 from ..models.database import get_db
 from ..models.marketplace import LearningRequest, Proposal, Contract, Session, ScreeningQuestion, ScreeningAnswer
+from ..models.user import User, CoachProfile
 from ..schemas.marketplace import (
     LearningRequestCreate, 
     LearningRequestOut, 
     ProposalCreate, 
     ProposalOut,
     ContractOut,
-    SessionOut
+    SessionOut,
+    CoachProfileOut
 )
-from ..models.user import User
 from .deps import get_current_user
 
 router = APIRouter(prefix="/marketplace", tags=["Marketplace"])
+
+@router.get("/coaches", response_model=List[CoachProfileOut])
+async def get_coaches(
+    search: Optional[str] = None,
+    price_min: Optional[float] = None,
+    price_max: Optional[float] = None,
+    sort: str = "top",
+    db: AsyncSession = Depends(get_db)
+):
+    """Discovery endpoint for coaches (V1 1:1 Parity)"""
+    query = select(CoachProfile).where(CoachProfile.is_approved == True).options(
+        selectinload(CoachProfile.user),
+        selectinload(CoachProfile.experience)
+    )
+    
+    if search:
+        search_term = f"%{search}%"
+        # Join with User for search parity
+        query = query.join(User).filter(
+            (CoachProfile.coach_title.ilike(search_term)) |
+            (CoachProfile.bio.ilike(search_term)) |
+            (User.first_name.ilike(search_term)) |
+            (User.last_name.ilike(search_term))
+        )
+        
+    if price_min is not None:
+        query = query.where(CoachProfile.hourly_rate >= price_min)
+    if price_max is not None:
+        query = query.where(CoachProfile.hourly_rate <= price_max)
+        
+    # Sorting
+    if sort == 'rating':
+        query = query.order_by(CoachProfile.rating.desc())
+    elif sort == 'price_low':
+        query = query.order_by(CoachProfile.hourly_rate.asc())
+    elif sort == 'price_high':
+        query = query.order_by(CoachProfile.hourly_rate.desc())
+    else: # Default 'top'
+        query = query.order_by(CoachProfile.rating.desc(), CoachProfile.hourly_rate.asc())
+
+    result = await db.execute(query)
+    return result.scalars().all()
 
 @router.get("/requests", response_model=List[LearningRequestOut])
 async def get_all_requests(db: AsyncSession = Depends(get_db)):
