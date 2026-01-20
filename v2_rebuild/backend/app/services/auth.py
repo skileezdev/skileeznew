@@ -8,7 +8,11 @@ from ..schemas.user import UserCreate
 from ..core.security import get_password_hash, verify_password, create_access_token
 
 async def get_user_by_email(db: AsyncSession, email: str):
-    result = await db.execute(select(User).where(User.email == email))
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
+        .where(User.email == email)
+    )
     return result.scalars().first()
 
 async def create_user(db: AsyncSession, user_in: UserCreate, initial_role: str = "student"):
