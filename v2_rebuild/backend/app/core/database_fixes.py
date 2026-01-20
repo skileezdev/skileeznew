@@ -92,6 +92,42 @@ BEGIN
 END $$;
 """
 
+FIX_MISSING_COLUMNS = """
+-- 3. Add missing columns to User table
+DO $$
+BEGIN
+    -- role_switch_count
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'role_switch_count') THEN
+        ALTER TABLE "user" ADD COLUMN role_switch_count INTEGER DEFAULT 0;
+        RAISE NOTICE 'Added role_switch_count to user table';
+    END IF;
+
+    -- preferred_default_role
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'preferred_default_role') THEN
+        ALTER TABLE "user" ADD COLUMN preferred_default_role VARCHAR(20);
+        RAISE NOTICE 'Added preferred_default_role to user table';
+    END IF;
+
+    -- stripe_customer_id
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'stripe_customer_id') THEN
+        ALTER TABLE "user" ADD COLUMN stripe_customer_id VARCHAR(255);
+        RAISE NOTICE 'Added stripe_customer_id to user table';
+    END IF;
+
+    -- last_role_switch
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'last_role_switch') THEN
+        ALTER TABLE "user" ADD COLUMN last_role_switch TIMESTAMP WITH TIME ZONE;
+        RAISE NOTICE 'Added last_role_switch to user table';
+    END IF;
+
+    -- email_verified (Ensure it exists as it is crucial)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'email_verified') THEN
+        ALTER TABLE "user" ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
+        RAISE NOTICE 'Added email_verified to user table';
+    END IF;
+END $$;
+"""
+
 async def apply_database_fixes(conn):
     """Executes SQL to align user table and constraints if on PostgreSQL"""
     try:
@@ -102,6 +138,7 @@ async def apply_database_fixes(conn):
             # Execute statements separately
             await conn.execute(text(FIX_TABLE_RENAME))
             await conn.execute(text(FIX_CONSTRAINTS))
+            await conn.execute(text(FIX_MISSING_COLUMNS))
             
             logger.info("Database schema fixes applied successfully.")
         else:
