@@ -8,8 +8,8 @@ interface User {
     email: string;
     first_name: string;
     last_name: string;
-    is_student: bool;
-    is_coach: bool;
+    is_student: boolean;
+    is_coach: boolean;
 }
 
 interface AuthContextType {
