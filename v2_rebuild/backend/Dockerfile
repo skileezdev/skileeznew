@@ -22,5 +22,5 @@ COPY . .
 EXPOSE 8000
 
 # Run with Gunicorn for production
-# Using explicit sh -c to ensure Railway's $PORT is expanded correctly
-CMD ["sh", "-c", "gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT app.main:app"]
+# Shell form handles $PORT expansion (common in Railway/Heroku)
+CMD gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} app.main:app
