@@ -22,4 +22,5 @@ COPY . .
 EXPOSE 8000
 
 # Run with Gunicorn for production
-CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "app.main:app"]
+# Use shell form to allow $PORT environment variable expansion
+CMD gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT app.main:app
