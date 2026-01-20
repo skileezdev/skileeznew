@@ -194,9 +194,9 @@ export default function MarketplacePage() {
                 {/* Proposal Modal (1:1 Mirror logic injected here) */}
                 {selectedRequest && (
                     <ProposalModal
+                        isOpen={true}
                         requestId={selectedRequest.id}
                         requestTitle={selectedRequest.title}
-                        screeningQuestions={selectedRequest.screening_questions}
                         onClose={() => setSelectedRequest(null)}
                         onSuccess={() => {
                             setSelectedRequest(null);
