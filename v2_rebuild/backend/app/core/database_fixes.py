@@ -3,18 +3,21 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-FIX_SQL = """
--- Defensive script to align User table naming and fix constraints in Skileez V2
+# Split SQL into multiple commands because asyncpg/SQLAlchemy
+# prepare statements by default, which doesn't support multiple commands.
+
+FIX_TABLE_RENAME = """
+-- 1. Align User table naming
 DO $$
 BEGIN
-    -- 1. If 'users' exists but 'user' does not, rename 'users' to 'user'
+    -- If 'users' exists but 'user' does not, rename 'users' to 'user'
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users' AND table_schema = 'public') 
        AND NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user' AND table_schema = 'public') THEN
         ALTER TABLE users RENAME TO "user";
         RAISE NOTICE 'Renamed users table to user';
     END IF;
 
-    -- 2. If BOTH exist, resolve the conflict
+    -- If BOTH exist, resolve the conflict
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'users' AND table_schema = 'public') 
        AND EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'user' AND table_schema = 'public') THEN
         
@@ -27,8 +30,10 @@ BEGIN
         END IF;
     END IF;
 END $$;
+"""
 
--- 3. Fix Foreign Key Constraints for all related tables
+FIX_CONSTRAINTS = """
+-- 2. Fix Foreign Key Constraints
 DO $$
 BEGIN
     -- Student Profile
@@ -89,16 +94,17 @@ END $$;
 
 async def apply_database_fixes(conn):
     """Executes SQL to align user table and constraints if on PostgreSQL"""
-    # Check if we are on PostgreSQL
     try:
         # Use connection's dialect to check
         if conn.dialect.name == 'postgresql':
             logger.info("Applying PostgreSQL schema fixes...")
-            await conn.execute(text(FIX_SQL))
+            
+            # Execute statements separately
+            await conn.execute(text(FIX_TABLE_RENAME))
+            await conn.execute(text(FIX_CONSTRAINTS))
+            
             logger.info("Database schema fixes applied successfully.")
         else:
             logger.info(f"Skipping database fixes for dialect: {conn.dialect.name}")
     except Exception as e:
         logger.error(f"Error applying database fixes: {e}")
-        # We don't want to crash the whole app if this fails, 
-        # but the error will be in the logs.
