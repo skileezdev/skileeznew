@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from .database import Base
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "user"
 
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(120), unique=True, index=True, nullable=False)
@@ -33,7 +33,7 @@ class StudentProfile(Base):
     __tablename__ = "student_profile"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     bio = Column(Text)
     profile_picture = Column(Text)
     country = Column(String(100))
@@ -45,7 +45,7 @@ class CoachProfile(Base):
     __tablename__ = "coach_profile"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     coach_title = Column(String(100))
     bio = Column(Text)
     hourly_rate = Column(Float)
@@ -105,7 +105,7 @@ class PortfolioItem(Base):
 class RoleSwitchLog(Base):
     __tablename__ = "role_switch_logs"
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     from_role = Column(String(20))
     to_role = Column(String(20), nullable=False)
     switch_reason = Column(String(100))

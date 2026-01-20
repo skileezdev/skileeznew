@@ -8,7 +8,7 @@ class LearningRequest(Base):
     __tablename__ = "learning_request"
 
     id = Column(Integer, primary_key=True, index=True)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     title = Column(String(200), nullable=False)
     description = Column(Text, nullable=False)
     budget = Column(Float)
@@ -42,7 +42,7 @@ class Proposal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     learning_request_id = Column(Integer, ForeignKey("learning_request.id"), nullable=False)
-    coach_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    coach_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     cover_letter = Column(Text, nullable=False)
     price_per_session = Column(Float, nullable=False)
     session_count = Column(Integer, nullable=False)
@@ -72,8 +72,8 @@ class Contract(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     proposal_id = Column(Integer, ForeignKey("proposal.id"), nullable=False)
-    student_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    coach_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    student_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    coach_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     contract_number = Column(String(50), unique=True)
     status = Column(String(20), default='awaiting_response')  # awaiting_response, active, completed, cancelled, disputed
     

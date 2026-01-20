@@ -7,8 +7,8 @@ class Message(Base):
     __tablename__ = "message"
 
     id = Column(Integer, primary_key=True, index=True)
-    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    recipient_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    sender_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    recipient_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     content = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False)
     
@@ -30,7 +30,7 @@ class Notification(Base):
     __tablename__ = "notification"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     type = Column(String(50), nullable=False) # 'contract', 'session', 'message', 'system'
