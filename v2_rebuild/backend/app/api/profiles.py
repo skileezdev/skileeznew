@@ -16,6 +16,7 @@ class ProfileUpdate(BaseModel):
     skills: Optional[str] = None
     hourly_rate: Optional[float] = None
     country: Optional[str] = None
+    onboarding_completed: Optional[bool] = None
 
 @router.get("/me")
 async def get_my_profile(
@@ -28,7 +29,8 @@ async def get_my_profile(
         "first_name": current_user.first_name,
         "last_name": current_user.last_name,
         "email": current_user.email,
-        "current_role": current_user.current_role
+        "current_role": current_user.current_role,
+        "onboarding_completed": current_user.onboarding_completed
     }
     
     if current_user.current_role == "coach" and current_user.coach_profile:
@@ -57,6 +59,11 @@ async def update_my_profile(
     db: AsyncSession = Depends(get_db)
 ):
     """Update current user's profile"""
+    
+    # Update User-level fields
+    if updates.onboarding_completed is not None:
+        current_user.onboarding_completed = updates.onboarding_completed
+    
     if current_user.current_role == "coach":
         if not current_user.coach_profile:
             raise HTTPException(status_code=404, detail="Coach profile not found")
