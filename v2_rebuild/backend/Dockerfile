@@ -21,6 +21,5 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Run with Gunicorn for production
-# Shell form handles $PORT expansion (common in Railway/Heroku)
-CMD gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:${PORT:-8000} app.main:app
+# Run with Gunicorn for production on port 8000
+CMD gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 app.main:app
