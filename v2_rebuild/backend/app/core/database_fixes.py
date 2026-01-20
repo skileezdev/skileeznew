@@ -125,6 +125,18 @@ BEGIN
         ALTER TABLE "user" ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
         RAISE NOTICE 'Added email_verified to user table';
     END IF;
+
+    -- onboarding_completed
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'onboarding_completed') THEN
+        ALTER TABLE "user" ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;
+        RAISE NOTICE 'Added onboarding_completed to user table';
+    END IF;
+
+    -- profile_completion_percentage
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'profile_completion_percentage') THEN
+        ALTER TABLE "user" ADD COLUMN profile_completion_percentage INTEGER DEFAULT 0;
+        RAISE NOTICE 'Added profile_completion_percentage to user table';
+    END IF;
 END $$;
 """
 

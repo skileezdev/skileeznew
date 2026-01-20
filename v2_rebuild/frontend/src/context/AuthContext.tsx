@@ -64,8 +64,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const login = async (token: string) => {
         localStorage.setItem("skileez_token", token);
-        await fetchUser();
-        router.push("/dashboard");
+
+        // Fetch User and decide where to go
+        try {
+            const res = await api.get("/auth/me");
+            const userData = res.data;
+            setUser(userData);
+            localStorage.setItem("skileez_user", JSON.stringify(userData));
+
+            if (!userData.onboarding_completed) {
+                router.push("/onboarding");
+            } else {
+                router.push("/dashboard");
+            }
+        } catch (error) {
+            console.error("Failed to fetch user after login", error);
+            logout();
+        }
     };
 
     const logout = () => {

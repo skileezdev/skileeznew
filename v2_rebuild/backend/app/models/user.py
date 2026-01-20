@@ -24,6 +24,10 @@ class User(Base):
     stripe_customer_id = Column(String(255))
     last_role_switch = Column(DateTime(timezone=True))
     
+    # Onboarding Fields
+    onboarding_completed = Column(Boolean, default=False)
+    profile_completion_percentage = Column(Integer, default=0)
+    
     # Relationships
     student_profile = relationship("StudentProfile", back_populates="user", uselist=False)
     coach_profile = relationship("CoachProfile", back_populates="user", uselist=False)
