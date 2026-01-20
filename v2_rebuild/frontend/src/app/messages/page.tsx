@@ -121,7 +121,7 @@ export default function MessagesPage() {
     return (
         <div className="h-screen pt-20 pb-4 bg-muted/30 flex justify-center">
             <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 h-full">
-                <div className="bg-white rounded-[2rem] shadow-2xl h-full flex overflow-hidden border border-border">
+                <div className="bg-white rounded-[2rem] shadow-2xl h-full flex overflow-hidden border border-gray-200">
                     {/* Sidebar */}
                     <div className="w-full md:w-80 lg:w-96 border-r border-gray-100 flex flex-col bg-gray-50/50">
                         <div className="p-6 border-b border-gray-100">

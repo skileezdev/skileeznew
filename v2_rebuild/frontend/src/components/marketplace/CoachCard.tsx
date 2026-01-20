@@ -80,12 +80,12 @@ export function CoachCard({ coach }: { coach: Coach }) {
             <div className="mb-6 flex-grow">
                 <div className="flex flex-wrap gap-1.5">
                     {skills.map((skill, i) => (
-                        <span key={i} className="px-3 py-1 text-[10px] font-bold bg-muted text-muted-foreground rounded-full border border-border">
+                        <span key={i} className="px-3 py-1 text-[10px] font-bold bg-muted text-muted-foreground rounded-full border border-gray-200">
                             {skill.trim()}
                         </span>
                     ))}
                     {extraSkillsCount > 0 && (
-                        <span className="px-3 py-1 text-[10px] font-bold bg-muted text-muted-foreground/60 rounded-full border border-border">
+                        <span className="px-3 py-1 text-[10px] font-bold bg-muted text-muted-foreground/60 rounded-full border border-gray-200">
                             +{extraSkillsCount}
                         </span>
                     )}
@@ -93,7 +93,7 @@ export function CoachCard({ coach }: { coach: Coach }) {
             </div>
 
             {/* Price and Actions */}
-            <div className="flex items-center justify-between pt-5 border-t border-border mt-auto">
+            <div className="flex items-center justify-between pt-5 border-t border-gray-200 mt-auto">
                 <div>
                     {coach.hourly_rate && (
                         <div className="flex flex-col">

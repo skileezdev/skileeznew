@@ -77,7 +77,7 @@ export default function FindWorkPage() {
                                         <input
                                             type="text"
                                             placeholder="e.g., Python, Design"
-                                            className="w-full pl-11 pr-4 py-3.5 bg-white border border-border rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary outline-none transition-all"
+                                            className="w-full pl-11 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary outline-none transition-all"
                                             value={keywords}
                                             onChange={(e) => setKeywords(e.target.value)}
                                         />
@@ -99,7 +99,7 @@ export default function FindWorkPage() {
                                                 />
                                                 <div className={`w-6 h-6 rounded-lg border-2 mr-3 flex items-center justify-center transition-all ${experienceLevel === level.toLowerCase()
                                                         ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
-                                                        : "border-border bg-white group-hover:border-primary/50"
+                                                        : "border-gray-200 bg-white group-hover:border-primary/50"
                                                     }`}>
                                                     {experienceLevel === level.toLowerCase() && <Zap size={10} className="fill-white" />}
                                                 </div>
@@ -113,7 +113,7 @@ export default function FindWorkPage() {
                                 {/* Budget Range (Dummy for UI Mirror) */}
                                 <div>
                                     <label className="block text-xs font-black uppercase tracking-widest text-muted-foreground mb-4">Budget Range</label>
-                                    <select className="w-full px-4 py-3.5 bg-white border border-border rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary outline-none appearance-none">
+                                    <select className="w-full px-4 py-3.5 bg-white border border-gray-200 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-primary outline-none appearance-none">
                                         <option>Any Budget</option>
                                         <option>$0 - $100</option>
                                         <option>$100 - $500</option>
@@ -140,7 +140,7 @@ export default function FindWorkPage() {
                         <div className="glass-panel rounded-[1.5rem] p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 border-white/50">
                             <div className="flex items-center space-x-2">
                                 <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest mr-4">Sort by:</span>
-                                <select className="px-5 py-2.5 bg-white border border-border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-primary cursor-pointer mb-0">
+                                <select className="px-5 py-2.5 bg-white border border-gray-200 rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-primary cursor-pointer mb-0">
                                     <option>Most Recent</option>
                                     <option>Best Match</option>
                                     <option>Highest Budget</option>
@@ -170,7 +170,7 @@ export default function FindWorkPage() {
                                 ))}
 
                                 {jobs.length === 0 && (
-                                    <div className="text-center py-32 glass-panel rounded-[3rem] border-2 border-dashed border-border/50">
+                                    <div className="text-center py-32 glass-panel rounded-[3rem] border-2 border-dashed border-gray-200/50">
                                         <div className="w-20 h-20 bg-muted rounded-[1.5rem] flex items-center justify-center mx-auto mb-6">
                                             <Briefcase className="w-10 h-10 text-muted-foreground/30" />
                                         </div>
@@ -186,10 +186,10 @@ export default function FindWorkPage() {
                             <div className="mt-16 flex items-center justify-between px-4">
                                 <p className="text-sm font-bold text-muted-foreground">Showing 1-{jobs.length} of {jobs.length} results</p>
                                 <div className="flex space-x-2">
-                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-border text-gray-400">&lt;</button>
+                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400">&lt;</button>
                                     <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-primary text-white font-black shadow-lg shadow-primary/20">1</button>
-                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-border text-gray-400 font-bold">2</button>
-                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-border text-gray-400">&gt;</button>
+                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400 font-bold">2</button>
+                                    <button className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-400">&gt;</button>
                                 </div>
                             </div>
                         )}

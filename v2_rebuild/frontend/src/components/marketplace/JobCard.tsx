@@ -38,7 +38,7 @@ export function JobCard({ job }: { job: Job }) {
     return (
         <motion.div
             whileHover={{ y: -4 }}
-            className="bg-white rounded-[2rem] shadow-sm border border-border overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer group"
+            className="bg-white rounded-[2rem] shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer group"
         >
             <div className="p-8">
                 <div className="flex justify-between items-start mb-6">
@@ -78,7 +78,7 @@ export function JobCard({ job }: { job: Job }) {
                             {skills.map((skill, i) => (
                                 <span
                                     key={i}
-                                    className="px-4 py-1.5 bg-muted text-muted-foreground rounded-full text-xs font-bold border border-border"
+                                    className="px-4 py-1.5 bg-muted text-muted-foreground rounded-full text-xs font-bold border border-gray-200"
                                 >
                                     {skill.trim()}
                                 </span>
@@ -90,7 +90,7 @@ export function JobCard({ job }: { job: Job }) {
                             )}
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-border">
+                        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-6 border-t border-gray-200">
                             <div className="flex items-center space-x-6 text-sm text-muted-foreground font-bold uppercase tracking-widest">
                                 <span className="flex items-center">
                                     <Users className="w-4 h-4 mr-2" />

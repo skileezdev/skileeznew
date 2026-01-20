@@ -77,7 +77,7 @@ export default function BrowseCoachesPage() {
                             <input
                                 type="text"
                                 placeholder="Name, skills, or keywords"
-                                className="w-full pl-12 pr-4 py-4 bg-white/50 border border-border rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold transition-all"
+                                className="w-full pl-12 pr-4 py-4 bg-white/50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-bold transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -86,7 +86,7 @@ export default function BrowseCoachesPage() {
                         {/* Quick Filters */}
                         <div className="flex items-center gap-4 w-full lg:w-auto">
                             <select
-                                className="flex-1 lg:flex-none px-6 py-4 bg-white border border-border rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                                className="flex-1 lg:flex-none px-6 py-4 bg-white border border-gray-200 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
                                 value={priceRange}
                                 onChange={(e) => setPriceRange(e.target.value)}
                             >
@@ -98,7 +98,7 @@ export default function BrowseCoachesPage() {
                             </select>
 
                             <select
-                                className="flex-1 lg:flex-none px-6 py-4 bg-white border border-border rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
+                                className="flex-1 lg:flex-none px-6 py-4 bg-white border border-gray-200 rounded-2xl font-bold text-sm outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
                                 value={sort}
                                 onChange={(e) => setSort(e.target.value)}
                             >
@@ -110,7 +110,7 @@ export default function BrowseCoachesPage() {
 
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
-                                className={`p-4 rounded-2xl border transition-all ${showFilters ? "bg-primary text-white border-primary" : "bg-white text-gray-700 border-border"
+                                className={`p-4 rounded-2xl border transition-all ${showFilters ? "bg-primary text-white border-primary" : "bg-white text-gray-700 border-gray-200"
                                     }`}
                             >
                                 <SlidersHorizontal className="w-6 h-6" />
@@ -127,10 +127,10 @@ export default function BrowseCoachesPage() {
                                 exit={{ height: 0, opacity: 0 }}
                                 className="overflow-hidden"
                             >
-                                <div className="pt-6 mt-6 border-t border-border grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div className="pt-6 mt-6 border-t border-gray-200 grid grid-cols-1 md:grid-cols-4 gap-6">
                                     <div>
                                         <label className="block text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Country</label>
-                                        <select className="w-full px-4 py-3 bg-white border border-border rounded-xl font-bold text-sm">
+                                        <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-sm">
                                             <option>Any Country</option>
                                             <option>United States</option>
                                             <option>United Kingdom</option>
@@ -139,7 +139,7 @@ export default function BrowseCoachesPage() {
                                     </div>
                                     <div>
                                         <label className="block text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Language</label>
-                                        <select className="w-full px-4 py-3 bg-white border border-border rounded-xl font-bold text-sm">
+                                        <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-sm">
                                             <option>Any Language</option>
                                             <option>English</option>
                                             <option>Spanish</option>
@@ -148,7 +148,7 @@ export default function BrowseCoachesPage() {
                                     </div>
                                     <div>
                                         <label className="block text-xs font-black uppercase tracking-widest text-muted-foreground mb-3">Experience</label>
-                                        <select className="w-full px-4 py-3 bg-white border border-border rounded-xl font-bold text-sm">
+                                        <select className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl font-bold text-sm">
                                             <option>Any Experience</option>
                                             <option>1-3 Years</option>
                                             <option>3-5 Years</option>
@@ -196,7 +196,7 @@ export default function BrowseCoachesPage() {
                         </div>
 
                         {coaches.length === 0 && (
-                            <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-border">
+                            <div className="text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-200">
                                 <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                                     <Search className="w-10 h-10 text-muted-foreground/30" />
                                 </div>

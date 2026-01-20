@@ -114,7 +114,7 @@ export function Navbar() {
                                 )}
 
                                 {/* Notifications & User */}
-                                <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-border">
+                                <div className="flex items-center space-x-4 ml-4 pl-4 border-l border-gray-200">
                                     <div className="relative">
                                         <button
                                             onClick={() => setIsNotificationOpen(!isNotificationOpen)}
@@ -145,7 +145,7 @@ export function Navbar() {
                                                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                                                     className="absolute right-0 mt-3 w-56 glass-panel rounded-2xl p-2 shadow-2xl border-white/50"
                                                 >
-                                                    <div className="px-4 py-3 border-b border-border/50 mb-2">
+                                                    <div className="px-4 py-3 border-b border-gray-200/50 mb-2">
                                                         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Account</p>
                                                         <p className="text-sm font-semibold truncate">{user.first_name} {user.last_name}</p>
                                                     </div>
@@ -207,7 +207,7 @@ export function Navbar() {
                         <div className="px-4 py-6 space-y-4">
                             {user ? (
                                 <>
-                                    <div className="flex items-center space-x-3 pb-4 mb-4 border-b border-border">
+                                    <div className="flex items-center space-x-3 pb-4 mb-4 border-b border-gray-200">
                                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-lg">
                                             {user.first_name[0]}{user.last_name[0]}
                                         </div>
