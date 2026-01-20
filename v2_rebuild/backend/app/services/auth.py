@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 from fastapi import HTTPException, status
 from datetime import datetime, timezone
 from ..models.user import User, RoleSwitchLog, StudentProfile, CoachProfile
@@ -38,8 +39,15 @@ async def create_user(db: AsyncSession, user_in: UserCreate, initial_role: str =
         db.add(CoachProfile(user_id=new_user.id))
         
     await db.commit()
-    await db.refresh(new_user)
-    return new_user
+    await db.commit()
+    
+    # Re-fetch with eager loading to avoid MissingGreenlet error
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
+        .where(User.id == new_user.id)
+    )
+    return result.scalars().first()
 
 async def authenticate_user(db: AsyncSession, email: str, password: str):
     user = await db.execute(select(User).where(User.email == email))
@@ -77,5 +85,12 @@ async def switch_user_role(db: AsyncSession, user: User, target_role: str):
     db.add(log)
     
     await db.commit()
-    await db.refresh(user)
-    return user
+    await db.commit()
+    
+    # Re-fetch with eager loading
+    result = await db.execute(
+        select(User)
+        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
+        .where(User.id == user.id)
+    )
+    return result.scalars().first()
