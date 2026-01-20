@@ -1,0 +1,10 @@
+{
+    "buildCommand": "cd v2_rebuild/frontend && npm install && npm run build",
+    "outputDirectory": "v2_rebuild/frontend/.next",
+    "devCommand": "cd v2_rebuild/frontend && npm run dev",
+    "installCommand": "cd v2_rebuild/frontend && npm install",
+    "framework": "nextjs",
+    "regions": [
+        "iad1"
+    ]
+}
