@@ -8,20 +8,24 @@ from ..services.auth import create_user, authenticate_user, switch_user_role
 from ..core.security import create_access_token
 from .deps import get_current_user
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(tags=["Authentication"])
 
+@router.post("/auth/signup/student", response_model=UserOut)
 @router.post("/signup/student", response_model=UserOut)
 async def signup_student(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
-    """Register as a student"""
+    """Register as a student (Supports both V2 /auth and V1 /signup paths)"""
     return await create_user(db, user_in, initial_role="student")
 
+@router.post("/auth/signup/coach", response_model=UserOut)
 @router.post("/signup/coach", response_model=UserOut)
 async def signup_coach(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
-    """Register as a coach"""
+    """Register as a coach (Supports both V2 /auth and V1 /signup paths)"""
     return await create_user(db, user_in, initial_role="coach")
 
+@router.post("/auth/login", response_model=Token)
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
+    user = await authenticate_user(db, form_data.username, form_data.password)
     user = await authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -33,10 +37,12 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSessi
     access_token = create_access_token(subject=user.email)
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.get("/auth/me", response_model=UserOut)
 @router.get("/me", response_model=UserOut)
 async def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@router.post("/auth/switch-role", response_model=UserOut)
 @router.post("/switch-role", response_model=UserOut)
 async def switch_role(
     target_role: str = Query(..., enum=["student", "coach"]),
