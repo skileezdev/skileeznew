@@ -14,8 +14,13 @@ import {
     Calendar,
     Clock,
     Award,
-    TrendingUp
+    TrendingUp,
+    MessageCircle,
+    Bell
 } from "lucide-react";
+import RecentActivity from "@/components/dashboard/RecentActivity";
+import UpcomingSessions from "@/components/dashboard/UpcomingSessions";
+import PendingItems from "@/components/dashboard/PendingItems";
 
 export default function DashboardPage() {
     const { user, logout, switchRole } = useAuth();
@@ -153,17 +158,15 @@ export default function DashboardPage() {
                         </div>
                     </div>
 
-                    <div className="bg-gradient-to-br from-primary-600 to-purple-700 p-8 rounded-[2.5rem] shadow-xl shadow-primary-200/50 hover:scale-[1.02] transition-all group cursor-pointer">
-                        <h3 className="text-primary-100 font-black uppercase text-[10px] tracking-widest mb-4">Upcoming Sessions</h3>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-5xl font-black text-white">{stats.sessions}</span>
-                            <span className="text-primary-100 font-bold">Remaining</span>
+                    <div className="bg-gradient-to-br from-primary-600 to-purple-700 p-8 rounded-[2.5rem] shadow-xl shadow-primary-200/50 hover:scale-[1.02] transition-all group overflow-hidden">
+                        <div className="relative z-10 h-full flex flex-col">
+                            <h3 className="text-primary-100 font-black uppercase text-[10px] tracking-widest mb-6">Upcoming Sessions</h3>
+                            <div className="flex-1">
+                                <UpcomingSessions />
+                            </div>
                         </div>
-                        <p className="text-primary-50/80 text-sm mt-6 font-medium leading-relaxed">
-                            {user?.current_role === 'student'
-                                ? "Keep going! You're making progress on your goals."
-                                : "Keep inspiring! Your knowledge makes a difference."}
-                        </p>
+                        {/* Decorative background element */}
+                        <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
                     </div>
 
                     <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex flex-col justify-center items-center text-center group">
@@ -189,7 +192,7 @@ export default function DashboardPage() {
                                 <button className="text-sm font-bold text-primary-600 hover:text-primary-700">View All</button>
                             </div>
 
-                            {stats.contracts === 0 ? (
+                            {stats.contracts === 0 && stats.sessions === 0 ? (
                                 <div className="text-center py-12 px-8 border-2 border-dashed border-gray-50 rounded-[2rem]">
                                     <div className="text-4xl mb-4 grayscale opacity-50">📁</div>
                                     <p className="text-gray-400 font-bold mb-6 italic">No activity yet. Let's change that!</p>
@@ -201,16 +204,24 @@ export default function DashboardPage() {
                                     </Link>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
-                                    {/* Placeholder for list of sessions */}
-                                    <p className="text-gray-500 text-center italic">Session history loading...</p>
-                                </div>
+                                <RecentActivity />
                             )}
                         </div>
                     </div>
 
                     {/* Right column / Sidebar Widgets */}
                     <div className="space-y-8">
+                        {/* Pending Items Widget - NEW */}
+                        <div className="bg-white rounded-[2.5rem] border border-gray-100 p-8 shadow-sm">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                                    {user?.current_role === 'student' ? 'Active Requests' : 'Pending Proposals'}
+                                    <span className="w-1.5 h-1.5 bg-amber-500 rounded-full"></span>
+                                </h2>
+                                <Link href={user?.current_role === 'student' ? '/marketplace/manage' : '/find-work'} className="text-[10px] font-bold text-primary-600">View All</Link>
+                            </div>
+                            <PendingItems />
+                        </div>
                         {/* Quick Tips or Announcements */}
                         <div className="bg-indigo-50/50 p-8 rounded-[2.5rem] border border-indigo-100">
                             <div className="flex items-center gap-3 mb-6">

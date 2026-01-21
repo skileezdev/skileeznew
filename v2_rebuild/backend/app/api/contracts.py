@@ -27,6 +27,31 @@ async def get_all_my_sessions(
     )
     return result.scalars().all()
 
+@router.get("/sessions/{session_id}", response_model=SessionOut)
+async def get_session_detail(
+    session_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get detailed session information for the waiting room"""
+    result = await db.execute(
+        select(Session)
+        .where(Session.id == session_id)
+        .options(
+            selectinload(Session.proposal).selectinload(Proposal.contract).selectinload(Contract.student),
+            selectinload(Session.proposal).selectinload(Proposal.contract).selectinload(Contract.coach)
+        )
+    )
+    session = result.scalars().first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+        
+    # Auth check
+    if session.contract.student_id != current_user.id and session.contract.coach_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+    return session
+
 @router.get("", response_model=List[ContractOut])
 async def get_my_contracts(
     current_user: User = Depends(get_current_user),

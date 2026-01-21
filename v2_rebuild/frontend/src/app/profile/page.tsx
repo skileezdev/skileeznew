@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Edit2, Save, MapPin, DollarSign, Award, Briefcase, Book, Folder, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function ProfilePage() {
     const { user } = useAuth();
@@ -121,13 +122,20 @@ export default function ProfilePage() {
                                 </div>
                                 <div className="text-center">
                                     <div className="text-2xl font-black text-gray-900 flex items-center gap-1">
-                                        {profile?.rating || 5.0}
+                                        {profile?.coach_profile?.rating || 5.0}
                                         <Star size={16} className="text-yellow-400 fill-yellow-400" />
                                     </div>
                                     <div className="text-xs text-gray-500 font-medium">Rating</div>
                                 </div>
                             </div>
                         )}
+
+                        <Link
+                            href="/profile/edit"
+                            className="ml-auto flex items-center gap-2 py-3 px-6 bg-gray-900 text-white font-black rounded-2xl hover:bg-black transition-all shadow-lg active:scale-95"
+                        >
+                            <Edit2 size={18} /> Edit Profile
+                        </Link>
                     </div>
                 </div>
 
@@ -162,7 +170,7 @@ export default function ProfilePage() {
                                     </div>
                                 ) : (
                                     <div className="flex flex-wrap gap-2">
-                                        {profile?.skills?.split(",").map((skill: string, i: number) => (
+                                        {(isCoach ? profile?.coach_profile?.skills : profile?.student_profile?.interests)?.split(",").map((skill: string, i: number) => (
                                             <span key={i} className="px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold border border-green-200">
                                                 {skill.trim()}
                                             </span>
@@ -281,12 +289,20 @@ export default function ProfilePage() {
                                             </button>
                                         </div>
 
-                                        {/* Sample Experience */}
-                                        <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
-                                            <h4 className="text-lg font-bold text-gray-900 mb-1">Senior Developer</h4>
-                                            <p className="text-blue-600 font-semibold mb-2">Tech Company Inc.</p>
-                                            <p className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full inline-block">Jan 2020 - Present</p>
-                                        </div>
+                                        {profile?.coach_profile?.experience?.length > 0 ? (
+                                            profile.coach_profile.experience.map((exp: any) => (
+                                                <div key={exp.id} className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+                                                    <h4 className="text-lg font-bold text-gray-900 mb-1">{exp.title}</h4>
+                                                    <p className="text-blue-600 font-semibold mb-2">{exp.company}</p>
+                                                    <p className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full inline-block">
+                                                        {new Date(exp.start_date).toLocaleDateString()} - {exp.is_current ? "Present" : exp.end_date ? new Date(exp.end_date).toLocaleDateString() : ""}
+                                                    </p>
+                                                    {exp.description && <p className="mt-3 text-sm text-gray-600 leading-relaxed">{exp.description}</p>}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-gray-400 italic">No experience added yet.</p>
+                                        )}
 
                                         {/* Education */}
                                         <div className="mt-8">
@@ -294,10 +310,18 @@ export default function ProfilePage() {
                                                 <Book size={20} className="text-purple-500" />
                                                 Education
                                             </h3>
-                                            <div className="bg-purple-50 rounded-xl p-6 border border-purple-100">
-                                                <h4 className="text-lg font-bold text-gray-900 mb-1">Computer Science</h4>
-                                                <p className="text-purple-600 font-semibold mb-2">University Name</p>
-                                                <p className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full inline-block">2016 - 2020</p>
+                                            <div className="space-y-4">
+                                                {profile?.coach_profile?.education?.length > 0 ? (
+                                                    profile.coach_profile.education.map((edu: any) => (
+                                                        <div key={edu.id} className="bg-purple-50 rounded-xl p-6 border border-purple-100">
+                                                            <h4 className="text-lg font-bold text-gray-900 mb-1">{edu.degree}</h4>
+                                                            <p className="text-purple-600 font-semibold mb-2">{edu.institution}</p>
+                                                            {edu.field_of_study && <p className="text-sm text-gray-500 mb-2">{edu.field_of_study}</p>}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <p className="text-gray-400 italic">No education details added yet.</p>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

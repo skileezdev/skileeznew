@@ -49,8 +49,7 @@ export default function SignupPage() {
             });
             router.push("/auth/login?registered=true");
         } catch (err: any) {
-            const detail = err.response?.data?.detail;
-            setError(typeof detail === 'string' ? detail : JSON.stringify(detail) || "Registration failed. Please try again.");
+            setError(err.response?.data?.detail || "Registration failed. Please try again.");
         } finally {
             setLoading(false);
         }

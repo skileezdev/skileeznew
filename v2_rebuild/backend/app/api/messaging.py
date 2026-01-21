@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import or_
+from sqlalchemy.orm import selectinload
+from sqlalchemy import or_, and_, desc
 from typing import List
 from datetime import datetime, timezone
 
 from ..models.database import get_db
 from ..models.messaging import Message, Notification
 from ..models.user import User
+from ..models.marketplace import Contract, Proposal, LearningRequest
 from ..schemas.messaging import MessageCreate, MessageOut, NotificationOut
 from .deps import get_current_user
 
@@ -111,3 +113,58 @@ async def get_conversations(
             }
             
     return list(partners.values())
+
+@router.get("/context/{other_user_id}")
+async def get_conversation_context(
+    other_user_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get the active context (Contract or Proposal) between two users"""
+    # 1. Check for active contract
+    contract_res = await db.execute(
+        select(Contract)
+        .where(
+            or_(
+                (Contract.student_id == current_user.id) & (Contract.coach_id == other_user_id),
+                (Contract.student_id == other_user_id) & (Contract.coach_id == current_user.id)
+            )
+        )
+        .order_by(Contract.created_at.desc())
+    )
+    contract = contract_res.scalars().first()
+    if contract:
+        return {
+            "type": "contract",
+            "id": contract.id,
+            "status": contract.status,
+            "title": f"Contract #{contract.contract_number}",
+            "amount": float(contract.total_amount),
+            "sessions": contract.total_sessions
+        }
+        
+    # 2. Check for pending proposal
+    proposal_res = await db.execute(
+        select(Proposal)
+        .join(LearningRequest)
+        .where(
+            or_(
+                (Proposal.coach_id == current_user.id) & (LearningRequest.student_id == other_user_id),
+                (Proposal.coach_id == other_user_id) & (LearningRequest.student_id == current_user.id)
+            )
+        )
+        .order_by(Proposal.created_at.desc())
+        .options(selectinload(Proposal.learning_request))
+    )
+    proposal = proposal_res.scalars().first()
+    if proposal:
+        return {
+            "type": "proposal",
+            "id": proposal.id,
+            "status": proposal.status,
+            "title": proposal.learning_request.title,
+            "amount": proposal.price_per_session,
+            "sessions": proposal.session_count
+        }
+        
+    return None

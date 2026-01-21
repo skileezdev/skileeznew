@@ -4,10 +4,60 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 
-interface Profile {
+// Extended Profile Interfaces
+interface Experience {
+    title: string;
+    company: string;
+    start_date: string;
+    is_current: boolean;
+}
+
+interface Education {
+    degree: string;
+    institution: string;
+}
+
+interface PortfolioItem {
+    title: string;
+    description: string;
+    category: string;
+}
+
+interface Language {
+    language: string;
+    proficiency: string;
+}
+
+interface CoachProfile {
     id: number;
     bio?: string;
     profile_picture?: string;
+    coach_title?: string;
+    hourly_rate?: number;
+
+    // V1 specific
+    goal?: string;
+    skills?: string;
+    country?: string;
+    phone_number?: string;
+    date_of_birth?: string;
+    onboarding_step?: number;
+
+    experience?: Experience[];
+    education?: Education[];
+    portfolio_items?: PortfolioItem[];
+    languages?: Language[];
+}
+
+interface StudentProfile {
+    id: number;
+    bio?: string;
+    profile_picture?: string;
+
+    // V1 specific
+    age?: number;
+    country?: string;
+    languages?: Language[];
 }
 
 interface User {
@@ -20,8 +70,8 @@ interface User {
     current_role: "student" | "coach";
     onboarding_completed: boolean;
     profile_completion_percentage: number;
-    student_profile?: Profile;
-    coach_profile?: Profile;
+    student_profile?: StudentProfile;
+    coach_profile?: CoachProfile;
 }
 
 interface AuthContextType {

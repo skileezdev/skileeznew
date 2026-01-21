@@ -8,9 +8,22 @@ import { MessageBubble } from "@/components/chat/MessageBubble";
 import { MessageInput } from "@/components/chat/MessageInput";
 import { MessageSquare, MoreVertical, Phone, Video } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSearchParams } from "next/navigation";
+import ContextSidebar from "@/components/chat/ContextSidebar";
+import { Suspense } from "react";
 
 export default function MessagesPage() {
+    return (
+        <Suspense fallback={<div>Loading messaging...</div>}>
+            <MessagesContent />
+        </Suspense>
+    );
+}
+
+function MessagesContent() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
+    const initialUserId = searchParams.get("userId");
 
     interface Conversation {
         user_id: number;
@@ -53,11 +66,16 @@ export default function MessagesPage() {
             }
         };
 
-        fetchConversations();
+        fetchConversations().then(() => {
+            if (initialUserId) {
+                setActiveConversationId(parseInt(initialUserId));
+            }
+        });
+
         // Poll every 10s for new message previews
         const interval = setInterval(fetchConversations, 10000);
         return () => clearInterval(interval);
-    }, [user]);
+    }, [user, initialUserId]);
 
     // Fetch Messages for Active Conversation
     useEffect(() => {
@@ -200,6 +218,7 @@ export default function MessagesPage() {
                                                 isOwn={msg.sender_id === user?.id}
                                                 isRead={msg.is_read}
                                                 senderName={msg.sender_id === user?.id ? "You" : activeUser?.name}
+                                                messageType={msg.message_type}
                                             />
                                         ))
                                     )}
@@ -218,6 +237,11 @@ export default function MessagesPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Context Sidebar - NEW */}
+                    {activeConversationId && (
+                        <ContextSidebar otherUserId={activeConversationId} />
+                    )}
                 </div>
             </div>
         </div>

@@ -11,9 +11,21 @@ interface MessageBubbleProps {
     isRead?: boolean;
     senderName?: string;
     avatar?: string;
+    messageType?: "TEXT" | "SYSTEM" | "CONTRACT_OFFER" | "CALL_SCHEDULED";
 }
 
-export function MessageBubble({ content, isOwn, timestamp, isRead, senderName, avatar }: MessageBubbleProps) {
+export function MessageBubble({ content, isOwn, timestamp, isRead, senderName, avatar, messageType = "TEXT" }: MessageBubbleProps) {
+    if (messageType === "SYSTEM") {
+        return (
+            <div className="flex justify-center w-full mb-6">
+                <div className="px-5 py-2 bg-gray-100/80 backdrop-blur-sm border border-gray-100 rounded-full flex items-center gap-2">
+                    <span className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                    <p className="text-[11px] font-black text-gray-500 uppercase tracking-[0.1em]">{content}</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={cn("flex w-full mb-4", isOwn ? "justify-end" : "justify-start")}>
             {!isOwn && (

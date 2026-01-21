@@ -4,9 +4,10 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from typing import List, Optional
 from datetime import datetime, timezone
+from sqlalchemy import delete
 
 from ..models.database import get_db
-from ..models.marketplace import LearningRequest, Proposal, Contract, Session, ScreeningQuestion, ScreeningAnswer
+from ..models.marketplace import LearningRequest, Proposal, Contract, Session, ScreeningQuestion, ScreeningAnswer, SavedJob
 from ..models.user import User, CoachProfile
 from ..schemas.marketplace import (
     LearningRequestCreate, 
@@ -115,6 +116,106 @@ async def create_request(
         )
     )
     return result.scalar_one()
+
+@router.get("/requests/{request_id}", response_model=LearningRequestOut)
+async def get_request_detail(
+    request_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """Get details for a specific learning request"""
+    result = await db.execute(
+        select(LearningRequest)
+        .where(LearningRequest.id == request_id)
+        .options(
+            selectinload(LearningRequest.student),
+            selectinload(LearningRequest.screening_questions)
+        )
+    )
+    request = result.scalars().first()
+    if not request:
+        raise HTTPException(status_code=404, detail="Request not found")
+    return request
+
+@router.get("/requests/{request_id}/proposals", response_model=List[ProposalOut])
+async def get_request_proposals(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """List all proposals for a specific learning request (Owner only)"""
+    # 1. Verify ownership
+    result = await db.execute(select(LearningRequest).where(LearningRequest.id == request_id))
+    request = result.scalars().first()
+    if not request or request.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    
+    # 2. Get proposals
+    result = await db.execute(
+        select(Proposal)
+        .where(Proposal.learning_request_id == request_id)
+        .options(selectinload(Proposal.coach))
+        .order_by(Proposal.created_at.desc())
+    )
+    return result.scalars().all()
+
+@router.get("/proposals/{proposal_id}", response_model=ProposalOut)
+async def get_proposal_detail(
+    proposal_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get detailed proposal information"""
+    result = await db.execute(
+        select(Proposal)
+        .where(Proposal.id == proposal_id)
+        .options(
+            selectinload(Proposal.learning_request).selectinload(LearningRequest.student),
+            selectinload(Proposal.coach)
+        )
+    )
+    proposal = result.scalars().first()
+    if not proposal:
+        raise HTTPException(status_code=404, detail="Proposal not found")
+        
+    # Auth
+    if proposal.coach_id != current_user.id and proposal.learning_request.student_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Forbidden")
+        
+    return proposal
+
+@router.get("/requests/me", response_model=List[LearningRequestOut])
+async def get_my_requests(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """List current user's learning requests"""
+    result = await db.execute(
+        select(LearningRequest)
+        .where(LearningRequest.student_id == current_user.id)
+        .options(
+            selectinload(LearningRequest.student),
+            selectinload(LearningRequest.screening_questions)
+        )
+        .order_by(LearningRequest.created_at.desc())
+    )
+    return result.scalars().all()
+
+@router.get("/proposals/me", response_model=List[ProposalOut])
+async def get_my_proposals(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """List current user's submitted proposals (Coach only)"""
+    result = await db.execute(
+        select(Proposal)
+        .where(Proposal.coach_id == current_user.id)
+        .options(
+            selectinload(Proposal.learning_request).selectinload(LearningRequest.student),
+            selectinload(Proposal.coach)
+        )
+        .order_by(Proposal.created_at.desc())
+    )
+    return result.scalars().all()
 
 @router.post("/proposals", response_model=ProposalOut)
 async def submit_proposal(
@@ -227,5 +328,62 @@ async def accept_proposal(
         db.add(session)
     
     await db.commit()
-    await db.refresh(new_contract)
-    return new_contract
+    return {"message": "Proposal accepted", "contract_id": new_contract.id}
+
+@router.post("/requests/{request_id}/save")
+async def save_request(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Save a learning request for later"""
+    # Check if exists
+    result = await db.execute(select(LearningRequest).where(LearningRequest.id == request_id))
+    if not result.scalars().first():
+        raise HTTPException(status_code=404, detail="Request not found")
+        
+    # Check if already saved
+    saved_res = await db.execute(
+        select(SavedJob).where(
+            SavedJob.coach_id == current_user.id,
+            SavedJob.learning_request_id == request_id
+        )
+    )
+    if saved_res.scalars().first():
+        return {"message": "Already saved"}
+        
+    new_save = SavedJob(coach_id=current_user.id, learning_request_id=request_id)
+    db.add(new_save)
+    await db.commit()
+    return {"message": "Request saved"}
+
+@router.delete("/requests/{request_id}/save")
+async def unsave_request(
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Unsave a learning request"""
+    from sqlalchemy import delete
+    await db.execute(
+        delete(SavedJob).where(
+            SavedJob.coach_id == current_user.id,
+            SavedJob.learning_request_id == request_id
+        )
+    )
+    await db.commit()
+    return {"message": "Request unsaved"}
+
+@router.get("/requests/saved")
+async def get_saved_requests(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all learning requests saved by the current coach"""
+    result = await db.execute(
+        select(LearningRequest)
+        .join(SavedJob)
+        .where(SavedJob.coach_id == current_user.id)
+        .options(selectinload(LearningRequest.student))
+    )
+    return result.scalars().all()

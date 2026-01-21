@@ -93,50 +93,144 @@ END $$;
 """
 
 FIX_MISSING_COLUMNS = """
--- 3. Add missing columns to User table
+-- 3. Add missing columns and tables for V1 Parity
 DO $$
 BEGIN
+    -- USER TABLE UPDATES
+    
     -- role_switch_count
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'role_switch_count') THEN
         ALTER TABLE "user" ADD COLUMN role_switch_count INTEGER DEFAULT 0;
-        RAISE NOTICE 'Added role_switch_count to user table';
     END IF;
 
     -- preferred_default_role
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'preferred_default_role') THEN
         ALTER TABLE "user" ADD COLUMN preferred_default_role VARCHAR(20);
-        RAISE NOTICE 'Added preferred_default_role to user table';
     END IF;
 
     -- stripe_customer_id
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'stripe_customer_id') THEN
         ALTER TABLE "user" ADD COLUMN stripe_customer_id VARCHAR(255);
-        RAISE NOTICE 'Added stripe_customer_id to user table';
     END IF;
 
     -- last_role_switch
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'last_role_switch') THEN
         ALTER TABLE "user" ADD COLUMN last_role_switch TIMESTAMP WITH TIME ZONE;
-        RAISE NOTICE 'Added last_role_switch to user table';
     END IF;
 
-    -- email_verified (Ensure it exists as it is crucial)
+    -- email_verified
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'email_verified') THEN
         ALTER TABLE "user" ADD COLUMN email_verified BOOLEAN DEFAULT FALSE;
-        RAISE NOTICE 'Added email_verified to user table';
     END IF;
 
     -- onboarding_completed
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'onboarding_completed') THEN
         ALTER TABLE "user" ADD COLUMN onboarding_completed BOOLEAN DEFAULT FALSE;
-        RAISE NOTICE 'Added onboarding_completed to user table';
     END IF;
 
     -- profile_completion_percentage
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'profile_completion_percentage') THEN
         ALTER TABLE "user" ADD COLUMN profile_completion_percentage INTEGER DEFAULT 0;
-        RAISE NOTICE 'Added profile_completion_percentage to user table';
     END IF;
+    
+    -- Email Verification Fields
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'verification_token') THEN
+        ALTER TABLE "user" ADD COLUMN verification_token VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'token_created_at') THEN
+        ALTER TABLE "user" ADD COLUMN token_created_at TIMESTAMP WITH TIME ZONE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'new_email') THEN
+        ALTER TABLE "user" ADD COLUMN new_email VARCHAR(120);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'email_change_token') THEN
+        ALTER TABLE "user" ADD COLUMN email_change_token VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user' AND column_name = 'email_change_token_created_at') THEN
+        ALTER TABLE "user" ADD COLUMN email_change_token_created_at TIMESTAMP WITH TIME ZONE;
+    END IF;
+
+    -- STUDENT PROFILE UPDATES
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'student_profile' AND column_name = 'age') THEN
+        ALTER TABLE "student_profile" ADD COLUMN age INTEGER;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'student_profile' AND column_name = 'preferred_languages') THEN
+        ALTER TABLE "student_profile" ADD COLUMN preferred_languages VARCHAR(255);
+    END IF;
+
+    -- COACH PROFILE UPDATES
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'goal') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN goal VARCHAR(50);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'skills') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN skills TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'country') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN country VARCHAR(100);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'phone_number') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN phone_number VARCHAR(20);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'date_of_birth') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN date_of_birth DATE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'stripe_account_id') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN stripe_account_id VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'onboarding_step') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN onboarding_step INTEGER DEFAULT 1;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'coach_profile' AND column_name = 'total_earnings') THEN
+        ALTER TABLE "coach_profile" ADD COLUMN total_earnings NUMERIC(12, 2) DEFAULT 0.00;
+    END IF;
+
+    -- PORTFOLIO ITEM UPDATES (V2 had almost no fields)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'title') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN title VARCHAR(100) NOT NULL DEFAULT 'Untitled';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'description') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN description TEXT NOT NULL DEFAULT '';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'category') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN category VARCHAR(50) DEFAULT 'work_sample';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'project_links') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN project_links TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'thumbnail_image') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN thumbnail_image VARCHAR(500);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'skills') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN skills VARCHAR(255);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'created_at') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'portfolio_item' AND column_name = 'updated_at') THEN
+        ALTER TABLE "portfolio_item" ADD COLUMN updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+    END IF;
+
+    -- CREATE NEW TABLES IF NOT EXIST (Language, StudentLanguage)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'language') THEN
+        CREATE TABLE language (
+            id SERIAL PRIMARY KEY,
+            coach_profile_id INTEGER NOT NULL REFERENCES coach_profile(id) ON DELETE CASCADE,
+            language VARCHAR(50) NOT NULL,
+            proficiency VARCHAR(20) NOT NULL
+        );
+        CREATE INDEX ix_language_id ON language (id);
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'student_language') THEN
+        CREATE TABLE student_language (
+            id SERIAL PRIMARY KEY,
+            student_profile_id INTEGER NOT NULL REFERENCES student_profile(id) ON DELETE CASCADE,
+            language VARCHAR(50) NOT NULL,
+            proficiency VARCHAR(20) NOT NULL
+        );
+        CREATE INDEX ix_student_language_id ON student_language (id);
+    END IF;
+
 END $$;
 """
 

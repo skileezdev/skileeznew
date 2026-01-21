@@ -13,7 +13,8 @@ import {
     Zap,
     ChevronRight,
     Users,
-    ShoppingBag
+    ShoppingBag,
+    Heart
 } from "lucide-react";
 
 interface ScreeningQuestion {
@@ -43,6 +44,8 @@ export default function MarketplacePage() {
     const [selectedRequest, setSelectedRequest] = useState<LearningRequest | null>(null);
     const [success, setSuccess] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [activeTab, setActiveTab] = useState("all"); // "all", "saved"
+    const [savedIds, setSavedIds] = useState<number[]>([]);
 
     const fetchRequests = async () => {
         setLoading(true);
@@ -56,14 +59,43 @@ export default function MarketplacePage() {
         }
     };
 
+    const fetchSavedIds = async () => {
+        try {
+            const res = await api.get("/marketplace/requests/saved");
+            setSavedIds(res.data.map((r: any) => r.id));
+        } catch (err) {
+            console.error("Failed to fetch saved ids", err);
+        }
+    }
+
     useEffect(() => {
         fetchRequests();
+        fetchSavedIds();
     }, []);
 
-    const filteredRequests = requests.filter(req =>
-        req.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const toggleSave = async (e: React.MouseEvent, requestId: number) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isSaved = savedIds.includes(requestId);
+        try {
+            if (isSaved) {
+                await api.delete(`/marketplace/requests/${requestId}/save`);
+                setSavedIds(prev => prev.filter(id => id !== requestId));
+            } else {
+                await api.post(`/marketplace/requests/${requestId}/save`);
+                setSavedIds(prev => [...prev, requestId]);
+            }
+        } catch (err) {
+            console.error("Failed to toggle save", err);
+        }
+    };
+
+    const filteredRequests = requests.filter(req => {
+        const matchesSearch = req.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            req.description.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesTab = activeTab === "all" || savedIds.includes(req.id);
+        return matchesSearch && matchesTab;
+    });
 
     return (
         <div className="min-h-screen bg-[#FDFDFF] p-8 md:p-12 font-inter">
@@ -108,9 +140,20 @@ export default function MarketplacePage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button className="px-8 py-4 bg-white border border-gray-100 rounded-[2rem] shadow-sm font-bold text-gray-500 flex items-center gap-2 hover:bg-gray-50 transition-all active:scale-95">
-                        <Filter size={18} /> Filters
-                    </button>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setActiveTab("all")}
+                            className={`px-8 py-4 rounded-[2rem] shadow-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${activeTab === 'all' ? "bg-gray-900 text-white" : "bg-white border border-gray-100 text-gray-500 hover:bg-gray-50"}`}
+                        >
+                            Explore All
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("saved")}
+                            className={`px-8 py-4 rounded-[2rem] shadow-sm font-bold flex items-center gap-2 transition-all active:scale-95 ${activeTab === 'saved' ? "bg-gray-900 text-white" : "bg-white border border-gray-100 text-gray-500 hover:bg-gray-50"}`}
+                        >
+                            <Heart size={18} className={activeTab === 'saved' ? "fill-white" : ""} /> Saved Items
+                        </button>
+                    </div>
                 </div>
 
                 {loading ? (
@@ -134,15 +177,28 @@ export default function MarketplacePage() {
                                             </span>
                                         )}
                                     </div>
-                                    <div className="flex items-center gap-1 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-50">
-                                        <Users size={14} className="fill-amber-100" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">3 Spots Left!</span>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-1 text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-50">
+                                            <Users size={14} className="fill-amber-100" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">3 Spots Left!</span>
+                                        </div>
+                                        <button
+                                            onClick={(e) => toggleSave(e, req.id)}
+                                            className={`p-2.5 rounded-xl transition-all border ${savedIds.includes(req.id)
+                                                ? "bg-red-50 border-red-100 text-red-500"
+                                                : "bg-gray-50 border-transparent text-gray-300 hover:text-red-400"
+                                                }`}
+                                        >
+                                            <Heart size={18} className={savedIds.includes(req.id) ? "fill-red-500" : ""} />
+                                        </button>
                                     </div>
                                 </div>
 
                                 <div className="mb-6">
-                                    <h3 className="text-3xl font-black text-gray-900 group-hover:text-primary-600 transition-colors leading-tight mb-2">
-                                        {req.title}
+                                    <h3 className="text-3xl font-black text-gray-900 hover:text-primary-600 transition-colors leading-tight mb-2">
+                                        <Link href={`/marketplace/${req.id}`}>
+                                            {req.title}
+                                        </Link>
                                     </h3>
                                     <div className="flex items-center gap-2 text-gray-400 text-sm font-medium">
                                         <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center text-[10px] font-black text-gray-600">

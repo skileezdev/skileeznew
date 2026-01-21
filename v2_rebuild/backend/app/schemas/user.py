@@ -43,11 +43,31 @@ class EducationOut(EducationBase):
     class Config:
         from_attributes = True
 
+class LanguageBase(BaseModel):
+    language: str
+    proficiency: str
+
+class LanguageOut(LanguageBase):
+    id: int
+    class Config:
+        from_attributes = True
+
+class StudentLanguageBase(BaseModel):
+    language: str
+    proficiency: str
+
+class StudentLanguageOut(StudentLanguageBase):
+    id: int
+    class Config:
+        from_attributes = True
+
 class PortfolioItemBase(BaseModel):
     title: str
-    description: Optional[str] = None
-    url: Optional[str] = None
-    image_url: Optional[str] = None
+    description: str
+    category: str = "work_sample"
+    project_links: Optional[str] = None
+    thumbnail_image: Optional[str] = None
+    skills: Optional[str] = None
 
 class PortfolioItemOut(PortfolioItemBase):
     id: int
@@ -60,8 +80,9 @@ class StudentProfileOut(BaseModel):
     bio: Optional[str] = None
     profile_picture: Optional[str] = None
     country: Optional[str] = None
-    learning_goals: Optional[List[str]] = []
-    interests: Optional[List[str]] = []
+    age: Optional[int] = None
+    preferred_languages: Optional[str] = None
+    languages: List[StudentLanguageOut] = []
     class Config:
         from_attributes = True
 
@@ -72,12 +93,21 @@ class CoachProfileOut(BaseModel):
     hourly_rate: Optional[float] = None
     is_approved: bool
     rating: float
-    is_stripe_enabled: bool = False
-    tier: str = "standard"
     total_earnings: Decimal = Decimal("0.00")
+    
+    # V1 Fields
+    goal: Optional[str] = None
+    skills: Optional[str] = None
+    country: Optional[str] = None
+    phone_number: Optional[str] = None
+    date_of_birth: Optional[date] = None
+    stripe_account_id: Optional[str] = None
+    onboarding_step: int = 1
+    
     experience: List[ExperienceOut] = []
     education: List[EducationOut] = []
     portfolio_items: List[PortfolioItemOut] = []
+    languages: List[LanguageOut] = []
     class Config:
         from_attributes = True
 

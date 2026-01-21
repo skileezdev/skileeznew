@@ -126,3 +126,13 @@ class Session(Base):
     @property
     def contract(self):
         return self.proposal.contract
+
+class SavedJob(Base):
+    __tablename__ = "saved_job"
+    id = Column(Integer, primary_key=True)
+    coach_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    learning_request_id = Column(Integer, ForeignKey("learning_request.id"), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
+
+    coach = relationship("User", backref="saved_jobs")
+    learning_request = relationship("LearningRequest", backref="saved_by")
