@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/api";
@@ -22,6 +22,17 @@ export default function SignupPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Initial role from query param
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const role = params.get("role");
+        if (role === "coach") {
+            setFormData(prev => ({ ...prev, is_student: false, is_coach: true }));
+        } else if (role === "student") {
+            setFormData(prev => ({ ...prev, is_student: true, is_coach: false }));
+        }
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -31,22 +42,30 @@ export default function SignupPage() {
             return;
         }
 
+        // V1 Parity: Only one role per registration
+        if (formData.is_student && formData.is_coach) {
+            setError("Please register as either a Student or a Coach. You can add the other role later.");
+            return;
+        }
+
         if (!formData.is_student && !formData.is_coach) {
-            setError("Please select at least one role");
+            setError("Please select a role to join as.");
             return;
         }
 
         setLoading(true);
 
+        const role = formData.is_student ? "student" : "coach";
+        const endpoint = `/auth/signup/${role}`;
+
         try {
-            await api.post("/auth/signup", {
+            await api.post(endpoint, {
                 first_name: formData.first_name,
                 last_name: formData.last_name,
                 email: formData.email,
                 password: formData.password,
-                is_student: formData.is_student,
-                is_coach: formData.is_coach,
             });
+            // V1 Parity: Register -> Login
             router.push("/auth/login?registered=true");
         } catch (err: any) {
             setError(err.response?.data?.detail || "Registration failed. Please try again.");
@@ -90,7 +109,7 @@ export default function SignupPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, is_student: !formData.is_student })}
+                                    onClick={() => setFormData({ ...formData, is_student: true, is_coach: false })}
                                     className={`p-4 rounded-xl border-2 transition-all ${formData.is_student
                                         ? "border-primary bg-primary/5 shadow-md"
                                         : "border-gray-200 hover:border-gray-300"
@@ -103,7 +122,7 @@ export default function SignupPage() {
 
                                 <button
                                     type="button"
-                                    onClick={() => setFormData({ ...formData, is_coach: !formData.is_coach })}
+                                    onClick={() => setFormData({ ...formData, is_student: false, is_coach: true })}
                                     className={`p-4 rounded-xl border-2 transition-all ${formData.is_coach
                                         ? "border-purple-600 bg-purple-50 shadow-md"
                                         : "border-gray-200 hover:border-gray-300"

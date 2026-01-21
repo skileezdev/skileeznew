@@ -107,14 +107,10 @@ export default function DashboardPage() {
                             <span className="px-3 py-1 bg-primary-100 text-primary-600 text-[10px] font-black uppercase tracking-widest rounded-full">
                                 {user?.current_role === 'student' ? 'Learner' : 'Coach'} Mode
                             </span>
-                            {user?.onboarding_completed ? (
+                            {user?.onboarding_completed && (
                                 <span className="flex items-center gap-1 text-green-500 text-[10px] font-black uppercase tracking-widest">
                                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                                     Profile Active
-                                </span>
-                            ) : (
-                                <span className="text-amber-500 text-[10px] font-black uppercase tracking-widest underline decoration-2 cursor-pointer">
-                                    Complete Onboarding
                                 </span>
                             )}
                         </div>

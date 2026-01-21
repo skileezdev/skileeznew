@@ -42,6 +42,7 @@ interface CoachProfile {
     phone_number?: string;
     date_of_birth?: string;
     onboarding_step?: number;
+    is_approved: boolean;
 
     experience?: Experience[];
     education?: Education[];
@@ -122,8 +123,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(userData);
             localStorage.setItem("skileez_user", JSON.stringify(userData));
 
+            // V1 Parity Flow: Register -> Login -> Onboarding -> (Coach Only) Admin Approval -> Dashboard
             if (!userData.onboarding_completed) {
                 router.push("/onboarding");
+            } else if (userData.current_role === "coach" && !userData.coach_profile?.is_approved) {
+                router.push("/onboarding/pending");
             } else {
                 router.push("/dashboard");
             }

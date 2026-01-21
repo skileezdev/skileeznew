@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { api } from '@/services/api';
+import api from '@/lib/api';
 import {
     COACH_GOALS,
     PROFICIENCIES,
@@ -161,7 +161,7 @@ export default function CoachWizard() {
             if (step < 9) {
                 setStep(prev => prev + 1);
             } else {
-                router.push('/dashboard');
+                router.push('/onboarding/pending');
             }
 
         } catch (err: any) {

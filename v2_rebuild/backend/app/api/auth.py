@@ -10,13 +10,15 @@ from .deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
-@router.post("/signup", response_model=UserOut)
-async def signup(
-    user_in: UserCreate, 
-    initial_role: str = Query("student", enum=["student", "coach"]),
-    db: AsyncSession = Depends(get_db)
-):
-    return await create_user(db, user_in, initial_role=initial_role)
+@router.post("/signup/student", response_model=UserOut)
+async def signup_student(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+    """Register as a student"""
+    return await create_user(db, user_in, initial_role="student")
+
+@router.post("/signup/coach", response_model=UserOut)
+async def signup_coach(user_in: UserCreate, db: AsyncSession = Depends(get_db)):
+    """Register as a coach"""
+    return await create_user(db, user_in, initial_role="coach")
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: AsyncSession = Depends(get_db)):
