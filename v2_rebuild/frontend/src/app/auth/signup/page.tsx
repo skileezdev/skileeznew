@@ -56,7 +56,7 @@ export default function SignupPage() {
         setLoading(true);
 
         const role = formData.is_student ? "student" : "coach";
-        const endpoint = `/auth/signup/${role}`;
+        const endpoint = `auth/signup/${role}`;
 
         try {
             await api.post(endpoint, {

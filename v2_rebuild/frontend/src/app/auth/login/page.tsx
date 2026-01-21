@@ -27,22 +27,12 @@ export default function LoginPage() {
             formData.append('username', email);
             formData.append('password', password);
 
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-            const response = await fetch(`${baseUrl}/auth/login`, {
-                method: 'POST',
+            const res = await api.post('/auth/login', formData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: formData,
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw { response: { data: errorData } }; // Mimic Axios error structure for catch block
-            }
-
-            const data = await response.json();
-            await login(data.access_token);
+            await login(res.data.access_token);
         } catch (err: any) {
             const detail = err.response?.data?.detail;
             setError(typeof detail === 'string' ? detail : JSON.stringify(detail) || "Invalid email or password");
