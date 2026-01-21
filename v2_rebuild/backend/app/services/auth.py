@@ -11,11 +11,14 @@ async def get_user_by_email(db: AsyncSession, email: str):
     result = await db.execute(
         select(User)
         .options(
-            selectinload(User.student_profile),
+            selectinload(User.student_profile).options(
+                selectinload(StudentProfile.languages)
+            ),
             selectinload(User.coach_profile).options(
                 selectinload(CoachProfile.experience),
                 selectinload(CoachProfile.education),
-                selectinload(CoachProfile.portfolio_items)
+                selectinload(CoachProfile.portfolio_items),
+                selectinload(CoachProfile.languages)
             )
         )
         .where(User.email == email)
@@ -54,14 +57,8 @@ async def create_user(db: AsyncSession, user_in: UserCreate, initial_role: str =
         
     await db.commit()
     
-    # Re-fetch with eager loading to avoid MissingGreenlet error
-    # Use the captured ID instead of accessing the expired object
-    result = await db.execute(
-        select(User)
-        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
-        .where(User.id == new_user_id)
-    )
-    return result.scalars().first()
+    # Re-fetch with eager loading using get_user_by_email
+    return await get_user_by_email(db, user_in.email)
 
 async def authenticate_user(db: AsyncSession, email: str, password: str):
     user = await db.execute(select(User).where(User.email == email))
@@ -104,9 +101,4 @@ async def switch_user_role(db: AsyncSession, user: User, target_role: str):
     await db.commit()
     
     # Re-fetch with eager loading
-    result = await db.execute(
-        select(User)
-        .options(selectinload(User.student_profile), selectinload(User.coach_profile))
-        .where(User.id == user_id)
-    )
-    return result.scalars().first()
+    return await get_user_by_email(db, user.email)
